@@ -21,7 +21,7 @@ public class MySQLAccess {
 		Class.forName("com.mysql.jdbc.Driver");
 		// Setup the connection with the DB
 		connect = DriverManager
-				.getConnection("jdbc:mysql://localhost:3306/test?"
+				.getConnection("jdbc:mysql://localhost:3306/software_security?"
 						+ "user=root&password=Incredibles9");
 	}
 	
@@ -31,10 +31,24 @@ public class MySQLAccess {
 			statement = connect.createStatement();
 			// Result set get the result of the SQL query
 			ResultSet resultSet = statement
-					.executeQuery("select * from test.user_auth");
+					.executeQuery("select * from software_security.user_auth");
 			ArrayList<User> users = writeResultSet(resultSet);
 			resultSet.close();
 			return users;
+			
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
+	public ResultSet readLoginDataBase(String userName) throws Exception {
+		try {						
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_user_details JOIN "
+					+ "software_security.tbl_user_authentication ON tbl_user_details.username=tbl_user_authentication.username "
+					+ "where tbl_user_authentication.username = ?");    
+			preparedStatement.setString(1, userName);    
+			ResultSet resultSet = preparedStatement.executeQuery();
+			return resultSet;
 			
 		} catch (Exception e) {
 			throw e;

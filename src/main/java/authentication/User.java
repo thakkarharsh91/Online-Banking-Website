@@ -10,12 +10,15 @@ public class User implements UserDetails {
     private static final long serialVersionUID = 1L;
  
     private String username;
-    private String password;
+	private String password;
     private String email;
     private String firstName;
     private String lastName;
- 
-    /* Spring Security fields*/
+    private String captcha;
+    private String otpCode;
+    private String OTPOption;
+    
+	/* Spring Security fields*/
     private List<Role> authorities;
     private boolean accountNonExpired = true;
     private boolean accountNonLocked = true;
@@ -73,7 +76,31 @@ public class User implements UserDetails {
     public void setEmail(String email) {
         this.email = email;
     }
- 
+    
+    public String getCaptcha() {
+		return captcha;
+	}
+
+	public void setCaptcha(String captcha) {
+		this.captcha = captcha;
+	}
+
+	public String getOtpCode() {
+		return otpCode;
+	}
+
+	public void setOtpCode(String otpCode) {
+		this.otpCode = otpCode;
+	}
+    
+	public String getOTPOption() {
+		return OTPOption;
+	}
+
+	public void setOTPOption(String oTPOption) {
+		OTPOption = oTPOption;
+	}
+	
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.authorities;
@@ -118,31 +145,18 @@ public class User implements UserDetails {
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
+
+	@Override
+	public String toString() {
+		return "User [username=" + username + ", password=" + password
+				+ ", email=" + email + ", firstName=" + firstName
+				+ ", lastName=" + lastName + ", captcha=" + captcha
+				+ ", otpCode=" + otpCode + ", authorities=" + authorities
+				+ ", accountNonExpired=" + accountNonExpired
+				+ ", accountNonLocked=" + accountNonLocked
+				+ ", credentialsNonExpired=" + credentialsNonExpired
+				+ ", enabled=" + enabled + "]";
+	}
  
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("User [username=");
-        builder.append(username);
-        builder.append(", email=");
-        builder.append(email);
-        builder.append(", password=");
-        builder.append(password);
-        builder.append(", firstName=");
-        builder.append(firstName);
-        builder.append(", lastName=");
-        builder.append(lastName);
-        builder.append(", authorities=");
-        builder.append(authorities);
-        builder.append(", accountNonExpired=");
-        builder.append(accountNonExpired);
-        builder.append(", accountNonLocked=");
-        builder.append(accountNonLocked);
-        builder.append(", credentialsNonExpired=");
-        builder.append(credentialsNonExpired);
-        builder.append(", enabled=");
-        builder.append(enabled);
-        builder.append("]");
-        return builder.toString();
-    }
+    
 }

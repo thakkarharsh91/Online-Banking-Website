@@ -7,23 +7,24 @@
 <title>Insert title here</title>
 </head>
 <body>
-
 		<form>
-			<h2 align="justify">Hello ABC (Manager)</h2>
+			<h2 align="justify">Hello XYZ</h2>
 			<table width="500" border="0">
 				<tbody>
 					<tr>
-						<td><a href="http://www.asu.edu/">View Requests</a></td>
+						<td><a href="http://www.asu.edu/">Create Transaction</a></td>
 					</tr>
 					<tr>
-						<td><a href="http://www.asu.edu/">Access Transactions</a></td>
+						<td><a href="http://www.asu.edu/">View Transaction</a></td>
 					</tr>
 					<tr>
-						<td><a href="http://www.asu.edu/">Critical Transactions</a></td>
+						<td><a href="http://www.asu.edu/">Modify/Delete Transaction</a></td>
+					</tr>
+					<tr>
+						<td><a href="http://www.asu.edu/">Manage External user</a></td>
 					</tr>
 				</tbody>
 			</table>
 		</form>
-
-</body>
+	</body>
 </html>

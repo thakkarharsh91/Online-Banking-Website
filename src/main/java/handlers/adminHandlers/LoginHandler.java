@@ -1,10 +1,11 @@
 package handlers.adminHandlers;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import databseHandler.MySQLAccess;
 
-public class ViewUsersHandler {
+public class LoginHandler {
 
 	static MySQLAccess sql;
 	
@@ -12,7 +13,7 @@ public class ViewUsersHandler {
 		sql = new MySQLAccess();
 	}
 	
-	public Object requestHandler() {
+	public ResultSet requestLoginHandler(String userName) {
 		
 		try {
 			sql.getConnection();
@@ -24,7 +25,7 @@ public class ViewUsersHandler {
 		
 		
 		try {
-			return (Object)sql.readDataBase();
+			return (ResultSet)sql.readLoginDataBase(userName);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
