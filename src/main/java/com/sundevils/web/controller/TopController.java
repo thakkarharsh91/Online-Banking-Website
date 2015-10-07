@@ -130,7 +130,7 @@ public class TopController {
 							else if(role.equals("GOVERNMENT")){
 								model.setViewName("governmenthome");
 							}
-							
+
 						}
 						else{
 							model.addObject("wrongCredentials", "Username and Password do not match");
@@ -160,5 +160,23 @@ public class TopController {
 			e.printStackTrace();
 		}
 		return model;
+	}
+
+	@RequestMapping(value = "/form", method = RequestMethod.GET) 
+	public ModelAndView formView() { 
+		ModelAndView model = new ModelAndView();	
+		model.setViewName("form"); return model; 
+	} 
+
+	@RequestMapping(value = "/readForm", method = {RequestMethod.POST, RequestMethod.GET}) 
+	public ModelAndView formReader(HttpServletRequest request) { 
+		ModelAndView model = new ModelAndView(); 
+		if(request.getParameter("admin") != null) 
+			model.addObject("userType", "Admin"); 
+		else if(request.getParameter("user") != null) 
+			model.addObject("userType", "User"); 
+		Object obj = request.getParameter("userId"); 
+		model.addObject("userId", obj); 
+		model.setViewName("form"); return model; 
 	}
 }
