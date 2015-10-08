@@ -28,7 +28,7 @@ public class TopController {
 		ModelAndView model = new ModelAndView();
 		model.addObject("title", "Spring Security Custom Login Form");
 		model.addObject("message", "This is welcome page!");
-		model.setViewName("login");
+		model.setViewName("index");
 		return model;
 
 	}

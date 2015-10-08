@@ -6,8 +6,8 @@
 <%@page session="true"%>
 <html>
 <head>
-<script type="text/javascript" src="<c:url value="/images/keyboard.js " />"></script>
-<link href="<c:url value="/images/keyboard.css" />" rel="stylesheet"  type="text/css" >
+<script type="text/javascript" src="<c:url value="/js/keyboard.js " />"></script>
+<link href="<c:url value="/css/keyboard.css" />" rel="stylesheet"  type="text/css" >
 <sec:csrfMetaTags/>
 <title>Login Page</title>
 <style>
