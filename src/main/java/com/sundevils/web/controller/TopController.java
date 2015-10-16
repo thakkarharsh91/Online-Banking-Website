@@ -33,17 +33,6 @@ public class TopController {
 
 	}
 
-	@RequestMapping(value = "/admin**", method = RequestMethod.GET)
-	public ModelAndView adminPage() {
-
-		ModelAndView model = new ModelAndView();
-		model.addObject("title", "Spring Security Custom Login Form");
-		model.addObject("message", "This is protected page!");
-		model.setViewName("admin");
-
-		return model;
-
-	}
 
 	@RequestMapping(value = "/viewusers", method = RequestMethod.GET)
 	public ModelAndView managerPage() {
@@ -111,26 +100,34 @@ public class TopController {
 						String uName = rs.getString("username");
 						String pass = rs.getString("usercurrentpassword");
 						String role = rs.getString("employeetype");
+						int loggedIn = rs.getInt("isloggedin");
 						if(uName.equals(userName) && pass.equals(password)){
-							if(role.equals("SYSTEM_MANAGER")){
-								model.setViewName("managerhome");
+							if(loggedIn == 0){
+								session.setAttribute("USERNAME", userName);
+								handler.updateLoggedInFlag(userName,1);
+								if(role.equals("SYSTEM_MANAGER")){
+									model.setViewName("managerhome");
+								}
+								else if(role.equals("EMPLOYEE")){
+									model.setViewName("employeehome");
+								}
+								else if(role.equals("ADMIN")){
+									model.setViewName("admin");
+								}
+								else if(role.equals("MERCHANT")){
+									model.setViewName("merchanthome");
+								}
+								else if(role.equals("USER")){
+									model.setViewName("customerhome");
+								}
+								else if(role.equals("GOVERNMENT")){
+									model.setViewName("governmenthome");
+								}
 							}
-							else if(role.equals("EMPLOYEE")){
-								model.setViewName("employeehome");
+							else{
+								model.addObject("loggedIn", "User is already logged in to the other system");
+								model.setViewName("login");
 							}
-							else if(role.equals("ADMIN")){
-								model.setViewName("adminhome");
-							}
-							else if(role.equals("MERCHANT")){
-								model.setViewName("merchanthome");
-							}
-							else if(role.equals("USER")){
-								model.setViewName("customerhome");
-							}
-							else if(role.equals("GOVERNMENT")){
-								model.setViewName("governmenthome");
-							}
-
 						}
 						else{
 							model.addObject("wrongCredentials", "Username and Password do not match");
@@ -178,5 +175,17 @@ public class TopController {
 		Object obj = request.getParameter("userId"); 
 		model.addObject("userId", obj); 
 		model.setViewName("form"); return model; 
+	}
+
+	@RequestMapping(value = "/logoutusers", method = {RequestMethod.POST, RequestMethod.GET}) 
+	public ModelAndView logoutUser(HttpServletRequest request,HttpSession session) { 
+		ModelAndView model = new ModelAndView();	
+		LoginHandler handler;
+		String userName = "";
+		handler = new LoginHandler();
+		userName=(String)session.getAttribute("USERNAME");
+		handler.updateLoggedInFlag(userName,0);
+		model.setViewName("logout"); 
+		return model;
 	}
 }

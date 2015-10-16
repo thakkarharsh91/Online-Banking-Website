@@ -53,7 +53,7 @@
    
            <div class="span4">
              <h2>Existing Users</h2>
-             <p><strong>Login to access your accounts</strong></p>
+             <p><strong>Login to access your accounts and access the transactions and requests</strong></p>
              <p class="text-center"><a class="btn btn-primary" href="./login">Sign in</a></p>
            </div>
         </div><!-- @end .row -->  

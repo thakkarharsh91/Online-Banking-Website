@@ -63,6 +63,9 @@
 		<c:if test="${not empty wrongCredentials}">
 			<div class="msg">${wrongCredentials}</div>
 		</c:if>
+		<c:if test="${not empty loggedIn}">
+			<div class="msg">${loggedIn}</div>
+		</c:if>
 		<form:form name='loginForm'
 			action="${pageContext.servletContext.contextPath}/login/?${_csrf.parameterName}=${_csrf.token}" method='POST'>
 

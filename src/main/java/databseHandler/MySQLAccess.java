@@ -99,6 +99,18 @@ public class MySQLAccess {
 
 	}
 	
+	public void updateFlag(String userName,int status) throws Exception {
+		try {						
+			preparedStatement = connect.prepareStatement("update software_security.tbl_user_authentication set isloggedin = ? where username = ?");    
+			preparedStatement.setInt(1, status);
+			preparedStatement.setString(2, userName);
+			preparedStatement.executeUpdate();
+			connect.close();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
 	// You need to close the resultSet
 	public void close() {
 		try {
@@ -111,6 +123,83 @@ public class MySQLAccess {
 			}
 		} catch (Exception e) {
 
+		}
+	}
+
+	public ResultSet getBalance(String userName) throws Exception {
+		try {						
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_user_account where tbl_user_account.username = ?");    
+			preparedStatement.setString(1, userName);    
+			ResultSet resultSet = preparedStatement.executeQuery();
+			return resultSet;
+			
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public ResultSet getPendingTransactions(String userName) throws Exception {
+		try {						
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_transactions where tbl_transactions.username = ? and tbl_transactions.status = ?");    
+			preparedStatement.setString(1, userName); 
+			preparedStatement.setString(2, "No");
+			ResultSet resultSet = preparedStatement.executeQuery();
+			return resultSet;
+			
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public boolean insertTransactions(String userName, int random,
+			String amount, String accountNum, String accountNum2, String date,
+			String transactionType, String status) {
+		try {
+			preparedStatement = connect
+					.prepareStatement("insert into  software_security.tbl_transactions values (?, ?, ?, ?, ?, ?, ?, ?)");
+			preparedStatement.setBytes(1, userName.getBytes());
+			preparedStatement.setBytes(2, Integer.toString(random).getBytes());
+			preparedStatement.setBytes(3, amount.getBytes());
+			preparedStatement.setBytes(4, accountNum.getBytes());
+			preparedStatement.setBytes(5, accountNum2.getBytes());
+			preparedStatement.setBytes(6, date.getBytes());
+			preparedStatement.setBytes(7, transactionType.getBytes());
+			preparedStatement.setBytes(8, status.getBytes());
+			preparedStatement.executeUpdate();
+			
+			return true;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		
+		
+	}
+
+	public boolean insertRequestChange(String userName, int random,
+			String currentInfo, String newInfo, String changeColumn) {
+		try {
+			String type=new String("Modification");
+			String status=new String("No");
+			preparedStatement = connect
+					.prepareStatement("insert into  software_security.tbl_requests values(?, ?, ?, ?, ?, ?, ?, ?, ?)");
+			preparedStatement.setBytes(1, userName.getBytes());
+			preparedStatement.setBytes(2, Integer.toString(random).getBytes());
+			preparedStatement.setBytes(3, type.getBytes());
+			preparedStatement.setBytes(4, currentInfo.getBytes());
+			preparedStatement.setBytes(5, newInfo.getBytes());
+			preparedStatement.setBytes(6, changeColumn.getBytes());
+			preparedStatement.setBytes(7, status.getBytes());
+			preparedStatement.setBytes(8, currentInfo.getBytes());
+			preparedStatement.setBytes(9, newInfo.getBytes());
+			preparedStatement.executeUpdate();
+			
+			return true;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
 		}
 	}
 }
