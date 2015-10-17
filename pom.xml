@@ -68,7 +68,12 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.0.8</version>
 		</dependency>
-
+	<!-- Spring Security JSP Taglib -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-taglibs</artifactId>
+			<version>${spring.security.version}</version>
+		</dependency>
 		<!-- jstl for jsp page -->
 		<dependency>
 			<groupId>jstl</groupId>

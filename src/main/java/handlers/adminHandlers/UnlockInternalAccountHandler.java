@@ -2,17 +2,18 @@ package handlers.adminHandlers;
 
 import java.sql.SQLException;
 
-import databseHandler.MySQLAccess;
+import databseHandler.UnlockInternalAccountAccess;
 
-public class ViewUsersHandler {
 
-	static MySQLAccess sql;
+public class UnlockInternalAccountHandler {
+
+	static UnlockInternalAccountAccess sql;
 	
 	static { 
-		sql = new MySQLAccess();
+		sql = new UnlockInternalAccountAccess();
 	}
 	
-	public Object requestHandler() {
+	public Object requestHandler(String username) {
 		
 		try {
 			sql.getConnection();
@@ -23,11 +24,11 @@ public class ViewUsersHandler {
 		}
 		
 		
-		/*try {
-			return (Object)sql.readDataBase();
+		try {
+			return (Object)sql.UpdateDataBaseUserAuthentication(username);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}*/
+		}
 		return null;
 		
 	}
@@ -35,3 +36,4 @@ public class ViewUsersHandler {
 	
 	
 }
+

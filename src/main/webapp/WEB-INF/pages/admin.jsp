@@ -26,10 +26,18 @@
 					<td><a href="http://www.asu.edu/">PII Access</a></td>
 				</tr>
 				<tr>
-					<td><a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></td>
+					<td><a
+						href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></td>
 				</tr>
 			</tbody>
 		</table>
 	</form>
 </body>
 </html>
+<%
+	int timeout = session.getMaxInactiveInterval();
+	//timeout/=60;
+	String url = request.getRequestURL().toString();
+	url = url.replace("/WEB-INF/pages/adminhome.jsp", "/login");
+	response.setHeader("Refresh", timeout + "; URL =" + url);
+%>

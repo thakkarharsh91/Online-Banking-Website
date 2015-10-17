@@ -1,14 +1,15 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<%@ page trimDirectiveWhitespaces="true" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ page trimDirectiveWhitespaces="true"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@page session="true"%>
 <html>
 <head>
 <script type="text/javascript" src="<c:url value="/js/keyboard.js " />"></script>
-<link href="<c:url value="/css/keyboard.css" />" rel="stylesheet"  type="text/css" >
-<sec:csrfMetaTags/>
+<link href="<c:url value="/css/keyboard.css" />" rel="stylesheet"
+	type="text/css">
+<sec:csrfMetaTags />
 <title>Login Page</title>
 <style>
 .error {
@@ -67,7 +68,8 @@
 			<div class="msg">${loggedIn}</div>
 		</c:if>
 		<form:form name='loginForm'
-			action="${pageContext.servletContext.contextPath}/login/?${_csrf.parameterName}=${_csrf.token}" method='POST'>
+			action="${pageContext.servletContext.contextPath}/login/?${_csrf.parameterName}=${_csrf.token}"
+			method='POST'>
 
 			<table>
 				<tr>
@@ -81,7 +83,7 @@
 				<tr>
 					<td>&nbsp;</td>
 				</tr>
-				 <tr>
+				<tr>
 					<td>Image :</td>
 					<td>
 						<div>
@@ -94,43 +96,41 @@
 						title="change captcha text" name="imgCaptcha"
 						onclick="document.getElementById('captcha_id').src = '<%=request.getContextPath()%>/login?' + 'imgCaptcha';  return false">
 							<img src="<%=request.getContextPath()%>/images/refresh.png">
-					</a>
-					</td>
+					</a></td>
 				</tr>
 				<tr>
 					<td>Enter Captcha:</td>
-					<td><input type="text" name = 'captcha'/></td>
-				</tr>  
+					<td><input type="text" name='captcha' /></td>
+				</tr>
 				<tr>
 					<td>&nbsp;</td>
 				</tr>
 				<tr>
-				<td></td>
-					<td>
-					<img id="otp_id" name="otpCaptcha123" src="captcha.jpg" hidden="true">
-					<a href="javascript:;"
+					<td></td>
+					<td><img id="otp_id" name="otpCaptcha123" src="captcha.jpg"
+						hidden="true"> <a href="javascript:;"
 						title="Send OTP in email" name="otpButton"
 						onclick="document.getElementById('otp_id').src = '${pageContext.servletContext.contextPath}/login?' + 'otpButton';  return false">
-							Send Otp in Email
-					</a></td>
+							Send Otp in Email </a></td>
 				</tr>
-		
+
 				<tr>
 					<td>OTP :</td>
-					<td><input type='text' name = 'otpCode' class='keyboardInput'></td>
+					<td><input type='text' name='otpCode' class='keyboardInput'></td>
 				</tr>
 				<tr>
 					<td></td>
-					<td><input name="submit" type="submit"
-						value="submit" /></td>
+					<td><input name="submit" type="submit" value="submit" /></td>
 				</tr>
 			</table>
 
 			<input type="hidden" name="${_csrf.parameterName}"
-				value="${_csrf.token}" /> 
+				value="${_csrf.token}" />
 
 		</form:form>
 	</div>
 
 </body>
 </html>
+<%request.getSession().setAttribute("isUserLoggedIn","Not Set");
+request.getSession().setAttribute("Role", "NULL");%>

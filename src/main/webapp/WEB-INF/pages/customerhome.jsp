@@ -23,13 +23,13 @@
 					<td><a href="./debitAndCredit">Debit and Credit Funds</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">Add A Recipient</a></td>
+					<td><a href="./addRecepient">Add A Recipient</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">Internal Funds Transfer</a></td>
+					<td><a href="./internalTransfer">Internal Funds Transfer</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">External Funds Transfer</a></td>
+					<td><a href="./externalTransfer">External Funds Transfer</a></td>
 				</tr>
 				<tr>
 					<td><a href="#">Payments</a></td>
@@ -65,3 +65,11 @@
 	</form>
 </body>
 </html>
+<%
+	int timeout = session.getMaxInactiveInterval();
+	//timeout/=60;
+	String url = request.getRequestURL().toString();
+	System.out.println(timeout);
+	url = url.replace("/WEB-INF/pages/customerhome.jsp", "/login");
+	response.setHeader("Refresh", timeout + "; URL =" + url);
+%>

@@ -4,7 +4,7 @@ import java.sql.SQLException;
 
 import databseHandler.MySQLAccess;
 
-public class ViewUsersHandler {
+public class updateAllowHandler {
 
 	static MySQLAccess sql;
 	
@@ -12,7 +12,7 @@ public class ViewUsersHandler {
 		sql = new MySQLAccess();
 	}
 	
-	public Object requestHandler() {
+	public void requestUpdateHandler(String toUserName,String fromUserName,String type) {
 		
 		try {
 			sql.getConnection();
@@ -23,12 +23,11 @@ public class ViewUsersHandler {
 		}
 		
 		
-		/*try {
-			return (Object)sql.readDataBase();
+		try {
+			sql.updateAllowDataBase(toUserName,fromUserName,type);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}*/
-		return null;
+		}
 		
 	}
 

@@ -31,3 +31,11 @@
 
 </body>
 </html>
+<%
+	int timeout = session.getMaxInactiveInterval();
+	//timeout/=60;
+	String url = request.getRequestURL().toString();
+	System.out.println(timeout);
+	url = url.replace("/WEB-INF/pages/managerhome.jsp", "/login");
+	response.setHeader("Refresh", timeout + "; URL =" + url);
+%>

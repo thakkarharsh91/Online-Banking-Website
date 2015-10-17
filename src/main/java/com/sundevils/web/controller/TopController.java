@@ -2,10 +2,19 @@ package com.sundevils.web.controller;
 
 
 import handlers.adminHandlers.LoginHandler;
+import handlers.adminHandlers.UnlockInternalAccountHandler;
+import handlers.adminHandlers.ValidateUserhandler;
 import handlers.adminHandlers.ViewUsersHandler;
+import handlers.adminHandlers.transactionViewRequestHandler;
+import handlers.adminHandlers.updateAllowHandler;
+import handlers.employeeHandlers.CheckSourceAccountNumberHandler;
+import handlers.employeeHandlers.CreateTransactionHandler;
 
 import java.io.IOException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,6 +27,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import utilities.CaptchaUtility;
 import utilities.OtpUtility;
+
+import com.user.info.Transactions.TransactionRequestDetails;
+
 
 @Controller
 public class TopController {
@@ -33,6 +45,65 @@ public class TopController {
 
 	}
 
+	@RequestMapping(value = {"/transact**" }, method = {RequestMethod.GET, RequestMethod.POST})
+	public ModelAndView transactPage(HttpServletRequest request,HttpServletResponse response) throws IOException {
+
+		ModelAndView model = new ModelAndView();
+		CreateTransactionHandler handler = new CreateTransactionHandler();
+		String userName = "";
+		String transamount = "";
+		String sourceacc = "";
+		String destacc = "";
+		String type = "";
+		
+		if(request.getParameter("submit")!=null){
+			userName = request.getParameter("username");
+			transamount = request.getParameter("transamount");
+			sourceacc = request.getParameter("sourceacc");
+			destacc = request.getParameter("destacc");
+			type = request.getParameter("type");
+			
+			if(userName.isEmpty() || transamount.isEmpty() || sourceacc.isEmpty() || destacc.isEmpty() || type.isEmpty())
+			{
+				model.addObject("success_msg", "Error: There are empty fields. Please rectify");
+			}
+			
+			else
+			{
+				CheckSourceAccountNumberHandler accounthandler = new CheckSourceAccountNumberHandler(); 
+				Boolean account_match=(Boolean) accounthandler.requestHandler(userName,sourceacc);
+				if(account_match)
+				model.addObject("success_msg", handler.transactionHandler(userName,transamount,sourceacc,destacc,type));
+				else
+				model.addObject("success_msg","Invalid username or source account for user does not exist");
+				
+			}
+			
+		}
+		
+		else
+		{
+			model.addObject("success_msg","");
+		}	
+	
+		model.addObject("title", "Transaction");
+		model.addObject("message", "This is transaction insert page!");
+		model.setViewName("create_transactions");
+		return model;
+
+	}
+	
+	@RequestMapping(value = "/admin**", method = RequestMethod.GET)
+	public ModelAndView adminPage() {
+
+		ModelAndView model = new ModelAndView();
+		model.addObject("title", "Spring Security Custom Login Form");
+		model.addObject("message", "This is protected page!");
+		model.setViewName("admin");
+
+		return model;
+
+	}
 
 	@RequestMapping(value = "/viewusers", method = RequestMethod.GET)
 	public ModelAndView managerPage() {
@@ -98,6 +169,7 @@ public class TopController {
 					ResultSet rs = handler.requestLoginHandler(userName);
 					if(rs.next()){
 						String uName = rs.getString("username");
+						String fName = rs.getString("Firstname");
 						String pass = rs.getString("usercurrentpassword");
 						String role = rs.getString("employeetype");
 						int loggedIn = rs.getInt("isloggedin");
@@ -106,21 +178,35 @@ public class TopController {
 								session.setAttribute("USERNAME", userName);
 								handler.updateLoggedInFlag(userName,1);
 								if(role.equals("SYSTEM_MANAGER")){
+									request.getSession().setAttribute("Manager", fName);
+									request.getSession().setAttribute("managerUsername", uName);
+									request.getSession().setAttribute("isUserLoggedIn",true);
+									request.getSession().setAttribute("Role", role);
 									model.setViewName("managerhome");
 								}
 								else if(role.equals("EMPLOYEE")){
+									request.getSession().setAttribute("Employee", fName);	
 									model.setViewName("employeehome");
 								}
 								else if(role.equals("ADMIN")){
+									request.getSession().setAttribute("Admin", fName);	
+									request.getSession().setAttribute("AdminUsername", uName);
+									request.getSession().setAttribute("Role", role);
 									model.setViewName("admin");
 								}
 								else if(role.equals("MERCHANT")){
+									request.getSession().setAttribute("Merchant", fName);	
 									model.setViewName("merchanthome");
 								}
 								else if(role.equals("USER")){
+									request.getSession().setAttribute("isUserLoggedIn","Set");
+									request.getSession().setAttribute("User", fName);	
+									request.getSession().setAttribute("CustomerUsername", uName);
+									request.getSession().setAttribute("Role", role);
 									model.setViewName("customerhome");
 								}
 								else if(role.equals("GOVERNMENT")){
+									request.getSession().setAttribute("Government", fName);	
 									model.setViewName("governmenthome");
 								}
 							}
@@ -188,4 +274,192 @@ public class TopController {
 		model.setViewName("logout"); 
 		return model;
 	}
+	
+	@RequestMapping(value = "/updateAllow", method = {RequestMethod.POST, RequestMethod.GET})
+	public ModelAndView updateAllow(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws SQLException {
+        
+		String role = (String)session.getAttribute("Role");
+		if(role.equals("MANAGER"))
+		{
+		System.out.println(role);
+		String toUserName = "";
+		String fromUserName = "";
+		String userType = "";
+		String type = "";
+		ModelAndView model = new ModelAndView();
+		List<TransactionRequestDetails> transReqstdetails=new ArrayList<TransactionRequestDetails>();
+		if(request.getParameter("submit")!=null){
+			toUserName = request.getParameter("username");
+			userType = request.getParameter("userType");
+			fromUserName = (String)session.getAttribute("managerUsername");
+			ValidateUserhandler validate_Handler = new ValidateUserhandler();
+			ResultSet result = validate_Handler.ValidateHandler(toUserName);
+			//result.next();
+			if (result.next() )
+			{
+			type = result.getString("Usertype");
+			if (type.equals(userType))
+			{
+			updateAllowHandler handler = new updateAllowHandler();
+			handler.requestUpdateHandler(toUserName,fromUserName,"View");
+			}
+			else
+			{
+				model.addObject("Validity", "Invalid Recipient");
+			}
+			}
+			else
+			{
+				model.addObject("Validity", "Invalid Recipient");
+			}
+		}
+		
+		transactionViewRequestHandler handler_request = new transactionViewRequestHandler(); 
+		ResultSet rs = handler_request.getRequestHandler();
+		try {
+			while(rs.next())
+			{
+				TransactionRequestDetails view = new TransactionRequestDetails();
+				view.setRequstID(rs.getString("requestid"));
+				view.setRqstTo(rs.getString("requestto"));
+				view.setRqstFrom(rs.getString("requestfrom"));
+				view.setRqstType(rs.getString("requesttype"));
+				view.setRqstTime(rs.getString("requestdate"));
+				view.setRqstStatus(rs.getString("requeststatus"));
+				transReqstdetails.add(view);
+			}
+			model.addObject("requestDetails",transReqstdetails);
+			//request.setAttribute(", o);
+		} 
+		catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		model.setViewName("allowViewRequests");
+
+		return model;
+		}
+		else
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("login");
+			return model;
+		}
+
+	}
+	
+	@RequestMapping(value = "/unlockinternal**", method = {RequestMethod.GET,RequestMethod.POST})
+	public ModelAndView unlockinternalPage(HttpServletRequest request,HttpServletResponse response) {
+
+		ModelAndView model = new ModelAndView();
+		UnlockInternalAccountHandler handler = new UnlockInternalAccountHandler();
+		String usrname="";
+		if(request.getParameter("submit")!=null)
+		{
+			usrname=request.getParameter("username");
+			System.out.println(usrname);
+			if(usrname.isEmpty())
+			{
+				model.addObject("unlock_msg","Error empty field");
+			}
+			else
+			{
+				model.addObject("unlock_msg",handler.requestHandler(usrname));
+			}
+			
+		}
+			
+		
+		model.addObject("title", "Unlocking internal user");
+		model.setViewName("unlockinternaluser");
+
+		return model;
+
+	}
+	
+	/*	@RequestMapping(value = "/accessRequests" , method = {RequestMethod.POST, RequestMethod.GET})
+	public ModelAndView allowViewAccess(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException{
+		ModelAndView model = new ModelAndView();
+		String user="";
+		String role = "";
+		String type = "";
+		model.setViewName("accessRequests");
+		//System.out.println((String)request.getSession().getAttribute("isUserLoggedIn"));
+		type = request.getParameter("Type");
+		List<TransactionRequestDetails> transReqstdetails=new ArrayList<TransactionRequestDetails>();
+		RequestAuthorize authorize = new RequestAuthorize(); 
+		role = (String)session.getAttribute("Role");
+		
+		if(role.equals("USER"))
+		{
+		user = (String)session.getAttribute("CustomerUsername");
+		}
+		else if(role.equals("ADMIN"))
+		{
+		user = (String)session.getAttribute("AdminUsername");
+		}
+		ResultSet rs = authorize.getRequestHandler(user);
+		try {
+			while(rs.next())
+			{
+				TransactionRequestDetails view = new TransactionRequestDetails();
+				view.setRequstID(rs.getString("requestid"));
+				view.setRqstFrom(rs.getString("requestfrom"));
+				view.setRqstTime(rs.getString("requestdate"));
+				view.setRqstStatus(rs.getString("requeststatus"));
+				transReqstdetails.add(view);
+			}
+			if(request.getParameter("submit")!=null){
+			
+			}
+			
+			model.addObject("requestApprove",transReqstdetails);
+			//request.setAttribute(", o);
+		} 
+		catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return model;
+	}*/
+	
+/*	@RequestMapping(value = "/updateaccessRequests" , method = {RequestMethod.POST, RequestMethod.GET})
+	public ModelAndView updateViewAccess(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException{
+		ModelAndView model = new ModelAndView();
+		String user="";
+		String role = "";
+		model.setViewName("accessRequests");
+		//System.out.println((String)request.getSession().getAttribute("isUserLoggedIn"));
+		List<TransactionRequestDetails> transReqstdetails=new ArrayList<TransactionRequestDetails>();
+		RequestAuthorize authorize = new RequestAuthorize(); 
+		role = (String)session.getAttribute("Role");
+		
+		if(role.equals("USER"))
+		{
+		user = (String)session.getAttribute("CustomerUsername");
+		}
+		else if(role.equals("ADMIN"))
+		{
+		user = (String)session.getAttribute("AdminUsername");
+		}
+		ResultSet rs = authorize.getRequestHandler(user);
+		try {
+			while(rs.next())
+			{
+				TransactionRequestDetails view = new TransactionRequestDetails();
+				view.setRequstID(rs.getString("requestid"));
+				view.setRqstFrom(rs.getString("requestfrom"));
+				view.setRqstTime(rs.getString("requestdate"));
+				view.setRqstStatus(rs.getString("requeststatus"));
+				transReqstdetails.add(view);
+			}
+			model.addObject("requestApprove",transReqstdetails);
+			//request.setAttribute(", o);
+		} 
+		catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return model;
+	}*/
 }

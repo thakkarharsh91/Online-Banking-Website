@@ -9,6 +9,7 @@
 		<intercept-url pattern="/admin**" access="ROLE_ADMIN" />
 		<intercept-url pattern="/viewusers**" access="ROLE_USER" />
 		<intercept-url pattern='/**' requires-channel='https' /> 
+		<intercept-url pattern='/transact' requires-channel='https' /> 
 		
 		<form-login 
 		    login-page="/login" 

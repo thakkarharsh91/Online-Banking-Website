@@ -1,5 +1,8 @@
 package databseHandler;
 
+import handlers.individualuserHandlers.UserAccounts;
+import handlers.individualuserHandlers.UserRecepients;
+
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,8 +11,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-
-import authentication.User;
 
 public class MySQLAccess {
 	private Connection connect = null;
@@ -24,15 +25,16 @@ public class MySQLAccess {
 				.getConnection("jdbc:mysql://localhost:3306/software_security?"
 						+ "user=root&password=Incredibles9");
 	}
-	
-	public ArrayList<User> readDataBase() throws Exception {
+
+	public ArrayList<UserAccounts> readDataBase(String username) throws Exception {
 		try {						
 			// Statements allow to issue SQL queries to the database
-			statement = connect.createStatement();
+			preparedStatement = connect.prepareStatement("select * from software_security.tbl_user_account where username=?");
 			// Result set get the result of the SQL query
-			ResultSet resultSet = statement
-					.executeQuery("select * from software_security.user_auth");
-			ArrayList<User> users = writeResultSet(resultSet);
+			preparedStatement.setString(1, username);
+
+			ResultSet resultSet = preparedStatement.executeQuery();
+			ArrayList<UserAccounts> users = writeResultSet(resultSet);
 			resultSet.close();
 			return users;
 			
@@ -54,26 +56,98 @@ public class MySQLAccess {
 			throw e;
 		}
 	}
-	
-	private ArrayList<User> writeResultSet(ResultSet resultSet) throws SQLException, NoSuchAlgorithmException {
-		// ResultSet is initially before the first data set
-		ArrayList<User> users = new ArrayList<User>();
-		
-		while (resultSet.next()) {
-
-			byte[] user = resultSet.getBytes("username");
-			byte[] password = resultSet.getBytes("password");
-			byte[] email = resultSet.getBytes("email");
-			byte[] firstname = resultSet.getBytes("firstname");
-			byte[] lastname = resultSet.getBytes("lastname");
-
-			users.add(new User(new String(user), new String(password), new String(email), 
-					new String(firstname), new String(lastname)));
+	public void updateAllowDataBase(String userNameTo, String userNameFrom, String requestType ) throws Exception {
+		try {						
+			preparedStatement = connect.prepareStatement("INSERT INTO software_security.tbl_transaction_requests (requestto, requestfrom, requesttype)"
+					+ "VALUES (?, ?, ?)"); 
+			//INSERT INTO `software_security`.`tbl_transaction_requests` (`requestto`, `requestfrom`, `requesttype`) VALUES ('arpit', 'arpit', 'View');
+			preparedStatement.setString(1, userNameTo); 
+			preparedStatement.setString(2, userNameFrom);
+			preparedStatement.setString(3, requestType);
+			preparedStatement.executeUpdate();
+			
+		} catch (Exception e) {
+			throw e;
 		}
-		
-		return users;
+	}
+	public ResultSet getRequestInfo() throws Exception {
+		try {						
+						preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_transaction_requests");
+						ResultSet resultSet = preparedStatement.executeQuery();
+						return resultSet;
+			
+		} catch (Exception e) {
+			throw e;
+		}
 	}
 	
+	/*public ResultSet authRequest(String User) throws Exception {
+		try {						
+						preparedStatement = connect.prepareStatement("SELECT requestid,requestfrom,requestdate,requeststatus FROM software_security.tbl_transaction_requests JOIN " 
+								+"software_security.tbl_user_details ON tbl_transaction_requests.requestto=tbl_user_details.username where tbl_transaction_requests.requestto = ?");
+						preparedStatement.setString(1, User);
+						ResultSet resultSet = preparedStatement.executeQuery();
+						return resultSet;
+			
+		} catch (Exception e) {
+			throw e;
+		}
+	}*/
+	
+	public ResultSet validateUserInfo(String User) throws Exception {
+		try {						
+						preparedStatement = connect.prepareStatement("SELECT Usertype FROM software_security.tbl_user_details "
+								+"where username= ? ");
+						preparedStatement.setString(1, User); 
+						ResultSet resultSet = preparedStatement.executeQuery();
+						return resultSet;
+			
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
+	public ResultSet updateRequestInfo(String User) throws Exception {
+		try {						
+						preparedStatement = connect.prepareStatement("UPDATE software_security.tbl_transaction_requests SET requeststatus='Approved' WHERE `requestid`='6';");
+						preparedStatement.setString(1, User); 
+						ResultSet resultSet = preparedStatement.executeQuery();
+						return resultSet;
+			
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
+	private ArrayList<UserAccounts> writeResultSet(ResultSet resultSet) throws SQLException, NoSuchAlgorithmException {
+		// ResultSet is initially before the first data set
+		
+        	ArrayList<UserAccounts> users = new ArrayList<UserAccounts>();
+		while (resultSet.next()) {
+			UserAccounts temp = new UserAccounts();
+			temp.setUsername(resultSet.getString("username"));
+			temp.setAccountnumber(resultSet.getString("accountnumber"));
+			temp.setAccounttype(resultSet.getString("accounttype"));
+			temp.setBalance(resultSet.getString("balance"));
+			users.add(temp);
+		}
+		return users;
+        }
+	private ArrayList<UserRecepients> writeRecResultSet(ResultSet resultSet) throws SQLException, NoSuchAlgorithmException {
+		// ResultSet is initially before the first data set
+        	ArrayList<UserRecepients> users = new ArrayList<UserRecepients>();
+        	while (resultSet.next()) {
+    			UserRecepients temp = new UserRecepients();
+    			temp.setFirstname(resultSet.getString("firstname"));
+    			temp.setLastname(resultSet.getString("lastname"));
+    			temp.setAccountnumber(resultSet.getString("accountnumber"));
+    			temp.setEmail(resultSet.getString("email"));
+    			users.add(temp);
+    		}
+        	 return users;
+        }
+       
+
 	public void deleteFromDatabase(String user) throws SQLException{
 		// Remove again the insert comment
 		preparedStatement = connect
@@ -81,7 +155,18 @@ public class MySQLAccess {
 		preparedStatement.setString(1, user);
 		preparedStatement.executeUpdate();
 	}
-	
+
+	public void addRecepienttodb(String username, String firstname,String lastname,String accountnumber,String email) throws SQLException,NoSuchAlgorithmException{
+		preparedStatement = connect.prepareStatement("insert into software_security.tbl_user_recepients values (?,?,?,?,?)");
+
+		preparedStatement.setBytes(1, username.getBytes());
+		preparedStatement.setBytes(2,firstname.getBytes());
+		preparedStatement.setBytes(3, lastname.getBytes());
+		preparedStatement.setBytes(4,accountnumber.getBytes());
+		preparedStatement.setBytes(5, email.getBytes());
+		preparedStatement.executeUpdate();
+	}
+
 	public void insertIntoDatabase(byte[] user, byte[] password, 
 			byte[] email, byte[] firstname, byte[] lastname) throws SQLException, NoSuchAlgorithmException{
 		// PreparedStatements can use variables and are more efficient
@@ -200,6 +285,69 @@ public class MySQLAccess {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
+		}
+	}
+	
+	public ArrayList<UserRecepients> readRecepientDataBase(String userName) throws Exception {
+		try {						
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_user_recepients where username=?");    
+			preparedStatement.setString(1, userName);    
+			ResultSet resultSet = preparedStatement.executeQuery();
+			ArrayList<UserRecepients> users = writeRecResultSet(resultSet);
+			return users;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
+		public boolean insertTransactions(String userName, String TransactionID,
+				String amount, String SourceAccountnumber, String DestinationAccountnumber, String date,
+				String transactionType, String status) {
+			try {
+				preparedStatement = connect
+						.prepareStatement("insert into  software_security.tbl_transactions values (?, ?, ?, ?, ?, ?, ?, ?)");
+				preparedStatement.setBytes(1, userName.getBytes());
+				preparedStatement.setBytes(2, TransactionID.getBytes());
+				preparedStatement.setBytes(3, amount.getBytes());
+				preparedStatement.setBytes(4, SourceAccountnumber.getBytes());
+				preparedStatement.setBytes(5, DestinationAccountnumber.getBytes());
+				preparedStatement.setBytes(6, date.getBytes());
+				preparedStatement.setBytes(7, transactionType.getBytes());
+				preparedStatement.setBytes(8, status.getBytes());
+				preparedStatement.executeUpdate();
+				
+				return true;
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			}
+			
+			
+		}
+		
+		public ResultSet readUserDetails(String accountnumber) throws Exception{
+		try{
+			preparedStatement = connect.prepareStatement("Select * FROM software_security.tbl_user_account WHERE accountnumber=?");
+			preparedStatement.setString(1, accountnumber);
+			ResultSet resultset = preparedStatement.executeQuery();
+			return resultset;
+		}
+		catch(Exception e){
+			throw e;
+		}
+	}
+	
+	public ResultSet readRecepientDetails(String userName) throws Exception{
+		try{
+			preparedStatement = connect.prepareStatement("Select * FROM software_security.tbl_user_recepients WHERE username=?");
+			preparedStatement.setString(1, userName);
+			ResultSet resultset = preparedStatement.executeQuery();
+			return resultset;
+		}
+		catch(Exception e){
+			throw e;
 		}
 	}
 }
