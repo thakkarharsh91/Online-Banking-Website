@@ -38,6 +38,6 @@
 	int timeout = session.getMaxInactiveInterval();
 	//timeout/=60;
 	String url = request.getRequestURL().toString();
-	url = url.replace("/WEB-INF/pages/adminhome.jsp", "/login");
+	url = url.replace("/WEB-INF/pages/admin.jsp", "/login");
 	response.setHeader("Refresh", timeout + "; URL =" + url);
 %>
