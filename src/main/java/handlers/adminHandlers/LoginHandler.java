@@ -33,6 +33,46 @@ public class LoginHandler {
 
 	}
 
+	public ResultSet requestAccountHandler(String userName) {
+
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+			return (ResultSet)sql.readAccount(userName);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+
+	}
+	
+	public ResultSet requestAdminHandler(String rolename) {
+
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+			return (ResultSet)sql.readAdmin(rolename);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+
+	}
+
 	public void updateLoggedInFlag(String userName,int status) {
 
 		try {
@@ -42,16 +82,16 @@ public class LoginHandler {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			sql.updateFlag(userName,status);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
-	public ResultSet requestBalance(String userName) {
-		
+
+	public void updateLockedFlag(String userName,int status) {
+
 		try {
 			sql.getConnection();
 		} catch (ClassNotFoundException e) {
@@ -59,19 +99,36 @@ public class LoginHandler {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
-		
+
+		try {
+			sql.updateLockFlag(userName,status);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public ResultSet requestBalance(String userName) {
+
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
 		try {
 			return (ResultSet)sql.getBalance(userName);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
-		
+
 	}
 
 	public ResultSet requestPendingTransaction(String userName) {
-		
+
 		try {
 			sql.getConnection();
 		} catch (ClassNotFoundException e) {
@@ -79,8 +136,8 @@ public class LoginHandler {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
-		
+
+
 		try {
 			return (ResultSet)sql.getPendingTransactions(userName);
 		} catch (Exception e) {
@@ -99,8 +156,8 @@ public class LoginHandler {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
-		
+
+
 		try {
 			return sql.insertTransactions(userName,random,amount,accountNum,accountNum2,date,transactionType,status);
 		} catch (Exception e) {
@@ -118,8 +175,8 @@ public class LoginHandler {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
-		
+
+
 		try {
 			return sql.insertRequestChange(userName,random,currentInfo,newInfo,changeColumn);
 		} catch (Exception e) {
@@ -127,6 +184,42 @@ public class LoginHandler {
 		}
 		return false;
 	}
+	
+	public void insertUnlockRequests(String userName, String requesttype,
+			String requestfrom, String requestto,String modify,String approvalStatus,String oldValue,String newValue) {
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 
 
+		try {
+			sql.insertUnlockRequest(userName,requesttype,requestfrom,requestto,modify,approvalStatus,oldValue,newValue);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public ResultSet getUsername(String emailAddress) {
+
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+			return (ResultSet)sql.getUserName(emailAddress);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+
+	}
 }

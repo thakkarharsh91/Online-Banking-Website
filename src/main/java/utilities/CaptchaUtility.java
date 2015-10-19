@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.imageio.ImageIO;
@@ -12,11 +11,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
+
 public class CaptchaUtility {
 
 	public static final String FILE_TYPE = "jpeg";
-
-	public void generateCaptcha(HttpServletRequest request,HttpServletResponse response) throws IOException{
+	private static final Logger LOG = Logger.getLogger(CaptchaUtility.class);
+	public void generateCaptcha(HttpServletRequest request,HttpServletResponse response){
 		OutputStream outputStream = null;
 		response.setHeader("Cache-Control", "no-cache");
 		response.setDateHeader("Expires", 0);
@@ -50,20 +51,10 @@ public class CaptchaUtility {
 				outputStream.flush();
 				outputStream.close();
 				response.sendRedirect("login.jsp");
-				//response.flushBuffer();
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error("Outputstream issue but the functionality is working"+e.getMessage());
 		}
-		/*finally{
-			if(outputStream!=null){
-				outputStream.flush();
-				outputStream.close();
-				response.flushBuffer();
-			}
-		}*/
-
 	}
 
 	public static String generateCaptchaTextMethod(int captchaLength) 	 {

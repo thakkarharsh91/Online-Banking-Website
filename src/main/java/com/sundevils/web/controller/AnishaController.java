@@ -1,5 +1,6 @@
 package com.sundevils.web.controller;
 
+import handlers.adminHandlers.LoginHandler;
 import handlers.individualuserHandlers.AddRecepientHandler;
 import handlers.individualuserHandlers.UserAccounts;
 import handlers.individualuserHandlers.UserRecepients;
@@ -29,13 +30,42 @@ public class AnishaController {
 	ArrayList<UserAccounts> useraccounts = new ArrayList<UserAccounts>();
 	ArrayList<UserRecepients> userrecepients = new ArrayList<UserRecepients>();
 	AddRecepientHandler handler = new AddRecepientHandler();
+	LoginHandler lhandler = new LoginHandler();
+	String userEmail = "";
+	
+	/*@RequestMapping(value="/VerifyExternalUser",method=RequestMethod.GET)
+	public ModelAndView ViewRequests(){
+		ModelAndView model = new ModelAndView("VerifyExternalUser");
+		 requests = handler.getRequests("SYSTEMMANAGER");
+		if(!requests.isEmpty())
+		model.addObject("requests", requests);
+		else
+			model.addObject("norequests", "You currently do not have any requests");
+		return model;
+	}
+	
+	@RequestMapping(value="/VerifyExternalUser",method=RequestMethod.POST)
+	public ModelAndView Requests(HttpServletRequest request,HttpServletResponse response,HttpSession session){
+		ModelAndView model = new ModelAndView("VerifyExternalUser");
+		//request.getParameter("")
+		System.out.println("Hello!");
+		if(!requests.isEmpty())
+			{
+			requests.remove(1);
+			model.addObject("requests", requests);
+			
+			}
+			else
+				model.addObject("norequests", "You currently do not have any requests");
+		return model;
+	}*/
 
 	@RequestMapping(value="/**/internalTransfer" ,method=RequestMethod.GET)
 	public ModelAndView internalTransfer(HttpSession session){
 		ModelAndView model = new ModelAndView("InternalFundTransfer");
 		String userName="";
-		//userName = (String)session.getAttribute("USERNAME");
-		userName = "srav";
+		userName = (String)session.getAttribute("USERNAME");
+		//userName = "srav";
 		useraccounts = handler.getaccountdetails(userName);
 		model.addObject("useraccounts", useraccounts);
 		return model;
@@ -54,13 +84,13 @@ public class AnishaController {
 		model.addObject("useraccounts", useraccounts);
 		String SourceAccount = "";
 		String DestinationAccount="";
-        String SourceAccountNumber="";
+		String SourceAccountNumber="";
 		String DestinationAccountNumber="";
 		String Amount="";
 		String userName="";
 		int amount = 0;
-		//userName = (String)session.getAttribute("USERNAME");
-		userName = "srav";
+		userName = (String)session.getAttribute("USERNAME");
+		//userName = "srav";
 		SourceAccount= request.getParameter("sourceuseraccounts");
 		DestinationAccount= request.getParameter("destinationuseraccount");
 		Amount = request.getParameter("amount");
@@ -82,7 +112,7 @@ public class AnishaController {
 					DestinationAccountNumber = ac.getAccountnumber();
 					if(Integer.parseInt(ac.getBalance()) < amount ){
 						model.addObject("balanceInsuficientError", "Transfer cant take place due to insufficient balance");
-						}	
+					}	
 					else{
 						String TransactionID = "1";
 						boolean success = false;
@@ -109,11 +139,15 @@ public class AnishaController {
 		return model;
 	}
 	@RequestMapping(value = "/**/externalTransfer" , method = RequestMethod.GET)
-	public ModelAndView externalTransfer(HttpServletRequest request,HttpSession session){
+	public ModelAndView externalTransfer(HttpServletRequest request,HttpSession session) throws SQLException{
 		ModelAndView model = new ModelAndView("ExternalFundTransfer");
 		String userName="";
-		//userName = (String)session.getAttribute("USERNAME");
-		userName = "srav";
+		userName = (String)session.getAttribute("USERNAME");
+		//userName = "srav";
+		ResultSet rs = lhandler.requestLoginHandler(userName);
+		if(rs.next()){
+			userEmail = rs.getString("email");
+		}
 		useraccounts = handler.getaccountdetails(userName);
 		userrecepients =  handler.getRecepients(userName);
 		model.addObject("useraccounts", useraccounts);
@@ -121,7 +155,7 @@ public class AnishaController {
 		if(request.getParameter("otpButton")!=null){
 			startTime = System.currentTimeMillis();
 			OtpUtility otp = new OtpUtility();
-			otp.sendOtp(request);
+			otp.sendOtp(request,userEmail);
 		}
 		if(request.getParameter("submit")!=null)
 		{
@@ -137,16 +171,15 @@ public class AnishaController {
 		model.addObject("recepients", userrecepients);
 		String SourceAccount = "";
 		String DestinationAccount="";
-        String SourceAccountNumber="";
-        String SourceBalance="";
-        String DestinationAccountNumber="";
+		String SourceAccountNumber="";
+		String SourceBalance="";
 		String Amount="";
 		String userName="";
 		String Otpdata="";
 		String otpString="";
 		int amount = 0;
-		//userName = (String)session.getAttribute("USERNAME");
-		userName = "srav";
+		userName = (String)session.getAttribute("USERNAME");
+		//userName = "srav";
 		SourceAccount= request.getParameter("sourceuseraccounts");
 		DestinationAccount= request.getParameter("destinationuseraccount");
 		Otpdata= request.getParameter("otpCode");
@@ -162,50 +195,50 @@ public class AnishaController {
 			model.addObject("mandatory", "All fields are mandatory");
 		}
 		else
-			{
+		{
 			try {
-				 amount = Integer.parseInt(Amount);
-			    } catch(NumberFormatException ex)
-			    {
-			    	model.addObject("amountError", "Please enter a valid amount");
-			    }
-	   if(amount < 0){
-			model.addObject("amountError", "Please enter a valid amount");
-		}
-	   else if(!otpString.equals(Otpdata)){
-		   model.addObject("wrongOtp", "Otp code does not match");
-	   }
-	   else{
-			for(UserAccounts ac :useraccounts){
-				if(ac.getAccounttype().equals(SourceAccount)){
-					SourceAccountNumber = ac.getAccountnumber();
-					SourceBalance= ac.getBalance();
-				}
+				amount = Integer.parseInt(Amount);
+			} catch(NumberFormatException ex)
+			{
+				model.addObject("amountError", "Please enter a valid amount");
 			}
-			  for(UserRecepients re : userrecepients)
-				if(re.getAccountnumber().equals(DestinationAccount)){
-					//DestinationAccountNumber = re.getAccountnumber();
-					if(Integer.parseInt(SourceBalance) < amount ){
-						model.addObject("balanceInsuficientError", "Transfer cant take place due to insufficient balance");
-						}	
-					else{
-						String TransactionID = "2";
-						boolean success = false;
-						String dateandtime = "";
-						String transferType = "T";
-						String Status = "WAITING_BANK";
-						Date date=new Date();
-						dateandtime=date.toString();
-						success = handler.submitTrasferRequest(userName,TransactionID,Amount,SourceAccountNumber,DestinationAccount,dateandtime,transferType,Status,success);
-						if(success){
-							model.addObject("success","Successfully submited the transaction for approval");
-							model.setViewName("customerhome");
-						}
-						else{
-							model.addObject("failure", "Could not submit transaction");
-						}
+			if(amount < 0){
+				model.addObject("amountError", "Please enter a valid amount");
+			}
+			else if(!otpString.equals(Otpdata)){
+				model.addObject("wrongOtp", "Otp code does not match");
+			}
+			else{
+				for(UserAccounts ac :useraccounts){
+					if(ac.getAccounttype().equals(SourceAccount)){
+						SourceAccountNumber = ac.getAccountnumber();
+						SourceBalance= ac.getBalance();
 					}
 				}
+				for(UserRecepients re : userrecepients)
+					if(re.getAccountnumber().equals(DestinationAccount)){
+						//DestinationAccountNumber = re.getAccountnumber();
+						if(Integer.parseInt(SourceBalance) < amount ){
+							model.addObject("balanceInsuficientError", "Transfer cant take place due to insufficient balance");
+						}	
+						else{
+							String TransactionID = "";
+							boolean success = false;
+							String dateandtime = "";
+							String transferType = "T";
+							String Status = "WAITING_BANK";
+							Date date=new Date();
+							dateandtime=date.toString();
+							success = handler.submitTrasferRequest(userName,TransactionID,Amount,SourceAccountNumber,DestinationAccount,dateandtime,transferType,Status,success);
+							if(success){
+								model.addObject("success","Successfully submited the transaction for approval");
+								model.setViewName("customerhome");
+							}
+							else{
+								model.addObject("failure", "Could not submit transaction");
+							}
+						}
+					}
 			}
 		}
 		return model;
@@ -224,13 +257,27 @@ public class AnishaController {
 			String email = "";
 			String otpData = "";
 			String otpString = "";
+			String debitcard="";
+			String userDebitCard="";
+			//String userEmail="";
+			//getting user debitcard no. for validaton
+			for(UserAccounts ac :useraccounts){
+				if(ac.getAccounttype().equals("CHECKING")){
+					userDebitCard = ac.getAccountnumber();
+				}
+			}
+			//get user email id
+			ResultSet rs1 = lhandler.requestLoginHandler(userName);
+			if(rs1.next()){
+				userEmail = rs1.getString("email");
+			}
+			userName = (String)session.getAttribute("USERNAME");
 			if(request.getParameter("otpButton")!=null){
 				startTime = System.currentTimeMillis();
 				OtpUtility otp = new OtpUtility();
-				otp.sendOtp(request);
+				otp.sendOtp(request,userEmail);
 				model.setViewName("AddARecepient");
 			}
-
 			else 
 				if(request.getParameter("add")!=null)
 				{
@@ -242,6 +289,7 @@ public class AnishaController {
 					email=request.getParameter("email");
 					otpData = request.getParameter("otpCode");
 					otpString = (String)session.getAttribute("OTP");
+					debitcard=request.getParameter("debitcard");
 
 					long diff = System.currentTimeMillis() - startTime;
 					int minutes = (int) ((diff / (1000*60)) % 60);
@@ -249,25 +297,25 @@ public class AnishaController {
 						otpString = "";
 					}
 
-					if(firstName.equals("") ||  lastName.equals("") || accountNumber.equals("") ||  confirmedAccNumber.equals("") ||email.equals("") || otpData.equals("")){
+					if(debitcard.equals("") || firstName.equals("") ||  lastName.equals("") || accountNumber.equals("") ||  confirmedAccNumber.equals("") ||email.equals("") || otpData.equals("")){
 						model.addObject("emptyFields", "All fields are mandatory");
-						//model.setViewName("AddARecepient");
 					}
 					else if(!accountNumber.equals(confirmedAccNumber)){
 						model.addObject("accountNumDismatch", "Account Numbers Does Not Match");
-						//model.setViewName("AddARecepient");
 					}
 					else if(!otpString.equals(otpData)){
 						model.addObject("wrongOtp", "Otp code does not match");
-						//model.setViewName("AddARecepient");
 					}
-					else{
+					else if(!debitcard.equals(userDebitCard)){
+						model.addObject("wrongDebit", "debit card number does not match");
+					}
+					else
+					{
 						boolean success= false;
 						ResultSet rs =  handler.getExsistinguser(accountNumber);
-						if(rs!=null){//so he is in bank
-							rs.next();
-							String temp_acc = rs.getString("accountnumber");
-							success = handler.addRecepient("srav1",request.getParameter("firstname"),request.getParameter("lastname"),request.getParameter("accountnumber"),request.getParameter("email"),success);
+						if(rs.next()){//so receipent is user of bank
+							rs.getString("accountnumber");
+							success = handler.addRecepient(userName,request.getParameter("firstname"),request.getParameter("lastname"),request.getParameter("accountnumber"),request.getParameter("email"),success);
 							if(success)
 
 							{
@@ -284,7 +332,7 @@ public class AnishaController {
 
 				}
 		}
-       catch( Exception e ){
+		catch( Exception e ){
 			e.printStackTrace();
 		}
 		return model;

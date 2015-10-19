@@ -27,6 +27,10 @@
 				</tr>
 				<tr>
 					<td><a
+						href="${pageContext.servletContext.contextPath}/reset">Change Password</a></td>
+				</tr>
+				<tr>
+					<td><a
 						href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></td>
 				</tr>
 			</tbody>
