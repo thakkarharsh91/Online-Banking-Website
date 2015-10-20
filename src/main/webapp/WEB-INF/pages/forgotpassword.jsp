@@ -73,19 +73,6 @@
 					</tr>
 					<tr>
 						<td></td>
-						<td><img id="otp_id" name="otpCaptcha123" src="captcha.jpg"
-							hidden="true"> <a href="javascript:;"
-							title="Send OTP in email" name="otpButton"
-							onclick="document.getElementById('otp_id').src = '${pageContext.servletContext.contextPath}/getpassword?' + 'otpButton';  return false">
-								Send Otp in Email </a></td>
-					</tr>
-
-					<tr>
-						<td>OTP :</td>
-						<td><input type='text' name='otpCode' class='keyboardInput'></td>
-					</tr>
-					<tr>
-						<td></td>
 						<td><input name="submit" type="submit" value="submit" /></td>
 					</tr>
 

@@ -9,6 +9,7 @@ import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 
 public class CreateTransactionAccess {
 	private Connection connect = null;
@@ -35,12 +36,10 @@ public class CreateTransactionAccess {
 		String dttime=dateFormat.format(date);
 		byte[] dateandtime = dttime.getBytes();
 		//System.out.println(dttime);
-		
-		byte[] transactionid=new byte[username.length + dateandtime.length];
-		System.arraycopy(username, 0, transactionid, 0, username.length);
-		System.arraycopy(dateandtime,0,transactionid,username.length,dateandtime.length);
+		Random ran = new Random();
+		Integer transactionid=ran.nextInt(1000) + 5;
 		//System.out.println(transactionid.toString());
-		String stat="Created";
+		String stat="WAITING_BANK";
 		byte[] status=stat.getBytes();
 		//byte[] transactionid = new byte[0]; //change to int if database schema changes
 		//byte[] dateandtime = new byte[0];   //change according to database changes
@@ -51,7 +50,7 @@ public class CreateTransactionAccess {
 				.prepareStatement("insert into  software_security.tbl_transactions values (?, ?, ?, ?, ?, ?, ?, ?)");
 		// Parameters start with 1
 		preparedStatement.setBytes(1, username);
-		preparedStatement.setBytes(2, transactionid);  //DB trigger populates this field
+		preparedStatement.setInt(2, transactionid);  //DB trigger populates this field. Change to Int when db changes
 		preparedStatement.setBytes(3, transactionamount);
 		preparedStatement.setBytes(4, sourceaccountnumber);
 		preparedStatement.setBytes(5, destinationaccountnumber);

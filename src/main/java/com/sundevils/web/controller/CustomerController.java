@@ -30,21 +30,25 @@ import com.user.info.AccountDetails;
 public class CustomerController {
 	long startTime = 0;
 	@RequestMapping(value = "/login/debitAndCredit", method = {RequestMethod.POST, RequestMethod.GET})
-	public ModelAndView creditAndDebit (HttpServletRequest request){
+	public ModelAndView creditAndDebit (HttpServletRequest request,HttpSession session){
 		ModelAndView model = new ModelAndView();
-		getAccountNumbers(model);
-		
+		String userName="";
+		userName = (String)session.getAttribute("USERNAME");
+		getAccountNumbers(model,userName);
+
 		model.setViewName("creditAndDebit");
 		return model;
 	}
-	
+
 	@RequestMapping(value = "/login/viewBal", method = {RequestMethod.POST, RequestMethod.GET}) 
-	public ModelAndView viewBalance(HttpServletRequest request){
+	public ModelAndView viewBalance(HttpServletRequest request,HttpSession session){
 		ModelAndView model = new ModelAndView();
 		LoginHandler handler = new LoginHandler(); 
-		ResultSet rs = handler.requestBalance("akarsh");
+		String userName="";
+		userName = (String)session.getAttribute("USERNAME");
+		ResultSet rs = handler.requestBalance(userName);
 		List<AccountDetails> acntdetails=new ArrayList<AccountDetails>();
-		
+
 		try {
 			while(rs.next()){
 				AccountDetails details=new AccountDetails();
@@ -54,39 +58,39 @@ public class CustomerController {
 				System.out.println(details.getAccountNumber());
 				acntdetails.add(details);
 			}
-		model.addObject("accountDetails",acntdetails);
-		
+			model.addObject("accountDetails",acntdetails);
+
 		} catch (SQLException e) {
 			model.addObject("accountDetails","");
 			e.printStackTrace();
 		}
-		
+
 		System.out.println("Printing Values");
 		for(AccountDetails d:acntdetails){
 			System.out.println(d.getAccountNumber());
 			System.out.println(d.getAccountType());
 			System.out.println(d.getBalance());
 		}
-		
+
 		model.setViewName("viewBalance");
 		return model;
-		
+
 	}
-	
+
 	@RequestMapping(value = "/login/**/creditAndDebitFull**", method = {RequestMethod.POST, RequestMethod.GET}) 
-	public ModelAndView editCreditAndDebit(HttpServletRequest request){
-		
+	public ModelAndView editCreditAndDebit(HttpServletRequest request,HttpSession session){
+
 		ModelAndView model=null;
 		model=new ModelAndView();
-		//System.out.println("Hiiiiiiiiiiiiiiii");
+		String userName="";
+		userName = (String)session.getAttribute("USERNAME");
 		if(request.getParameter("submit")!=null){
 			String option=request.getParameter("transaction");
 			String accountNum=request.getParameter("transactions");
 			String amount=request.getParameter("amount");
-			
 			if(amount!=null){
 				LoginHandler handler = new LoginHandler(); 
-				ResultSet rs = handler.requestBalance("akarsh");
+				ResultSet rs = handler.requestBalance(userName);
 				double balance=0;
 				try {
 					while(rs.next()){
@@ -94,7 +98,7 @@ public class CustomerController {
 							balance=rs.getDouble("balance");
 						}
 					}
-					ResultSet rs1=handler.requestPendingTransaction("akarsh");
+					ResultSet rs1=handler.requestPendingTransaction(userName);
 					double tempBalance=0;
 					while(rs1.next()){
 						if((rs.getString("transfertype").equalsIgnoreCase("D") ||rs.getString("transfertype").equalsIgnoreCase("T"))){
@@ -107,7 +111,7 @@ public class CustomerController {
 					double finalBalance=balance-tempBalance;
 					if(option.equalsIgnoreCase("debit") && (Double.parseDouble(amount)>finalBalance)){
 						model.addObject("insuffFunds", "The Account has insufficient funds");
-						getAccountNumbers(model);
+						getAccountNumbers(model,userName);
 						model.setViewName("creditAndDebit");
 					}
 					else{
@@ -115,12 +119,12 @@ public class CustomerController {
 						Date date=new Date();
 						boolean flag;
 						if(option.equalsIgnoreCase("debit")){
-							 flag=handler.insertTransactionDetails("akarsh",random,amount,accountNum,"",date.toString(),option,"No");
+							flag=handler.insertTransactionDetails(userName,random,amount,accountNum,"",date.toString(),option,"No");
 						}
 						else{
-							 flag=handler.insertTransactionDetails("akarsh",random,amount,"",accountNum,date.toString(),option,"No");
+							flag=handler.insertTransactionDetails(userName,random,amount,"",accountNum,date.toString(),option,"No");
 						}
-						
+
 						if(flag){
 							model.addObject("sucess", "Transaction is Sucess");
 							model.setViewName("customerhome");
@@ -136,17 +140,17 @@ public class CustomerController {
 			}
 			else{
 				model.addObject("emptyFields", "Amount Field is mandatory");
-				getAccountNumbers(model);
+				getAccountNumbers(model,userName);
 				model.setViewName("creditAndDebit");
 			}
 		}
 		return model;
-	
+
 	}
 
-	private void getAccountNumbers(ModelAndView model) {
+	private void getAccountNumbers(ModelAndView model, String userName) {
 		LoginHandler handler=new LoginHandler();
-		ResultSet rs=handler.requestBalance("akarsh");
+		ResultSet rs=handler.requestBalance(userName);
 		List<String> accountNumbers=new ArrayList<String>();
 		try {
 			while(rs.next()){
@@ -154,29 +158,29 @@ public class CustomerController {
 			}
 			model.addObject("accountNumbers",accountNumbers);
 		} catch (SQLException e) {
-			
+
 			e.printStackTrace();
 		}
 	}
-	
+
 	@RequestMapping(value = "/login/editPersonalInfo", method = {RequestMethod.POST, RequestMethod.GET})
 	public ModelAndView editPersonalInfo (HttpServletRequest request){
 		ModelAndView model = new ModelAndView();
 		model.setViewName("editPII");
 		return model;
 	}
-	
+
 	@RequestMapping(value = {"/login/**/editPII**"}, method = {RequestMethod.POST, RequestMethod.GET})
-	public ModelAndView editPII(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException {
-		System.out.println("In Controller");
+	public ModelAndView editPII(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException, SQLException {
 		ModelAndView model=new ModelAndView();
+		LoginHandler handler = new LoginHandler();
+		String userName = (String)session.getAttribute("USERNAME");
 		if(request.getParameter("submit")!=null){
 			String changeColumn=request.getParameter("PII");
 			String currentInfo=request.getParameter("curInfo");
 			String newInfo=request.getParameter("newInfo");
 			String confirmNewInfo=request.getParameter("cnfrmNewInfo");
 			String otp=request.getParameter("otpCode");
-			LoginHandler handler = new LoginHandler();
 			String otpString = (String)session.getAttribute("OTP");
 			long diff = System.currentTimeMillis() - startTime;
 			int random = (new Random()).nextInt(900000) + 100000;
@@ -188,7 +192,7 @@ public class CustomerController {
 				model.addObject("emptyFields", "All fields are mandatory");
 				model.setViewName("editPII");
 			}
-			
+
 			else if(!otp.equalsIgnoreCase(otpString))
 			{
 				model.addObject("wrongOtp", "Otp code does not match");
@@ -196,34 +200,39 @@ public class CustomerController {
 			}
 			else if(changeColumn.equalsIgnoreCase("Phone Number")){
 				Pattern pattern = Pattern.compile("\\d{10}");
-			     Matcher matcher1 = pattern.matcher(currentInfo);
-			     Matcher matcher2 = pattern.matcher(newInfo);
-			     
-			     if(matcher1.matches() && matcher2.matches()){
-			    	  
-			    	 boolean flag = handler.personalInfoChange("akarsh",random,changeColumn,currentInfo,newInfo);
-			    	 model.setViewName("customerhome");
-			     }
-			     else{
-			    	 model.addObject("phoneNum", "Valid phone number should be numeric, 10 digit and no special charaecters");
-					 model.setViewName("editPII");
-			     }
+				Matcher matcher1 = pattern.matcher(currentInfo);
+				Matcher matcher2 = pattern.matcher(newInfo);
+
+				if(matcher1.matches() && matcher2.matches()){
+
+					boolean flag = handler.personalInfoChange(userName,random,changeColumn,currentInfo,newInfo);
+					model.setViewName("customerhome");
+				}
+				else{
+					model.addObject("phoneNum", "Valid phone number should be numeric, 10 digit and no special charaecters");
+					model.setViewName("editPII");
+				}
 			}
 			else{
-				boolean flag = handler.personalInfoChange("akarsh",random,changeColumn,currentInfo,newInfo);
+				boolean flag = handler.personalInfoChange(userName,random,changeColumn,currentInfo,newInfo);
 				model.setViewName("customerhome");
 			}
 		}
 		else if(request.getParameter("otpButton")!=null){
 			startTime = System.currentTimeMillis();
 			OtpUtility otp = new OtpUtility();
-			otp.sendOtp(request);
+			String email = null;
+			ResultSet rs = handler.getEmail(userName);
+			while(rs.next()){
+				email=rs.getString("username");
+			}
+			otp.sendOtp(request,email);
 			model.setViewName("editPII");
 		}
 		return model;
-	
+
 	}
-	
+
 	@RequestMapping(value = "/login/**/captcha" , method = RequestMethod.GET)
 	public ModelAndView generateCaptcha(HttpServletRequest request,HttpServletResponse response) throws IOException{
 		ModelAndView model = new ModelAndView();

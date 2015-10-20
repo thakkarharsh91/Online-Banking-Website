@@ -26,8 +26,12 @@
 					<td><a href="http://www.asu.edu/">PII Access</a></td>
 				</tr>
 				<tr>
-					<td><a
-						href="${pageContext.servletContext.contextPath}/reset">Change Password</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/unlockinternal">unlock
+							internal </a></td>
+				</tr>
+				<tr>
+					<td><a href="${pageContext.servletContext.contextPath}/reset">Change
+							Password</a></td>
 				</tr>
 				<tr>
 					<td><a

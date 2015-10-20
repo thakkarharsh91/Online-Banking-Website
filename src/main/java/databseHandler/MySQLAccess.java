@@ -13,6 +13,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 import authentication.ModifyUser;
+import authentication.Request;
 
 public class MySQLAccess {
 	private Connection connect = null;
@@ -79,6 +80,28 @@ public class MySQLAccess {
 
 			}
 
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
+	public ArrayList<Request> viewRequestDatabase() throws Exception {
+		try { 
+			
+			
+				/*preparedStatement = connect
+						.prepareStatement("update software_security.tbl_user_details set tbl_user_details.firstname = ? where tbl_user_details.username = ?");
+				preparedStatement.setString(1, "Kartik123456");
+				preparedStatement.setString(2, userName);
+				int count=preparedStatement.executeUpdate();	*/
+			preparedStatement = connect.prepareStatement("SELECT requestfrom,modifiedcolumn,oldvalue,newvalue from software_security.tbl_requests where software_security.tbl_requests.approvalstatus=?");    
+			preparedStatement.setString(1, "pending");
+			ResultSet resultSet = preparedStatement.executeQuery();
+			ArrayList<Request> users = writeResultSetRequests (resultSet);
+			return users;
+			
+			
+			
 		} catch (Exception e) {
 			throw e;
 		}
@@ -214,6 +237,25 @@ public class MySQLAccess {
 		}
 		return users;
 	}
+	
+	private ArrayList<Request> writeResultSetRequests(ResultSet resultSet) throws SQLException, NoSuchAlgorithmException {
+		// ResultSet is initially before the first data set
+		ArrayList<Request> users = new ArrayList<Request>();
+		
+		while (resultSet.next()) {
+
+			byte[] requestFrom = resultSet.getBytes("requestFrom");
+			byte[] columnname = resultSet.getBytes("modifiedcolumn");
+			byte[] oldvalue = resultSet.getBytes("oldvalue");
+			byte[] newvalue = resultSet.getBytes("newvalue");
+			
+		
+
+			users.add(new Request(new String(requestFrom),new String(columnname), 
+					new String(oldvalue), new String(newvalue)));
+		}
+		return users;
+		}
 
 	private ArrayList<ModifyUser> writeResultSetModify(ResultSet resultSet) throws SQLException, NoSuchAlgorithmException {
 		// ResultSet is initially before the first data set
@@ -278,7 +320,62 @@ public class MySQLAccess {
 		preparedStatement.setBytes(5, email.getBytes());
 		preparedStatement.executeUpdate();
 	}
-
+	public void insertintoRequestDatabase(String user, String parameter,String parametertype, String permissionto) throws SQLException{
+		// Remove again the insert comment
+		
+		preparedStatement = connect
+				.prepareStatement("SELECT "+ parametertype+" FROM software_security.tbl_user_details where tbl_user_details.username= ? ; ");
+		preparedStatement.setString(1, user);
+		System.out.println(preparedStatement);
+		ResultSet resultSet = preparedStatement.executeQuery();
+		while (resultSet.next()){
+		byte [] test= resultSet.getBytes("address");
+		System.out.println(new String(test));
+		preparedStatement = connect
+				.prepareStatement("INSERT into software_security.tbl_requests(username,requesttype,requestfrom,requestto,modifiedcolumn,approvalstatus,oldvalue,newvalue)VALUES(?,?,?,?,?,?,?,?); ");
+		preparedStatement.setString(1, user);
+		preparedStatement.setString(2, "modify");
+		preparedStatement.setString(3, user);
+		preparedStatement.setString(4, permissionto);
+		preparedStatement.setString(5, parametertype);
+		preparedStatement.setString(6, "pending");
+		preparedStatement.setString(7, new String(test));
+		preparedStatement.setString(8, parameter);
+		preparedStatement.executeUpdate();}
+	
+		}
+	public void updateRequestDatabase(String newvalue, String columnname, String user) throws SQLException{
+		// Remove again the insert comment
+		
+		preparedStatement = connect
+				.prepareStatement("update software_security.tbl_user_details set tbl_user_details."+columnname+"=? where tbl_user_details.username= ? ; ");
+		preparedStatement.setString(1, newvalue);
+		preparedStatement.setString(2, user);
+		System.out.println(preparedStatement);
+		preparedStatement.executeUpdate();
+		preparedStatement = connect
+				.prepareStatement("update software_security.tbl_requests set tbl_requests.approvalstatus=? where tbl_requests.username= ? and tbl_requests.modifiedcolumn=? and tbl_requests.newvalue=? ; ");
+		preparedStatement.setString(1, "approved");
+		preparedStatement.setString(2, user);
+		preparedStatement.setString (3,columnname);
+		preparedStatement.setString(4, newvalue);
+		System.out.println(preparedStatement);
+		preparedStatement.executeUpdate();
+		}
+	public void declineRequestDatabase(String newvalue, String columnname, String user) throws SQLException{
+		// Remove again the insert comment
+		
+		
+		preparedStatement.executeUpdate();
+		preparedStatement = connect
+				.prepareStatement("update software_security.tbl_requests set tbl_requests.approvalstatus=? where tbl_requests.username= ? and tbl_requests.modifiedcolumn=? and tbl_requests.newvalue=? ; ");
+		preparedStatement.setString(1, "declined");
+		preparedStatement.setString(2, user);
+		preparedStatement.setString (3,columnname);
+		preparedStatement.setString(4, newvalue);
+		System.out.println(preparedStatement);
+		preparedStatement.executeUpdate();
+		}
 	public void deleteUserDetails(String user) throws SQLException{
 		// Remove again the insert comment
 		preparedStatement = connect
@@ -518,6 +615,18 @@ public class MySQLAccess {
 		try {						
 			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_user_details where tbl_user_details.email = ?");    
 			preparedStatement.setString(1, emailAddress);    
+			ResultSet resultSet = preparedStatement.executeQuery();
+			return resultSet;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public ResultSet getEmail(String userName) throws Exception {
+		try {						
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_user_details where tbl_user_details.username = ?");    
+			preparedStatement.setString(1, userName);    
 			ResultSet resultSet = preparedStatement.executeQuery();
 			return resultSet;
 

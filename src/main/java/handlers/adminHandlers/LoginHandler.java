@@ -222,4 +222,24 @@ public class LoginHandler {
 		return null;
 
 	}
+
+	public ResultSet getEmail(String userName) {
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+			return (ResultSet)sql.getEmail(userName);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+
+	}
+	
 }
