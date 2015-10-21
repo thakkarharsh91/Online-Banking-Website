@@ -32,13 +32,13 @@
 					<td><a href="#">External Funds Transfer</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">View Payment Lists</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/merchantstartpayment">Make a Payment Request</a></td>
 				</tr>
 				<tr>
 					<td><a href="#">Request Payment from Merchant</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">Approval of Payment Request</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/merchantshowpayments">View Payment Lists</a></td>
 				</tr>
 				<tr>
 					<td><a href="#">Submit Payment to Bank</a></td>

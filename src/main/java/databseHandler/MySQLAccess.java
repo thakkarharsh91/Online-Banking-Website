@@ -3,7 +3,10 @@ package databseHandler;
 import handlers.individualuserHandlers.UserAccounts;
 import handlers.individualuserHandlers.UserRecepients;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -12,14 +15,21 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import utilities.MyStringRandomGen;
+import utilities.SendEmail;
 import authentication.ModifyUser;
 import authentication.Request;
+import authentication.Requests;
 
 public class MySQLAccess {
 	private Connection connect = null;
 	private Statement statement = null;
 	private PreparedStatement preparedStatement = null;
-
+	private PreparedStatement preparedStatement1 = null;
+	private PreparedStatement preparedStatement2 = null;
+	private PreparedStatement preparedStatement3 = null;
+	private PreparedStatement preparedStatement4 = null;
+	private PreparedStatement preparedStatement5 = null;
 	public void getConnection() throws ClassNotFoundException, SQLException{
 		// This will load the MySQL driver, each DB has its own driver
 		Class.forName("com.mysql.jdbc.Driver");
@@ -84,12 +94,12 @@ public class MySQLAccess {
 			throw e;
 		}
 	}
-	
+
 	public ArrayList<Request> viewRequestDatabase() throws Exception {
 		try { 
-			
-			
-				/*preparedStatement = connect
+
+
+			/*preparedStatement = connect
 						.prepareStatement("update software_security.tbl_user_details set tbl_user_details.firstname = ? where tbl_user_details.username = ?");
 				preparedStatement.setString(1, "Kartik123456");
 				preparedStatement.setString(2, userName);
@@ -99,9 +109,9 @@ public class MySQLAccess {
 			ResultSet resultSet = preparedStatement.executeQuery();
 			ArrayList<Request> users = writeResultSetRequests (resultSet);
 			return users;
-			
-			
-			
+
+
+
 		} catch (Exception e) {
 			throw e;
 		}
@@ -134,7 +144,72 @@ public class MySQLAccess {
 			throw e;
 		}
 	}
-	
+
+	public ArrayList<Requests> getRequests(String requestto) throws SQLException{
+		try{
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_requests where requestto=? AND approvalstatus='PENDING'");
+			preparedStatement.setString(1,requestto);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			ArrayList<Requests> requests = changeToArrayList(resultSet);
+			return requests;
+		}
+		catch(Exception e){
+			throw e;
+		}
+	}
+	public void updaterequest(String requestid,String action) throws SQLException{
+		try{
+			preparedStatement = connect.prepareStatement("update software_security.tbl_requests set approvalstatus = ? where requestid = ?");
+			preparedStatement.setBytes(1, action.getBytes());
+
+			preparedStatement.setBytes(2, requestid.getBytes());
+			preparedStatement.executeUpdate();
+		}
+		catch(Exception e){
+			throw e;
+		}
+	}
+
+	//updatepi of user//new
+	public void updateuserinfo(String username,String modifiedcolumn,String oldvalue,String newvalue) throws SQLException{
+		preparedStatement = connect
+				.prepareStatement("update software_security.tbl_user_details set " + modifiedcolumn +" = ? where username = ?");
+		preparedStatement.setBytes(1, newvalue.getBytes());
+		preparedStatement.setBytes(2, username.getBytes());
+		preparedStatement.executeUpdate();
+	}
+
+	//Change to arraylist //new
+	private ArrayList<Requests> changeToArrayList(ResultSet resultSet) throws SQLException{
+		ArrayList<Requests> requests = new ArrayList<Requests>();
+		while (resultSet.next()) {
+			Requests temp = new Requests();
+			temp.setUsername(resultSet.getString("username"));
+			temp.setRequestid(resultSet.getString("requestid"));
+			temp.setRequesttype(resultSet.getString("requesttype"));
+			temp.setRequestfrom(resultSet.getString("requestfrom"));
+			temp.setRequestto(resultSet.getString("requestto"));
+			temp.setModifiedcolumn(resultSet.getString("modifiedcolumn"));
+			temp.setApprovalstatus(resultSet.getString("approvalstatus"));
+			temp.setOldvalue(resultSet.getString("oldvalue"));
+			temp.setNewvalue(resultSet.getString("newvalue"));
+			requests.add(temp);
+		}
+		return requests;
+	}
+
+	public ResultSet readUserDetails1(String accountnumber) throws Exception{
+		try{
+			preparedStatement = connect.prepareStatement("Select * FROM software_security.tbl_user_details WHERE tbl_user_details.accountnumber=? ");
+			preparedStatement.setString(1, accountnumber);
+			ResultSet resultset = preparedStatement.executeQuery();
+			return resultset;
+		}
+		catch(Exception e){
+			throw e;
+		}
+	}
+
 	public ResultSet readAdmin(String roleName) throws Exception {
 		try {						
 			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_user_details where usertype=?");    
@@ -237,25 +312,25 @@ public class MySQLAccess {
 		}
 		return users;
 	}
-	
+
 	private ArrayList<Request> writeResultSetRequests(ResultSet resultSet) throws SQLException, NoSuchAlgorithmException {
 		// ResultSet is initially before the first data set
 		ArrayList<Request> users = new ArrayList<Request>();
-		
+
 		while (resultSet.next()) {
 
 			byte[] requestFrom = resultSet.getBytes("requestFrom");
 			byte[] columnname = resultSet.getBytes("modifiedcolumn");
 			byte[] oldvalue = resultSet.getBytes("oldvalue");
 			byte[] newvalue = resultSet.getBytes("newvalue");
-			
-		
+
+
 
 			users.add(new Request(new String(requestFrom),new String(columnname), 
 					new String(oldvalue), new String(newvalue)));
 		}
 		return users;
-		}
+	}
 
 	private ArrayList<ModifyUser> writeResultSetModify(ResultSet resultSet) throws SQLException, NoSuchAlgorithmException {
 		// ResultSet is initially before the first data set
@@ -292,13 +367,9 @@ public class MySQLAccess {
 				.prepareStatement("update software_security.tbl_user_details set tbl_user_details.firstname = ?,tbl_user_details.lastname = ?,tbl_user_details.email = ?,tbl_user_details.phonenumber = ?,tbl_user_details.passportnumber = ?,tbl_user_details.address = ?,tbl_user_details.state = ?,tbl_user_details.zip = ?,tbl_user_details.businesslicense = ?,tbl_user_details.dateofbirth = ? where tbl_user_details.username = ?");
 		for(int i=1;i<11;i++){
 			preparedStatement.setString(i, parameters[i]);
-			System.out.println(parameters[i]);
 		}
-		System.out.println("hete updating db" +parameters[10]);
 		preparedStatement.setString(11, parameters[0].trim());
-		System.out.println(preparedStatement);
-		int count=preparedStatement.executeUpdate();
-		System.out.println(count);
+		preparedStatement.executeUpdate();
 	}
 
 
@@ -322,36 +393,33 @@ public class MySQLAccess {
 	}
 	public void insertintoRequestDatabase(String user, String parameter,String parametertype, String permissionto) throws SQLException{
 		// Remove again the insert comment
-		
+
 		preparedStatement = connect
 				.prepareStatement("SELECT "+ parametertype+" FROM software_security.tbl_user_details where tbl_user_details.username= ? ; ");
 		preparedStatement.setString(1, user);
-		System.out.println(preparedStatement);
 		ResultSet resultSet = preparedStatement.executeQuery();
 		while (resultSet.next()){
-		byte [] test= resultSet.getBytes("address");
-		System.out.println(new String(test));
-		preparedStatement = connect
-				.prepareStatement("INSERT into software_security.tbl_requests(username,requesttype,requestfrom,requestto,modifiedcolumn,approvalstatus,oldvalue,newvalue)VALUES(?,?,?,?,?,?,?,?); ");
-		preparedStatement.setString(1, user);
-		preparedStatement.setString(2, "modify");
-		preparedStatement.setString(3, user);
-		preparedStatement.setString(4, permissionto);
-		preparedStatement.setString(5, parametertype);
-		preparedStatement.setString(6, "pending");
-		preparedStatement.setString(7, new String(test));
-		preparedStatement.setString(8, parameter);
-		preparedStatement.executeUpdate();}
-	
-		}
+			byte [] test= resultSet.getBytes("address");
+			preparedStatement = connect
+					.prepareStatement("INSERT into software_security.tbl_requests(username,requesttype,requestfrom,requestto,modifiedcolumn,approvalstatus,oldvalue,newvalue)VALUES(?,?,?,?,?,?,?,?); ");
+			preparedStatement.setString(1, user);
+			preparedStatement.setString(2, "modify");
+			preparedStatement.setString(3, user);
+			preparedStatement.setString(4, permissionto);
+			preparedStatement.setString(5, parametertype);
+			preparedStatement.setString(6, "pending");
+			preparedStatement.setString(7, new String(test));
+			preparedStatement.setString(8, parameter);
+			preparedStatement.executeUpdate();}
+
+	}
 	public void updateRequestDatabase(String newvalue, String columnname, String user) throws SQLException{
 		// Remove again the insert comment
-		
+
 		preparedStatement = connect
 				.prepareStatement("update software_security.tbl_user_details set tbl_user_details."+columnname+"=? where tbl_user_details.username= ? ; ");
 		preparedStatement.setString(1, newvalue);
 		preparedStatement.setString(2, user);
-		System.out.println(preparedStatement);
 		preparedStatement.executeUpdate();
 		preparedStatement = connect
 				.prepareStatement("update software_security.tbl_requests set tbl_requests.approvalstatus=? where tbl_requests.username= ? and tbl_requests.modifiedcolumn=? and tbl_requests.newvalue=? ; ");
@@ -359,13 +427,12 @@ public class MySQLAccess {
 		preparedStatement.setString(2, user);
 		preparedStatement.setString (3,columnname);
 		preparedStatement.setString(4, newvalue);
-		System.out.println(preparedStatement);
 		preparedStatement.executeUpdate();
-		}
+	}
 	public void declineRequestDatabase(String newvalue, String columnname, String user) throws SQLException{
 		// Remove again the insert comment
-		
-		
+
+
 		preparedStatement.executeUpdate();
 		preparedStatement = connect
 				.prepareStatement("update software_security.tbl_requests set tbl_requests.approvalstatus=? where tbl_requests.username= ? and tbl_requests.modifiedcolumn=? and tbl_requests.newvalue=? ; ");
@@ -373,9 +440,8 @@ public class MySQLAccess {
 		preparedStatement.setString(2, user);
 		preparedStatement.setString (3,columnname);
 		preparedStatement.setString(4, newvalue);
-		System.out.println(preparedStatement);
 		preparedStatement.executeUpdate();
-		}
+	}
 	public void deleteUserDetails(String user) throws SQLException{
 		// Remove again the insert comment
 		preparedStatement = connect
@@ -391,7 +457,304 @@ public class MySQLAccess {
 		preparedStatement.setString(1, user);
 		preparedStatement.executeUpdate();
 	}
+	public ResultSet readAccountDetails(String ssn, String accounttype) throws Exception{
+		try{
+			preparedStatement = connect.prepareStatement("Select * FROM software_security.tbl_temporary_user WHERE tbl_temporary_user.ssn=? AND tbl_temporary_user.accounttype=?");
+			preparedStatement.setString(1, ssn);
+			preparedStatement.setString(2, accounttype);
+			ResultSet resultset = preparedStatement.executeQuery();
+			return resultset;
+		}
+		catch(Exception e){
+			throw e;
+		}
+	}
 
+	//Sayantan
+	public ResultSet getExsistingAccount(String ssn, String accounttype) throws Exception{
+		try{
+			preparedStatement = connect.prepareStatement("Select * FROM software_security.tbl_temporary_user WHERE tbl_temporary_user.ssn=? AND tbl_temporary_user.accounttype=?");
+			preparedStatement.setString(1, ssn);
+			preparedStatement.setString(2, accounttype);
+			ResultSet resultset = preparedStatement.executeQuery();
+			return resultset;
+		}
+		catch(Exception e){
+			throw e;
+		}
+	}
+	//Sayantan
+	public ResultSet getExsistingApprovedAccount(String ssn, String accounttype) throws Exception{
+		try{
+			preparedStatement = connect.prepareStatement("Select * FROM software_security.tbl_temporary_user WHERE tbl_temporary_user.ssn=? AND tbl_temporary_user.accounttype=? AND tbl_temporary_user.status='APPLICATION_APPROVED'");
+			preparedStatement.setString(1, ssn);
+			preparedStatement.setString(2, accounttype);
+			ResultSet resultset = preparedStatement.executeQuery();
+			return resultset;
+		}
+		catch(Exception e){
+			throw e;
+		}
+	}
+
+	//Sayantan: to add items in the database
+	public void openAccountodb(String usertype, String acccounttype, String prefix, String firstname, String middlename, String lastname,String gender, String address,String state, String zip, String passportnumber, String ssn, String email, String phonenumber, String dateofbirth, String documents, String businesslicence, String status) throws SQLException,NoSuchAlgorithmException{
+		String applicationid = "";
+		status ="APPLICATION_APPLIED";
+		preparedStatement = connect.prepareStatement("SELECT (applicationid+1) AS applicationid FROM software_security.tbl_temporary_user ORDER BY applicationid DESC LIMIT 1");
+		ResultSet rs = preparedStatement.executeQuery();
+
+		while (rs.next())
+		{
+			applicationid=rs.getString("applicationid");
+		}
+
+
+		//(SELECT (applicationid+1) AS applicationid FROM software_security.tbl_temporary_user ORDER BY applicationid DESC LIMIT 1)
+		preparedStatement = connect.prepareStatement("insert into software_security.tbl_temporary_user values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+		preparedStatement.setString(1, applicationid);
+		preparedStatement.setString(2, ssn);
+		preparedStatement.setString(3, acccounttype);
+		preparedStatement.setString(4, usertype);
+		preparedStatement.setString(5, prefix);
+		preparedStatement.setString(6, firstname);
+		preparedStatement.setString(7, middlename);
+		preparedStatement.setString(8, lastname);
+		preparedStatement.setString(9, gender);
+		preparedStatement.setString(10, address);
+		preparedStatement.setString(11, state);
+		preparedStatement.setString(12, zip);
+		preparedStatement.setString(13, passportnumber);
+		preparedStatement.setString(14, email);
+		preparedStatement.setString(15, phonenumber);
+		preparedStatement.setString(16, dateofbirth);
+		preparedStatement.setString(17, documents);
+		preparedStatement.setString(18, businesslicence);
+		preparedStatement.setString(19, status);
+		preparedStatement.executeUpdate();
+		String Decription=firstname + " " + lastname +" has applied for " + acccounttype; 
+		//Request to add the request in the tbl_requests table
+		preparedStatement2 = connect.prepareStatement("SELECT (requestid+1) AS requestid FROM software_security.tbl_requests ORDER BY requestid DESC LIMIT 1");
+		ResultSet rs2 = preparedStatement2.executeQuery();
+		String requestid="";
+		while (rs2.next())
+		{
+			requestid=rs2.getString("requestid");
+		}
+
+		preparedStatement1 = connect.prepareStatement("insert into software_security.tbl_requests values (?,?,?,?,?,?,?,?,?)");
+		preparedStatement1.setString(1, "EXTERNAL_USERS");
+		preparedStatement1.setString(2,requestid );
+		preparedStatement1.setString(3, "ADD_ACCOUNT");
+		preparedStatement1.setString(4, "EXTERNAL_USERS");
+		preparedStatement1.setString(5, "SYSTEM_MANAGER");
+		preparedStatement1.setString(6, Decription);
+		preparedStatement1.setString(7, "PENDING");
+		preparedStatement1.setString(8, ssn);
+		preparedStatement1.setString(9, acccounttype);
+
+		preparedStatement1.executeUpdate();
+	}
+	//Sayantan: Request PII
+
+	public void requestPIItodb(String username, String requesttype,String requestdetails,String authorizeto) throws SQLException,NoSuchAlgorithmException{
+
+		preparedStatement = connect.prepareStatement("SELECT (pid+1) AS pid FROM software_security.tbl_pii_requests ORDER BY pid DESC LIMIT 1");
+		ResultSet rs = preparedStatement.executeQuery();
+		String pid="";
+		while (rs.next())
+		{
+			pid=rs.getString("pid");
+		}
+		preparedStatement = connect.prepareStatement("insert into software_security.tbl_pii_requests values (?,?,?,?,?,?)");
+		preparedStatement.setString(1, pid);
+		preparedStatement.setString(2, username);
+		preparedStatement.setString(3, requesttype);
+		preparedStatement.setString(4, requestdetails);
+		preparedStatement.setString(5, authorizeto);
+		preparedStatement.setString(6, "REQUESTED_PII");
+
+
+		preparedStatement.executeUpdate();
+
+	}
+	//Sayantan: Read existing PII request
+	public ResultSet readExsistingPIIRequest(String username, String requesttype,String requestdetails) throws Exception{
+		try{
+			preparedStatement = connect.prepareStatement("Select * FROM software_security.tbl_pii_requests WHERE tbl_pii_requests.username=? AND tbl_pii_requests.requesttype=? AND tbl_pii_requests.requestdetails=?");
+			preparedStatement.setString(1, username);
+			preparedStatement.setString(2, requesttype);
+			preparedStatement.setString(3, requestdetails);
+			ResultSet resultset = preparedStatement.executeQuery();
+			return resultset;
+		}
+		catch(Exception e){
+			throw e;
+		}
+	}
+
+	//Sayantan: Code to approve the external users by System Manager
+	public void approveUser(String ssn, String accounttype) throws SQLException,NoSuchAlgorithmException{
+		try{
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_user_details WHERE tbl_user_details.ssn=?");
+			preparedStatement.setString(1, ssn);
+			ResultSet rs = preparedStatement.executeQuery();
+			MyStringRandomGen rangen= new MyStringRandomGen();
+			String tmpusername = rangen.gettmpUsername();
+			String tmppwd=rangen.generateRandomString();
+			Long accountnumber = null;
+
+			Long debitcardno=rangen.getDebitcardAccountNo();
+			//Enter SSN already exists in the tbl_user_details table
+			if (!rs.next())
+			{
+				preparedStatement1 = connect.prepareStatement("SELECT * FROM software_security.tbl_temporary_user WHERE tbl_temporary_user.ssn=? and tbl_temporary_user.accounttype=?");
+				preparedStatement1.setString(1, ssn);
+				preparedStatement1.setString(2, accounttype);
+				ResultSet rs1 = preparedStatement1.executeQuery();
+				String usertype= "";
+				String prefix="";
+				String firstname="";
+				String middlename="";
+				String lastname="";
+				String gender="";
+				String address="";
+				String state="";
+				String zip="";
+				String passportnumber="";
+
+				String email="";
+				String phonenumber="";
+				String dateofbirth="";
+
+				String businesslicence="";
+
+				while (rs1.next())
+				{
+					accounttype=rs1.getString("accounttype");
+					ssn=rs1.getString("ssn");
+					usertype=rs1.getString("usertype");
+					prefix=rs1.getString("prefix");
+					firstname=rs1.getString("firstname");
+					middlename=rs1.getString("middlename");
+					lastname=rs1.getString("lastname");
+					gender=rs1.getString("gender");
+					address=rs1.getString("address");
+					state=rs1.getString("state");
+					address=rs1.getString("gender");
+					zip=rs1.getString("zip");
+					passportnumber=rs1.getString("passportnumber");
+					email=rs1.getString("email");
+					phonenumber=rs1.getString("phonenumber");
+					dateofbirth=rs1.getString("dateofbirth");
+					businesslicence=rs1.getString("businesslicense");
+
+
+				}
+
+				preparedStatement2 = connect.prepareStatement("insert into software_security.tbl_user_details values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+				preparedStatement2.setString(1, tmpusername);
+				preparedStatement2.setString(2, ssn);
+				preparedStatement2.setString(3, usertype);
+				preparedStatement2.setString(4, prefix);
+				preparedStatement2.setString(5, firstname);
+				preparedStatement2.setString(6, middlename);
+				preparedStatement2.setString(7, lastname);
+				preparedStatement2.setString(8, gender);
+				preparedStatement2.setString(9, address);
+				preparedStatement2.setString(10, state);
+				preparedStatement2.setString(11, zip);
+				preparedStatement2.setString(12, passportnumber);
+				preparedStatement2.setString(13, phonenumber);
+				preparedStatement2.setString(14, dateofbirth);
+				preparedStatement2.setString(15, businesslicence);
+				preparedStatement2.setString(16, email);
+				preparedStatement2.setString(17, "APPLICATION_APPROVED");
+
+
+
+
+				//Generate Public Private Key pair
+				KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+				keyGen.initialize(1024);
+				KeyPair keypair = keyGen.genKeyPair();
+				PrivateKey temp_privateKey = keypair.getPrivate();
+				String privateKey = String.valueOf(temp_privateKey);
+				//insert into User Authentication Table
+				preparedStatement3 = connect.prepareStatement("insert into software_security.tbl_user_authentication values (?,?,?,?,?,?,?,?,?,?)");
+				preparedStatement3.setString(1, tmpusername);
+				preparedStatement3.setString(2, tmppwd);
+				preparedStatement3.setString(3, "");
+				preparedStatement3.setString(4, "No");
+				preparedStatement3.setString(5, "No");
+				preparedStatement3.setString(6, tmpusername);
+				preparedStatement3.setString(7, tmppwd);
+				preparedStatement3.setString(8, "Public Key");
+				preparedStatement3.setString(9, "Private Key");
+				preparedStatement3.setString(10, "No");
+				preparedStatement3.executeUpdate();
+				//Insert into USER details table
+				preparedStatement2.executeUpdate();
+				SendEmail sendemail=new SendEmail();
+				sendemail.sendEmailInvitation(tmpusername, tmppwd, privateKey);
+
+			}
+			//insert into User Account
+			if(accounttype.equals("Saving Account"))
+			{
+				accountnumber=rangen.getSavingAccountNo();
+			}
+			else if (accounttype.equals("Checking Account"))
+			{
+
+				accountnumber=rangen.getCheckingAccountNo();
+			}
+			else if (accounttype.equals("Loan Account"))
+			{
+				accountnumber=rangen.getLoanAccountNo();
+			}
+			else if (accounttype.equals("Credit Card"))
+			{
+				accountnumber=rangen.getCreditcardAccountNo();
+			}
+
+			preparedStatement4 = connect.prepareStatement("insert into software_security.tbl_user_account values (?,?,?,?,?)");
+			preparedStatement4.setString(1, tmpusername);
+			preparedStatement4.setLong(2, accountnumber);
+			preparedStatement4.setString(3,accounttype);
+			preparedStatement4.setLong(4, 0);
+			preparedStatement4.setLong(5, debitcardno);
+
+			preparedStatement4.executeUpdate();
+
+
+			//Update the "Approved" Status in temp user 
+
+			preparedStatement5 = connect.prepareStatement("UPDATE software_security.tbl_temporary_user SET tbl_temporary_user.status=? WHERE tbl_temporary_user.ssn=? AND tbl_temporary_user.accounttype=?");
+			preparedStatement5.setString(1, "APPLICATION_APPROVED");
+			preparedStatement5.setString(2, ssn);
+			preparedStatement5.setString(3, accounttype);
+			preparedStatement5.executeUpdate();
+		}
+		catch(Exception e){
+			throw e;
+		}
+	}
+
+	//Sayantan: Code to reject the external users by System Manager
+	public void rejectUser(String ssn, String accounttype) throws SQLException,NoSuchAlgorithmException{
+		try{
+			preparedStatement = connect.prepareStatement("UPDATE software_security.tbl_temporary_user SET tbl_temporary_user.status=? WHERE tbl_temporary_user.ssn=? AND tbl_temporary_user.accounttype=?");
+			preparedStatement.setString(1, "APPLICATION_REJECTED");
+			preparedStatement.setString(2, ssn);
+			preparedStatement.setString(3, accounttype);
+			preparedStatement.executeUpdate();
+
+		}
+		catch(Exception e){
+			throw e;
+		}
+	}
 	public void insertIntoDatabase(byte[] user, byte[] password, 
 			byte[] email, byte[] firstname, byte[] lastname) throws SQLException, NoSuchAlgorithmException{
 		// PreparedStatements can use variables and are more efficient

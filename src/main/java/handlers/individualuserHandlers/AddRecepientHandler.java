@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import authentication.Requests;
 import databseHandler.MySQLAccess;
 
 public class AddRecepientHandler {
@@ -26,7 +27,7 @@ public class AddRecepientHandler {
 
 
 		try {
-			return sql.readUserDetails(accountNumber);
+			return sql.readUserDetails1(accountNumber);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -52,6 +53,25 @@ public class AddRecepientHandler {
 		}
 		return null;
 }
+	
+	//get requests
+	public ArrayList<Requests> getRequests(String requestto){
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+			return sql.getRequests(requestto);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	public boolean addRecepient(String username,String firstname,String lastname,String accountnumber,String email,boolean success) {
 
 		try {
@@ -70,6 +90,44 @@ public class AddRecepientHandler {
 			e.printStackTrace();
 		}
 		return success;
+}
+	//update request//new
+	public void updatePI(String username,String modifiedcolumn,String oldvalue,String newvalue) {
+
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+			sql.updateuserinfo(username,modifiedcolumn,oldvalue,newvalue);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return;
+}
+	//new
+	public void updateRequest(String requestid,String action) {
+
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+			sql.updaterequest(requestid,action);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return;
 }
 	
 	public ArrayList<UserAccounts> getaccountdetails(String username) {

@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +23,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import utilities.CaptchaUtility;
 import utilities.OtpUtility;
+import authentication.Requests;
 
 @Controller
 
@@ -29,36 +31,58 @@ public class AnishaController {
 	long startTime = 0;
 	ArrayList<UserAccounts> useraccounts = new ArrayList<UserAccounts>();
 	ArrayList<UserRecepients> userrecepients = new ArrayList<UserRecepients>();
+	ArrayList<Requests> requests=new ArrayList<Requests>();
 	AddRecepientHandler handler = new AddRecepientHandler();
 	LoginHandler lhandler = new LoginHandler();
 	String userEmail = "";
 	
-	/*@RequestMapping(value="/VerifyExternalUser",method=RequestMethod.GET)
+	@RequestMapping(value="/VerifyExternalUser",method=RequestMethod.GET)
 	public ModelAndView ViewRequests(){
 		ModelAndView model = new ModelAndView("VerifyExternalUser");
-		 requests = handler.getRequests("SYSTEMMANAGER");
+		requests = handler.getRequests("SYSTEM_MANAGER");
 		if(!requests.isEmpty())
-		model.addObject("requests", requests);
+			model.addObject("requests", requests);
 		else
 			model.addObject("norequests", "You currently do not have any requests");
 		return model;
 	}
-	
+
 	@RequestMapping(value="/VerifyExternalUser",method=RequestMethod.POST)
 	public ModelAndView Requests(HttpServletRequest request,HttpServletResponse response,HttpSession session){
 		ModelAndView model = new ModelAndView("VerifyExternalUser");
-		//request.getParameter("")
-		System.out.println("Hello!");
-		if(!requests.isEmpty())
-			{
-			requests.remove(1);
-			model.addObject("requests", requests);
-			
+		String id = request.getParameter("approve");
+		String id1 = request.getParameter("decline");
+		Requests request1 = new Requests();
+		String Requesttype="";
+		if(id!=null){
+		for(Iterator<Requests> it=requests.iterator();it.hasNext();){
+			request1= it.next();
+			if(request1.getRequestid().equals(id)){
+				Requesttype=request1.getRequesttype();
+				break;
 			}
-			else
-				model.addObject("norequests", "You currently do not have any requests");
+		}
+		if(Requesttype.equals("CHANGE_OF_PERSONAL_INFORMATION")){
+		handler.updatePI(request1.getUsername(), request1.getModifiedcolumn(), request1.getOldvalue(), request1.getNewvalue());
+		//request should be removed from db?
+		handler.updateRequest(id,"APPROVED");
+		requests.remove(request1);
+		}
+		else if(Requesttype.equals("ADD_ACCOUNT")){
+			//do somthing
+		}
+}
+		else if(id1!=null) {
+			//request update in db
+			handler.updateRequest(id,"REJECTED");
+			requests.remove(request1);
+}
+		if(!requests.isEmpty())
+			model.addObject("requests", requests);
+		else
+			model.addObject("norequests", "You currently do not have any requests");
 		return model;
-	}*/
+	}
 
 	@RequestMapping(value="/**/internalTransfer" ,method=RequestMethod.GET)
 	public ModelAndView internalTransfer(HttpSession session){
@@ -282,7 +306,6 @@ public class AnishaController {
 				if(request.getParameter("add")!=null)
 				{
 					firstName = request.getParameter("firstname");
-					System.out.println(firstName);
 					lastName = request.getParameter("lastname");
 					accountNumber =  request.getParameter("accountnumber");
 					confirmedAccNumber = request.getParameter("confirmaccountnumber");
@@ -314,7 +337,6 @@ public class AnishaController {
 						boolean success= false;
 						ResultSet rs =  handler.getExsistinguser(accountNumber);
 						if(rs.next()){//so receipent is user of bank
-							rs.getString("accountnumber");
 							success = handler.addRecepient(userName,request.getParameter("firstname"),request.getParameter("lastname"),request.getParameter("accountnumber"),request.getParameter("email"),success);
 							if(success)
 

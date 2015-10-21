@@ -55,7 +55,6 @@ public class CustomerController {
 				details.setAccountNumber(rs.getString("accountnumber"));
 				details.setAccountType(rs.getString("accounttype"));
 				details.setBalance(rs.getDouble("balance"));
-				System.out.println(details.getAccountNumber());
 				acntdetails.add(details);
 			}
 			model.addObject("accountDetails",acntdetails);
@@ -63,13 +62,6 @@ public class CustomerController {
 		} catch (SQLException e) {
 			model.addObject("accountDetails","");
 			e.printStackTrace();
-		}
-
-		System.out.println("Printing Values");
-		for(AccountDetails d:acntdetails){
-			System.out.println(d.getAccountNumber());
-			System.out.println(d.getAccountType());
-			System.out.println(d.getBalance());
 		}
 
 		model.setViewName("viewBalance");
@@ -205,7 +197,7 @@ public class CustomerController {
 
 				if(matcher1.matches() && matcher2.matches()){
 
-					boolean flag = handler.personalInfoChange(userName,random,changeColumn,currentInfo,newInfo);
+					handler.personalInfoChange(userName,random,changeColumn,currentInfo,newInfo);
 					model.setViewName("customerhome");
 				}
 				else{
@@ -214,7 +206,7 @@ public class CustomerController {
 				}
 			}
 			else{
-				boolean flag = handler.personalInfoChange(userName,random,changeColumn,currentInfo,newInfo);
+				handler.personalInfoChange(userName,random,changeColumn,currentInfo,newInfo);
 				model.setViewName("customerhome");
 			}
 		}

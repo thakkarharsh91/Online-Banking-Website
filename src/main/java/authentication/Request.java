@@ -1,15 +1,9 @@
 package authentication;
 
-import java.util.Collection;
-import java.util.List;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 public class Request  {
-    private static final long serialVersionUID = 1L;
- 
-    private String requestFrom;
+
+	private String requestFrom;
 	private String columnname;
     private String oldvalue;
     private String newvalue;

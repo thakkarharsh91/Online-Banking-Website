@@ -18,19 +18,22 @@
 	<classpathentry kind="var" path="M2_REPO/org/springframework/security/spring-security-core/3.2.3.RELEASE/spring-security-core-3.2.3.RELEASE.jar" sourcepath="M2_REPO/org/springframework/security/spring-security-core/3.2.3.RELEASE/spring-security-core-3.2.3.RELEASE-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/security/spring-security-config/3.2.3.RELEASE/spring-security-config-3.2.3.RELEASE.jar" sourcepath="M2_REPO/org/springframework/security/spring-security-config/3.2.3.RELEASE/spring-security-config-3.2.3.RELEASE-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/mysql/mysql-connector-java/5.0.8/mysql-connector-java-5.0.8.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-fileupload/commons-fileupload/1.2/commons-fileupload-1.2.jar" sourcepath="M2_REPO/commons-fileupload/commons-fileupload/1.2/commons-fileupload-1.2-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/security/spring-security-taglibs/3.2.3.RELEASE/spring-security-taglibs-3.2.3.RELEASE.jar" sourcepath="M2_REPO/org/springframework/security/spring-security-taglibs/3.2.3.RELEASE/spring-security-taglibs-3.2.3.RELEASE-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/security/spring-security-acl/3.2.3.RELEASE/spring-security-acl-3.2.3.RELEASE.jar" sourcepath="M2_REPO/org/springframework/security/spring-security-acl/3.2.3.RELEASE/spring-security-acl-3.2.3.RELEASE-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-jdbc/3.2.8.RELEASE/spring-jdbc-3.2.8.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-jdbc/3.2.8.RELEASE/spring-jdbc-3.2.8.RELEASE-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-tx/3.2.8.RELEASE/spring-tx-3.2.8.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-tx/3.2.8.RELEASE/spring-tx-3.2.8.RELEASE-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/jstl/jstl/1.2/jstl-1.2.jar"/>
-	<classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.17/log4j-1.2.17.jar" sourcepath="M2_REPO/log4j/log4j/1.2.17/log4j-1.2.17-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-io/commons-io/1.4/commons-io-1.4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/bouncycastle/bcprov-jdk15on/1.47/bcprov-jdk15on-1.47.jar" sourcepath="M2_REPO/org/bouncycastle/bcprov-jdk15on/1.47/bcprov-jdk15on-1.47-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.17/log4j-1.2.17.jar" sourcepath="M2_REPO/log4j/log4j/1.2.17/log4j-1.2.17-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-codec/commons-codec/20041127.091804/commons-codec-20041127.091804.jar"/>
+	<classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar" sourcepath="M2_REPO/junit/junit/3.8.1/junit-3.8.1-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/sun/jersey/jersey-client/1.19/jersey-client-1.19.jar" sourcepath="M2_REPO/com/sun/jersey/jersey-client/1.19/jersey-client-1.19-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/sun/jersey/jersey-core/1.19/jersey-core-1.19.jar" sourcepath="M2_REPO/com/sun/jersey/jersey-core/1.19/jersey-core-1.19-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/plivo/plivo-java/3.0.6/plivo-java-3.0.6.jar" sourcepath="M2_REPO/com/plivo/plivo-java/3.0.6/plivo-java-3.0.6-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/httpcomponents/httpclient/4.2.1/httpclient-4.2.1.jar" sourcepath="M2_REPO/org/apache/httpcomponents/httpclient/4.2.1/httpclient-4.2.1-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/httpcomponents/httpcore/4.2.1/httpcore-4.2.1.jar" sourcepath="M2_REPO/org/apache/httpcomponents/httpcore/4.2.1/httpcore-4.2.1-sources.jar"/>
-	<classpathentry kind="var" path="M2_REPO/commons-codec/commons-codec/1.6/commons-codec-1.6.jar" sourcepath="M2_REPO/commons-codec/commons-codec/1.6/commons-codec-1.6-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/google/code/gson/gson/2.2.2/gson-2.2.2.jar" sourcepath="M2_REPO/com/google/code/gson/gson/2.2.2/gson-2.2.2-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/sun/jersey/contribs/jersey-multipart/1.19/jersey-multipart-1.19.jar" sourcepath="M2_REPO/com/sun/jersey/contribs/jersey-multipart/1.19/jersey-multipart-1.19-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jvnet/mimepull/mimepull/1.9.3/mimepull-1.9.3.jar" sourcepath="M2_REPO/org/jvnet/mimepull/mimepull/1.9.3/mimepull-1.9.3-sources.jar"/>

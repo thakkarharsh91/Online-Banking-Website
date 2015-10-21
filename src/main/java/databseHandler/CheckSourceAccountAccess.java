@@ -3,7 +3,6 @@ package databseHandler;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -15,7 +14,6 @@ import authentication.UserAccount;
 public class CheckSourceAccountAccess {
 	private Connection connect = null;
 	private Statement statement = null;
-	private PreparedStatement preparedStatement = null;
 	
 	public void getConnection() throws ClassNotFoundException, SQLException{
 		// This will load the MySQL driver, each DB has its own driver
@@ -31,7 +29,6 @@ public class CheckSourceAccountAccess {
 		try {
 			byte[] uname=username.getBytes();
 			String username_hex= DatatypeConverter.printHexBinary(uname);
-			//System.out.println("Hex username" +username_hex);
 			// Statements allow to issue SQL queries to the database
 			statement = connect.createStatement();
 			// Result set get the result of the SQL query
@@ -56,7 +53,6 @@ public class CheckSourceAccountAccess {
 		while (resultSet.next()) {			
 
 				byte[] username = resultSet.getBytes("username");
-				System.out.println(username.toString());
 				byte[] accountnumber = resultSet.getBytes("accountnumber");
 				byte[] accounttype = resultSet.getBytes("accounttype");
 				byte[] balance = resultSet.getBytes("balance");				

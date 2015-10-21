@@ -34,7 +34,6 @@ public class UnlockInternalAccountAccess {
 			preparedStatement.setString(1, "0");
 			preparedStatement.setString(2, username);
 			int count = preparedStatement.executeUpdate();
-			System.out.println("unlocking account");
 			//add other update statements after integrating locking mechanism.
 			if(count>0)
 			return "unlocked "+username+" refresh to update view";
@@ -55,12 +54,9 @@ public class UnlockInternalAccountAccess {
 			// Parameters start with 1
 			preparedStatement.setString(1,"unlock");
 			preparedStatement.setString(2,"pending");
-			System.out.println(preparedStatement);
 			// Result set get the result of the SQL query
 			ResultSet resultSet2 = preparedStatement.executeQuery();
 			ArrayList<UnlockRequest> request_tbl = writeResultSetRequest(resultSet2);
-			System.out.println("here in readdatabase request");
-			System.out.println(request_tbl.size());
 			resultSet2.close();
 			return request_tbl;
 			
@@ -76,7 +72,6 @@ public class UnlockInternalAccountAccess {
 		while (resultSet.next()) {			
 
 				byte[] username = resultSet.getBytes("username");
-				System.out.println(username.toString());
 				Integer requestid = resultSet.getInt("requestid");
 				byte[] requesttype = resultSet.getBytes("requesttype");
 				byte[] requestfrom = resultSet.getBytes("requestfrom");
@@ -105,10 +100,8 @@ public class UnlockInternalAccountAccess {
 			preparedStatement.setString(3,"pending");
 			preparedStatement.setString(4,"unlock");
 			
-			System.out.println(preparedStatement);
 			// Result set get the result of the SQL query
 			int count = preparedStatement.executeUpdate();
-			System.out.println("updating request table");
 			
 			if(count>0)
 			return true;

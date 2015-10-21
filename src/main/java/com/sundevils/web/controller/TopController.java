@@ -42,56 +42,57 @@ public class TopController {
 	public ModelAndView welcomePage(HttpServletRequest request,HttpServletResponse response) throws IOException {
 
 		ModelAndView model = new ModelAndView();
+		request.getSession().setAttribute("Role", "");
 		model.addObject("title", "Spring Security Custom Login Form");
 		model.addObject("message", "This is welcome page!");
 		model.setViewName("index");
 		return model;
 
 	}
-	
+
 	@RequestMapping(value = {"/findallproducts" }, method = RequestMethod.GET)
 	public ModelAndView products(HttpServletRequest request,HttpServletResponse response) throws IOException {
 		ModelAndView model = new ModelAndView();
 		model.setViewName("findallproducts");
 		return model;
 	}
-	
+
 	@RequestMapping(value = {"/aboutus" }, method = RequestMethod.GET)
 	public ModelAndView aboutus(HttpServletRequest request,HttpServletResponse response) throws IOException {
 		ModelAndView model = new ModelAndView();
 		model.setViewName("aboutus");
 		return model;
 	}
-	
+
 	@RequestMapping(value = {"/projects" }, method = RequestMethod.GET)
 	public ModelAndView projects(HttpServletRequest request,HttpServletResponse response) throws IOException {
 		ModelAndView model = new ModelAndView();
 		model.setViewName("projects");
 		return model;
 	}
-	
+
 	@RequestMapping(value = {"/team" }, method = RequestMethod.GET)
 	public ModelAndView team(HttpServletRequest request,HttpServletResponse response) throws IOException {
 		ModelAndView model = new ModelAndView();
 		model.setViewName("team");
 		return model;
 	}
-	
+
 	@RequestMapping(value = {"/contact" }, method = RequestMethod.GET)
 	public ModelAndView contact(HttpServletRequest request,HttpServletResponse response) throws IOException {
 		ModelAndView model = new ModelAndView();
 		model.setViewName("contact");
 		return model;
 	}
-	
+
 	@RequestMapping(value = {"/startbanking" }, method = RequestMethod.GET)
 	public ModelAndView startbanking(HttpServletRequest request,HttpServletResponse response) throws IOException {
 		ModelAndView model = new ModelAndView();
 		model.setViewName("startbanking");
 		return model;
 	}
-	
-	
+
+
 	@RequestMapping(value = {"/customerquery" },  method = {RequestMethod.GET, RequestMethod.POST})
 	public ModelAndView customerquery(HttpServletRequest request,HttpServletResponse response) throws IOException {
 		ModelAndView model = new ModelAndView();
@@ -113,53 +114,62 @@ public class TopController {
 	}
 
 	@RequestMapping(value = {"/transact**" }, method = {RequestMethod.GET, RequestMethod.POST})
-	public ModelAndView transactPage(HttpServletRequest request,HttpServletResponse response) throws IOException {
+	public ModelAndView transactPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException {
+		String role = (String)session.getAttribute("Role");		
+		if(role!=null && role.equals("EMPLOYEE"))
+		{
+			ModelAndView model = new ModelAndView();
+			CreateTransactionHandler handler = new CreateTransactionHandler();
+			String userName = "";
+			String transamount = "";
+			String sourceacc = "";
+			String destacc = "";
+			String type = "";
 
-		ModelAndView model = new ModelAndView();
-		CreateTransactionHandler handler = new CreateTransactionHandler();
-		String userName = "";
-		String transamount = "";
-		String sourceacc = "";
-		String destacc = "";
-		String type = "";
-		
-		if(request.getParameter("submit")!=null){
-			userName = request.getParameter("username");
-			transamount = request.getParameter("transamount");
-			sourceacc = request.getParameter("sourceacc");
-			destacc = request.getParameter("destacc");
-			type = request.getParameter("type");
-			
-			if(userName.isEmpty() || transamount.isEmpty() || sourceacc.isEmpty() || destacc.isEmpty() || type.isEmpty())
-			{
-				model.addObject("success_msg", "Error: There are empty fields. Please rectify");
+			if(request.getParameter("submit")!=null){
+				userName = request.getParameter("username");
+				transamount = request.getParameter("transamount");
+				sourceacc = request.getParameter("sourceacc");
+				destacc = request.getParameter("destacc");
+				type = request.getParameter("type");
+
+				if(userName.isEmpty() || transamount.isEmpty() || sourceacc.isEmpty() || destacc.isEmpty() || type.isEmpty())
+				{
+					model.addObject("success_msg", "Error: There are empty fields. Please rectify");
+				}
+
+				else
+				{
+					CheckSourceAccountNumberHandler accounthandler = new CheckSourceAccountNumberHandler(); 
+					Boolean account_match=(Boolean) accounthandler.requestHandler(userName,sourceacc);
+					if(account_match)
+						model.addObject("success_msg", handler.transactionHandler(userName,transamount,sourceacc,destacc,type));
+					else
+						model.addObject("success_msg","Invalid username or source account for user does not exist");
+
+				}
+
 			}
-			
+
 			else
 			{
-				CheckSourceAccountNumberHandler accounthandler = new CheckSourceAccountNumberHandler(); 
-				Boolean account_match=(Boolean) accounthandler.requestHandler(userName,sourceacc);
-				if(account_match)
-				model.addObject("success_msg", handler.transactionHandler(userName,transamount,sourceacc,destacc,type));
-				else
-				model.addObject("success_msg","Invalid username or source account for user does not exist");
-				
-			}
-			
+				model.addObject("success_msg","");
+			}	
+
+			model.addObject("title", "Transaction");
+			model.addObject("message", "This is transaction insert page!");
+			model.setViewName("create_transactions");
+			return model;
+
 		}
-		
 		else
 		{
-			model.addObject("success_msg","");
-		}	
-	
-		model.addObject("title", "Transaction");
-		model.addObject("message", "This is transaction insert page!");
-		model.setViewName("create_transactions");
-		return model;
-
+			ModelAndView model = new ModelAndView();
+			model.setViewName("login");
+			return model;
+		}
 	}
-	
+
 	@RequestMapping(value = "/admin**", method = RequestMethod.GET)
 	public ModelAndView adminPage() {
 
@@ -167,6 +177,7 @@ public class TopController {
 		model.addObject("title", "Spring Security Custom Login Form");
 		model.addObject("message", "This is protected page!");
 		model.setViewName("admin");
+
 		return model;
 
 	}
@@ -183,79 +194,73 @@ public class TopController {
 		return model;
 
 	}
-	
+
 	@RequestMapping(value = "/modifyUs", method = {RequestMethod.POST,RequestMethod.GET})
 	public ModelAndView modifyUsersPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException  {
 		ModelAndView model = null;
 		try{
-		String searchParameter = "";
-		String deleteParameter="";
-		String searchParameterType = "";
-	    model = new ModelAndView();	
-		if (request.getParameter("submit")!=null){
-		
-		searchParameter = request.getParameter("username");
-		searchParameterType = request.getParameter("searchcat");
-		System.out.println(searchParameterType);
-		ModifyUsersHandler handler = new ModifyUsersHandler(); 
-		model.addObject("users", handler.requestHandler(searchParameter,searchParameterType));
-		model.addObject("title", "All users in the database");
-		model.addObject("message", "This is protected page!");
-		model.setViewName("modifyUsers");
-		}
-		
-		else if (request.getParameter("delete")!= null){
-		System.out.println(request.getParameter("hiddenUser"));	
-		deleteParameter =request.getParameter("hiddenUser");
-		ModifyUsersHandler handler = new ModifyUsersHandler(); 
-		handler.deleteRequestHandler(deleteParameter);
-		searchParameter = request.getParameter("hiddenUser");
-		searchParameterType = "UserName";
-		System.out.println(searchParameterType);
-		
-		model.addObject("users", handler.requestHandler(searchParameter,searchParameterType));
-		model.addObject("title", "All users in the database");
-		model.addObject("message", "This is protected page!");
-		model.setViewName("modifyUsers");
-			
-		}
-		else if (request.getParameter("modify")!= null)
-		{	String s= "hello";
-		    byte[] b = s.getBytes();
-		    System.out.println(b);
-			ModifyUsersHandler handler = new ModifyUsersHandler();
-		    searchParameter = request.getParameter("hiddenUser");
-		    searchParameterType = "UserName";
-			model.addObject("singleUser", handler.requestHandler(searchParameter,searchParameterType));
-			model.addObject("title", "All users in the database");
-			model.setViewName("modifyUser");
-		}
-		else if (request.getParameter("save")!=null){
-			
-		String[] Parameters= new String[11];
-		System.out.println("here" +request.getParameter("Name"));
-		Parameters[0]= request.getParameter("Name");
-		Parameters[1]=request.getParameter("firstName");
-		Parameters[2]= request.getParameter("lastName");
-		Parameters[3]= request.getParameter("email");
-		Parameters[4]= request.getParameter("phonenumber");
-		Parameters[5]= request.getParameter("passport");
-		Parameters[6]= request.getParameter("address");
-		Parameters[7]= request.getParameter("state");
-		Parameters[8]= request.getParameter("zip");
-		Parameters[9]= request.getParameter("businessLicense");
-		Parameters[10]= request.getParameter("dateOfBirth");
-		ModifyUsersHandler handler = new ModifyUsersHandler(); 
-		handler.updateRequestHandler(Parameters);
-		model.setViewName("modifyUser");
-		
-		
-		}
-	
-		else {
-			model.setViewName("modifyUsers");
+			String searchParameter = "";
+			String deleteParameter="";
+			String searchParameterType = "";
+			model = new ModelAndView();	
+			if (request.getParameter("submit")!=null){
+
+				searchParameter = request.getParameter("username");
+				searchParameterType = request.getParameter("searchcat");
+				ModifyUsersHandler handler = new ModifyUsersHandler(); 
+				model.addObject("users", handler.requestHandler(searchParameter,searchParameterType));
+				model.addObject("title", "All users in the database");
+				model.addObject("message", "This is protected page!");
+				model.setViewName("modifyUsers");
 			}
-		
+
+			else if (request.getParameter("delete")!= null){
+				deleteParameter =request.getParameter("hiddenUser");
+				ModifyUsersHandler handler = new ModifyUsersHandler(); 
+				handler.deleteRequestHandler(deleteParameter);
+				searchParameter = request.getParameter("hiddenUser");
+				searchParameterType = "UserName";
+
+				model.addObject("users", handler.requestHandler(searchParameter,searchParameterType));
+				model.addObject("title", "All users in the database");
+				model.addObject("message", "This is protected page!");
+				model.setViewName("modifyUsers");
+
+			}
+			else if (request.getParameter("modify")!= null)
+			{	
+				ModifyUsersHandler handler = new ModifyUsersHandler();
+				searchParameter = request.getParameter("hiddenUser");
+				searchParameterType = "UserName";
+				model.addObject("singleUser", handler.requestHandler(searchParameter,searchParameterType));
+				model.addObject("title", "All users in the database");
+				model.setViewName("modifyUser");
+			}
+			else if (request.getParameter("save")!=null){
+
+				String[] Parameters= new String[11];
+				Parameters[0]= request.getParameter("Name");
+				Parameters[1]=request.getParameter("firstName");
+				Parameters[2]= request.getParameter("lastName");
+				Parameters[3]= request.getParameter("email");
+				Parameters[4]= request.getParameter("phonenumber");
+				Parameters[5]= request.getParameter("passport");
+				Parameters[6]= request.getParameter("address");
+				Parameters[7]= request.getParameter("state");
+				Parameters[8]= request.getParameter("zip");
+				Parameters[9]= request.getParameter("businessLicense");
+				Parameters[10]= request.getParameter("dateOfBirth");
+				ModifyUsersHandler handler = new ModifyUsersHandler(); 
+				handler.updateRequestHandler(Parameters);
+				model.setViewName("modifyUser");
+
+
+			}
+
+			else {
+				model.setViewName("modifyUsers");
+			}
+
 		}
 		catch(Exception e)
 		{
@@ -269,26 +274,26 @@ public class TopController {
 	public ModelAndView viewPermissionPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException  {
 		ModelAndView model = null;
 		try{
-		
-	    model = new ModelAndView();	
-		if (request.getParameter("approve")!=null){
-			ModifyUsersHandler handler = new ModifyUsersHandler();
-			handler.updateRequestHandler(request.getParameter("newvalue"),request.getParameter("columnname"),request.getParameter("requestFrom"));
+
+			model = new ModelAndView();	
+			if (request.getParameter("approve")!=null){
+				ModifyUsersHandler handler = new ModifyUsersHandler();
+				handler.updateRequestHandler(request.getParameter("newvalue"),request.getParameter("columnname"),request.getParameter("requestFrom"));
 			}
-		else if(request.getParameter("decline")!=null){
-			ModifyUsersHandler handler = new ModifyUsersHandler();
-			handler.declineRequestHandler(request.getParameter("newvalue"),request.getParameter("columnname"),request.getParameter("requestFrom"));
-			
-		}
-	
-		else {
-			ModifyUsersHandler handler = new ModifyUsersHandler(); 
-			model.addObject("requests", handler.viewRequestHandler());
-			model.addObject("title", "All users in the database");
-			model.addObject("message", "This is protected page!");
-			model.setViewName("viewpermissions");
+			else if(request.getParameter("decline")!=null){
+				ModifyUsersHandler handler = new ModifyUsersHandler();
+				handler.declineRequestHandler(request.getParameter("newvalue"),request.getParameter("columnname"),request.getParameter("requestFrom"));
+
 			}
-		
+
+			else {
+				ModifyUsersHandler handler = new ModifyUsersHandler(); 
+				model.addObject("requests", handler.viewRequestHandler());
+				model.addObject("title", "All users in the database");
+				model.addObject("message", "This is protected page!");
+				model.setViewName("viewpermissions");
+			}
+
 		}
 		catch(Exception e)
 		{
@@ -298,29 +303,29 @@ public class TopController {
 		return model;
 
 	}
-	
+
 	@RequestMapping(value = "/reqModify", method = {RequestMethod.POST,RequestMethod.GET})
 	public ModelAndView reqPermissionPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException  {
 		ModelAndView model = null;
 		try{
-		String updateParameter = "";
-	
-		String updateParameterType = "";
-	    model = new ModelAndView();	
-		if (request.getParameter("submit")!=null){
-			updateParameter = request.getParameter("newvalue");
-			updateParameterType = request.getParameter("searchcat");
-			ModifyUsersHandler handler = new ModifyUsersHandler();
-			handler.requestModifyHandler(request.getParameter("username"),updateParameter,updateParameterType,request.getParameter("usertype"));
-		
-		}
-		
-		
-	
-		else {
-			model.setViewName("requestpermissionmodify");
+			String updateParameter = "";
+
+			String updateParameterType = "";
+			model = new ModelAndView();	
+			if (request.getParameter("submit")!=null){
+				updateParameter = request.getParameter("newvalue");
+				updateParameterType = request.getParameter("searchcat");
+				ModifyUsersHandler handler = new ModifyUsersHandler();
+				handler.requestModifyHandler(request.getParameter("username"),updateParameter,updateParameterType,request.getParameter("usertype"));
+
 			}
-		
+
+
+
+			else {
+				model.setViewName("requestpermissionmodify");
+			}
+
 		}
 		catch(Exception e)
 		{
@@ -355,7 +360,7 @@ public class TopController {
 				password = request.getParameter("password");
 				captchaData = request.getParameter("captcha");
 				captchaString=(String)session.getAttribute("CAPTCHA");
-				
+
 				if(userName.equals("") || password.equals("") ||
 						captchaData.equals("")){
 					model.addObject("emptyFields", "All fields are mandatory");
@@ -365,7 +370,7 @@ public class TopController {
 					model.addObject("wrongCaptcha", "Please re-enter captcha");
 					model.setViewName("login");
 				}
-				
+
 				else{
 					LoginHandler handler = new LoginHandler(); 
 					ResultSet rs = handler.requestLoginHandler(userName);
@@ -388,6 +393,7 @@ public class TopController {
 										model.setViewName("managerhome");
 									}
 									else if(role.equals("EMPLOYEE")){
+										request.getSession().setAttribute("Role",role);
 										request.getSession().setAttribute("Employee", fName);	
 										model.setViewName("employeehome");
 									}
@@ -398,6 +404,7 @@ public class TopController {
 									}
 									else if(role.equals("MERCHANT")){
 										request.getSession().setAttribute("Merchant", fName);	
+										request.getSession().setAttribute("Role",role);
 										model.setViewName("merchanthome");
 									}
 									else if(role.equals("USER")){
@@ -407,6 +414,7 @@ public class TopController {
 										model.setViewName("customerhome");
 									}
 									else if(role.equals("GOVERNMENT")){
+										request.getSession().setAttribute("Role",role);
 										request.getSession().setAttribute("Government", fName);	
 										model.setViewName("governmenthome");
 									}
@@ -548,7 +556,7 @@ public class TopController {
 				model.addObject("emptyFields", "All fields are mandatory");
 				model.setViewName("forgotpassword");
 			}
-			
+
 			else{
 				ResultSet rs = handler.requestLoginHandler(userName);
 				if(rs.next()){
@@ -646,44 +654,49 @@ public class TopController {
 	}
 
 	@RequestMapping(value = "/unlockinternal**", method = {RequestMethod.GET,RequestMethod.POST})
-	public ModelAndView unlockinternalPage(HttpServletRequest request,HttpServletResponse response) {
+	public ModelAndView unlockinternalPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) {
 
-		ModelAndView model = new ModelAndView();
-		UnlockInternalAccountHandler handler = new UnlockInternalAccountHandler();
-		model.addObject("unlock_msg","Here are pending unlock requests");
-		String usrname="";
-		
-		model.addObject("request_results",handler.readrequestHandler());
-		if(request.getParameter("refresh")!=null)
+		String role = (String)session.getAttribute("Role");		
+		if(role!=null && role.equals("ADMIN"))
 		{
+			ModelAndView model = new ModelAndView();
+			UnlockInternalAccountHandler handler = new UnlockInternalAccountHandler();
+			model.addObject("unlock_msg","Here are pending unlock requests");
+			String usrname="";		
 			model.addObject("request_results",handler.readrequestHandler());
-		}
-		if(request.getParameter("submit")!=null)
-		{
-			
-			usrname=request.getParameter("username");
-			if(usrname.isEmpty())
+			if(request.getParameter("refresh")!=null)
 			{
-				model.addObject("unlock_msg","Error empty field");
+				model.addObject("request_results",handler.readrequestHandler());
 			}
-			else
+			if(request.getParameter("submit")!=null)
 			{
-				boolean res=(Boolean)handler.updaterequestHandler(usrname);
-				if(res)
-					model.addObject("unlock_msg",handler.requestHandler(usrname));
+
+				usrname=request.getParameter("username");
+				if(usrname.isEmpty())
+				{
+					model.addObject("unlock_msg","Error empty field");
+				}
 				else
-					model.addObject("unlock_msg","No pending requests or incorrect username");	
-			}
-			
+				{
+					boolean res=(Boolean)handler.updaterequestHandler(usrname);
+					if(res)
+						model.addObject("unlock_msg",handler.requestHandler(usrname));
+					else
+						model.addObject("unlock_msg","No pending requests or incorrect username");	
+				}
+
+			}		
+
+			model.addObject("title", "Unlock users");
+			model.setViewName("unlockinternaluser");
+			return model;
 		}
-
-			
-		
-		model.addObject("title", "Unlock users");
-		model.setViewName("unlockinternaluser");
-
-		return model;
-
+		else
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("login");
+			return model;
+		}
 	}
 
 	@RequestMapping(value = "/unlockaccount**", method = {RequestMethod.GET,RequestMethod.POST})
@@ -764,7 +777,6 @@ public class TopController {
 		String role = "";
 		String type = "";
 		model.setViewName("accessRequests");
-		//System.out.println((String)request.getSession().getAttribute("isUserLoggedIn"));
 		type = request.getParameter("Type");
 		List<TransactionRequestDetails> transReqstdetails=new ArrayList<TransactionRequestDetails>();
 		RequestAuthorize authorize = new RequestAuthorize(); 
@@ -809,7 +821,6 @@ public class TopController {
 		String user="";
 		String role = "";
 		model.setViewName("accessRequests");
-		//System.out.println((String)request.getSession().getAttribute("isUserLoggedIn"));
 		List<TransactionRequestDetails> transReqstdetails=new ArrayList<TransactionRequestDetails>();
 		RequestAuthorize authorize = new RequestAuthorize(); 
 		role = (String)session.getAttribute("Role");

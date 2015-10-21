@@ -68,6 +68,14 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.0.8</version>
 		</dependency>
+
+		<!-- Apache Commons file upload added by Sayantan -->
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.2</version>
+		</dependency>
+
 		<!-- Spring Security JSP Taglib -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -82,10 +90,30 @@
 		</dependency>
 
 		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<!-- Public pivate key pair added by Sayantan -->
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.47</version>
+		</dependency>
+		<!-- Public pivate key pair added by Sayantan -->
+		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>1.2.17</version>
 		</dependency>
+		<!-- Base64 dependecy added by Sayantan -->
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>20041127.091804</version>
+		</dependency>
+
+
 
 		<dependency>
 			<groupId>org.bouncycastle</groupId>

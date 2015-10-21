@@ -29,16 +29,13 @@ public class CreateTransactionAccess {
 	public String insertIntotransDatabase(byte[] username, byte[] transactionamount, 
 			byte[] sourceaccountnumber, byte[] destinationaccountnumber, byte[] transfertype) throws SQLException, NoSuchAlgorithmException{
 		// PreparedStatements can use variables and are more efficient
-		//System.out.println("insert into transaction database here");
 		int count=0;
 		DateFormat dateFormat=new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Date date=new Date();
 		String dttime=dateFormat.format(date);
 		byte[] dateandtime = dttime.getBytes();
-		//System.out.println(dttime);
 		Random ran = new Random();
 		Integer transactionid=ran.nextInt(1000) + 5;
-		//System.out.println(transactionid.toString());
 		String stat="WAITING_BANK";
 		byte[] status=stat.getBytes();
 		//byte[] transactionid = new byte[0]; //change to int if database schema changes

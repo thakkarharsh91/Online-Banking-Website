@@ -37,6 +37,10 @@
 		<c:if test="${not empty Successfull}">
 			<div class="msg">${Successfull}</div>
 		</c:if>
+		<c:if test="${not empty wrongDebit}">
+			<div class="msg">${wrongDebit}</div>
+		</c:if>
+		
 	</div>
 	<form name="form"
 		action="${pageContext.servletContext.contextPath}/addRecepient"
@@ -72,20 +76,13 @@
 					<td><input id="email" name="email" type="email"></td>
 				</tr>
 				<tr>
+					<td>Enter your debit card number for authentication</td>
+					<td><input id="debitcard" name="debitcard" type="text"></td>
+				</tr>
+				<tr>
 					<td>&nbsp;</td>
 					<td>&nbsp;</td>
 				</tr>
-				<!-- <tr>
-					<td><label> <input type="radio" name="OTPOption"
-							value="Mobile" id="OTPOption_0"> OTP on Mobile
-					</label></td>
-					</td>
-					<td><label> <input type="radio" name="OTPOption"
-							value="Email" id="OTPOption_1"> OTP on Registered Email
-					</label></td>
-					<td><button id="otpButton" type="submit" name="otpButton">Send
-							OTP</button></td>
-				</tr> -->
 				<tr>
 					<td><img id="otp_id" name="otpCaptcha123" src="captcha.jpg"
 						hidden="true"> <a href="javascript:;"
@@ -97,7 +94,7 @@
 				</tr>
 				<tr>
 					<td>OTP:</td>
-					<td><input id="otpCode" name="otpCode" type="text"></td>
+					<td><input id="otpCode" name="otpCode" type="text" class='keyboardInput'></td>
 				</tr>
 				<tr>
 					<td></td>

@@ -32,13 +32,16 @@
 					<td><a href="./externalTransfer">External Funds Transfer</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">Payments</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/usermakepayment">Make a Payment</a></td>
+				</tr>
+				<tr>
+					<td><a href="#">Reset Password</a></td>
 				</tr>
 				<tr>
 					<td><a href="#">View Payment Lists</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">Approval of Payment Request</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/usershowpayments">Approval of Payment Request</a></td>
 				</tr>
 				<tr>
 					<td><a href="#">Permission to Modify Personal Information</a></td>
@@ -70,7 +73,6 @@
 	int timeout = session.getMaxInactiveInterval();
 	//timeout/=60;
 	String url = request.getRequestURL().toString();
-	System.out.println(timeout);
 	url = url.replace("/WEB-INF/pages/customerhome.jsp", "/login");
 	response.setHeader("Refresh", timeout + "; URL =" + url);
 %>
