@@ -1,58 +1,51 @@
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ page trimDirectiveWhitespaces="true"%>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
-<%@page session="true"%>
-<html>
+<!doctype html>
+<html lang="en-US">
 <head>
-<script type="text/javascript" src="<c:url value="/js/keyboard.js " />"></script>
-<link href="<c:url value="/css/keyboard.css" />" rel="stylesheet"
-	type="text/css">
-<sec:csrfMetaTags />
-<title>Login Page</title>
-<style>
-.error {
-	padding: 15px;
-	margin-bottom: 20px;
-	border: 1px solid transparent;
-	border-radius: 4px;
-	color: #a94442;
-	background-color: #f2dede;
-	border-color: #ebccd1;
-}
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>Sun Devils Bank Home Page</title>
 
-.msg {
-	padding: 15px;
-	margin-bottom: 20px;
-	border: 1px solid transparent;
-	border-radius: 4px;
-	color: #31708f;
-	background-color: #d9edf7;
-	border-color: #bce8f1;
-}
+<script type="text/javascript" src="<c:url value="/js/bootstrap.min.js " />"></script>
+<script type="text/javascript" src="<c:url value="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" />"></script>
 
-#login-box {
-	width: 300px;
-	padding: 20px;
-	margin: 100px auto;
-	background: #fff;
-	-webkit-border-radius: 2px;
-	-moz-border-radius: 2px;
-	border: 1px solid #000;
-}
-</style>
+<link href="<c:url value="/css/globalalter.css" />" rel="stylesheet" type="text/css">
+<link href="<c:url value="/css/bootstrap-responsive.min.css" />" rel="stylesheet" type="text/css">
+<link href="<c:url value="/css/bootstrap.min.css" />" rel="stylesheet" type="text/css">
 
+<link href="<c:url value="http://teamtreehouse.com/assets/favicon.ico" />" rel="shortcut icon">
+<link href="<c:url value="http://teamtreehouse.com/assets/favicon.ico" />" rel="icon">
 </head>
-<body onload='document.loginForm.username.focus();'>
 
-	<h1 align="center">Sun Devils Bank</h1>
+<body>
+	<nav id="navigation">
+		<div class="container">
+			<ul class="navlinks">
+				<li><a href="./">Home</a></li>
+				<li><a href="./aboutus">About Us</a></li>
+				<li><a href="./projects">Projects</a></li>
+				<li><a href="./team">The Team</a></li>
+				<li><a href="./contact">Contact Us</a></li>
+			</ul>
+		</div>
+	</nav>
+
+	<header id="heading">
+		<div class="container text-center">
+			<h1>Sun Devils Bank</h1>
+			<h4>This is Secure Banking Project developed by Group#1 for Fall
+				2015</h4>
+
+
+		</div>
+	</header>
 
 	<div id="login-box" align="center">
-
-		<h3>Login with Username and Password</h3>
-
-		<c:if test="${not empty emptyFields}">
+		<h2 align="center">LOGIN FORM</h2>
+		<strong><c:if test="${not empty emptyFields}">
 			<div class="msg">${emptyFields}</div>
 		</c:if>
 		<c:if test="${not empty wrongCaptcha}">
@@ -63,7 +56,7 @@
 		</c:if>
 		<c:if test="${not empty loggedIn}">
 			<div class="msg">${loggedIn}</div>
-		</c:if>
+		</c:if></strong>
 		<form:form name='loginForm'
 			action="${pageContext.servletContext.contextPath}/login/?${_csrf.parameterName}=${_csrf.token}"
 			method='POST'>
@@ -76,9 +69,6 @@
 				<tr>
 					<td>Password :</td>
 					<td><input type='password' name='password' /></td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
 				</tr>
 				<tr>
 					<td>Image :</td>
@@ -105,7 +95,7 @@
 				
 				<tr>
 					<td></td>
-					<td><input name="submit" type="submit" value="submit" /></td>
+					<td><input class="btn btn-primary" align = "center" name="submit" type="submit" value="submit" /></td>
 				</tr>
 				<tr>
 					<td></td>
@@ -121,8 +111,8 @@
 				value="${_csrf.token}" />
 		</form:form>
 	</div>
-
 </body>
+</html>
 </html>
 <%
 	request.getSession().setAttribute("isUserLoggedIn", "Not Set");

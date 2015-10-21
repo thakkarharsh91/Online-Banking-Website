@@ -50,6 +50,9 @@
 		<c:if test="${not empty wrongemail}">
 			<div class="msg">${wrongemail}</div>
 		</c:if>
+		<c:if test="${not empty success}">
+			<div class="msg">${success}</div>
+		</c:if>
 		<form name="form"
 			action="${pageContext.servletContext.contextPath}/getusername?${_csrf.parameterName}=${_csrf.token}"
 			method='POST'>

@@ -54,6 +54,9 @@
 		<c:if test="${not empty incorrectFields}">
 			<div class="msg">${incorrectFields}</div>
 		</c:if>
+		<c:if test="${not empty success}">
+			<div class="msg">${success}</div>
+		</c:if>
 		<form name="form"
 			action="${pageContext.servletContext.contextPath}/unlockaccount?${_csrf.parameterName}=${_csrf.token}"
 			method='POST'>

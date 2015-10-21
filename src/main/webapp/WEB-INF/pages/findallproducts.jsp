@@ -12,7 +12,8 @@
 	href="css/bootstrap.min.css">
 <link rel="stylesheet" type="text/css" media="all"
 	href="css/bootstrap-responsive.min.css">
-<link rel="stylesheet" type="text/css" media="all" href="css/global.css">
+<link rel="stylesheet" type="text/css" media="all"
+	href="css/global.css">
 <script type="text/javascript"
 	src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type="text/javascript" language="javascript" charset="utf-8"
@@ -24,10 +25,10 @@
 		<div class="container">
 			<ul class="navlinks">
 				<li><a href="./">Home</a></li>
-				<li><a href="./aboutus">About Us</a></li>
-				<li><a href="./projects">Projects</a></li>
-				<li><a href="./team">The Team</a></li>
-				<li><a href="./contact">Contact Us</a></li>
+				<li><a href="index.html">About Us</a></li>
+				<li><a href="index.html">Projects</a></li>
+				<li><a href="index.html">The Team</a></li>
+				<li><a href="index.html">Contact Us</a></li>
 			</ul>
 		</div>
 	</nav>
@@ -45,36 +46,53 @@
 		<div class="container">
 			<div class="row">
 				<div class="span4">
-					<h2>Explore our products</h2>
+					<h2>SunDevils Credit Cards</h2>
 					<p>
-						<strong>Find the products that fits your individual and
-							family goals </strong>
+						<strong>SunDevils Cash Rewards Card</strong>
 					</p>
-					<p class="text-center">
-						<a class="btn btn-primary" href="./findallproducts">Find all products</a>
+					<p>
+						<strong>SunDevils Travel Rewards Card</strong>
+					</p>
+					<p>
+						<strong>SunDevils Better Balance Card</strong>
+					</p>
+					<p>
+						<strong>SunDevils Student Card</strong>
 					</p>
 				</div>
 
 				<div class="span4">
-					<h2>Start banking with Us</h2>
+					<h2>SunDevils Loans</h2>
 					<p>
-						<strong>You could apply for checking, savings accounts
-							and credit cards</strong>
+						<strong>Mortgage</strong>
 					</p>
-					<p class="text-center">
-						<a class="btn btn-primary" href="./startbanking">Apply Online</a>
+					<p>
+						<strong>Refinance</strong>
 					</p>
+					<p>
+						<strong>Home Equity</strong>
+					</p>
+					<p>
+						<strong>Auto Loans</strong>
+					</p>
+
 				</div>
 
 				<div class="span4">
-					<h2>Existing Users</h2>
+					<h2>Sundevils Investments</h2>
 					<p>
-						<strong>Login to access your accounts and access the
-							transactions and requests</strong>
+						<strong>Mutual funds</strong>
 					</p>
-					<p class="text-center">
-						<a class="btn btn-primary" href="./login">Sign in</a>
+					<p>
+						<strong>Retirement</strong>
 					</p>
+					<p>
+						<strong>Stock market</strong>
+					</p>
+					<p>
+						<strong>Investment Products</strong>
+					</p>
+
 				</div>
 			</div>
 		</div>

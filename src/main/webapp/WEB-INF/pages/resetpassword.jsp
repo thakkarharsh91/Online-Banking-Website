@@ -51,6 +51,9 @@
 		<c:if test="${not empty emptyFields}">
 			<div class="msg">${emptyFields}</div>
 		</c:if>
+		<c:if test="${not empty success}">
+			<div class="msg">${success}</div>
+		</c:if>
 		<form name="form"
 			action="${pageContext.servletContext.contextPath}/resetButton?${_csrf.parameterName}=${_csrf.token}"
 			method='POST'>

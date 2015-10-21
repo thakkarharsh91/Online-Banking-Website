@@ -44,36 +44,19 @@
 	<div id="main-content">
 		<div class="container">
 			<div class="row">
-				<div class="span4">
-					<h2>Explore our products</h2>
+				<div class="span10">
+					<h2>Team</h2>
 					<p>
-						<strong>Find the products that fits your individual and
-							family goals </strong>
+						<strong>SAYANTAN GUHA :: </strong> <strong>SOROOSH GHOLAMI :: </strong> <strong>HARSH
+							THAKKAR</strong>
 					</p>
-					<p class="text-center">
-						<a class="btn btn-primary" href="./findallproducts">Find all products</a>
-					</p>
-				</div>
-
-				<div class="span4">
-					<h2>Start banking with Us</h2>
 					<p>
-						<strong>You could apply for checking, savings accounts
-							and credit cards</strong>
+						<strong>GUNPREET SINGH :: </strong> <strong>ANISHA ALLADA :: </strong> <strong>ARPIT
+							GUPTA</strong>
 					</p>
-					<p class="text-center">
-						<a class="btn btn-primary" href="./startbanking">Apply Online</a>
-					</p>
-				</div>
-
-				<div class="span4">
-					<h2>Existing Users</h2>
 					<p>
-						<strong>Login to access your accounts and access the
-							transactions and requests</strong>
-					</p>
-					<p class="text-center">
-						<a class="btn btn-primary" href="./login">Sign in</a>
+						<strong>KARTIK IYER :: </strong> <strong>AKARSH CHOLAVETI :: </strong> <strong>KARTHIK
+							RAMESH</strong>
 					</p>
 				</div>
 			</div>

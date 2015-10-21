@@ -35,9 +35,6 @@
 					<td><a href="#">Payments</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">Reset Password</a></td>
-				</tr>
-				<tr>
 					<td><a href="#">View Payment Lists</a></td>
 				</tr>
 				<tr>
@@ -54,6 +51,10 @@
 				</tr>
 				<tr>
 					<td><a href="#">Authorize Transaction for Approval</a></td>
+				</tr>
+				<tr>
+					<td><a href="${pageContext.servletContext.contextPath}/reset">Change
+							Password</a></td>
 				</tr>
 				<tr>
 					<td><a

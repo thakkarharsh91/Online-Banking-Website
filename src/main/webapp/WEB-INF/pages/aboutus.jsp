@@ -44,38 +44,19 @@
 	<div id="main-content">
 		<div class="container">
 			<div class="row">
-				<div class="span4">
-					<h2>Explore our products</h2>
+				<div class="span10">
+					<h2>About Us</h2>
 					<p>
-						<strong>Find the products that fits your individual and
-							family goals </strong>
+						<strong>SunDevils bank is specially designed for ASU students. The head office lies in the heart of Arizona, Tempe.</strong>
 					</p>
-					<p class="text-center">
-						<a class="btn btn-primary" href="./findallproducts">Find all products</a>
+					<p>
+						<strong>Apart from the normal banking features, the users can also avail the ASU benefits.</strong>
+					</p>
+					<p>
+						<strong>Current branches are in Tempe but we are planning to have branch in each and every state of US.</strong>
 					</p>
 				</div>
 
-				<div class="span4">
-					<h2>Start banking with Us</h2>
-					<p>
-						<strong>You could apply for checking, savings accounts
-							and credit cards</strong>
-					</p>
-					<p class="text-center">
-						<a class="btn btn-primary" href="./startbanking">Apply Online</a>
-					</p>
-				</div>
-
-				<div class="span4">
-					<h2>Existing Users</h2>
-					<p>
-						<strong>Login to access your accounts and access the
-							transactions and requests</strong>
-					</p>
-					<p class="text-center">
-						<a class="btn btn-primary" href="./login">Sign in</a>
-					</p>
-				</div>
 			</div>
 		</div>
 	</div>

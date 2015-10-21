@@ -45,35 +45,18 @@
 		<div class="container">
 			<div class="row">
 				<div class="span4">
-					<h2>Explore our products</h2>
+					<h2>Projects</h2>
 					<p>
-						<strong>Find the products that fits your individual and
-							family goals </strong>
+						<strong>SunDevils bank website</strong>
 					</p>
-					<p class="text-center">
-						<a class="btn btn-primary" href="./findallproducts">Find all products</a>
-					</p>
-				</div>
-
-				<div class="span4">
-					<h2>Start banking with Us</h2>
 					<p>
-						<strong>You could apply for checking, savings accounts
-							and credit cards</strong>
+						<strong>SunDevils android app</strong>
 					</p>
-					<p class="text-center">
-						<a class="btn btn-primary" href="./startbanking">Apply Online</a>
-					</p>
-				</div>
-
-				<div class="span4">
-					<h2>Existing Users</h2>
 					<p>
-						<strong>Login to access your accounts and access the
-							transactions and requests</strong>
+						<strong>SunDevils IOS app</strong>
 					</p>
-					<p class="text-center">
-						<a class="btn btn-primary" href="./login">Sign in</a>
+					<p>
+						<strong>SunDevils ApplePay</strong>
 					</p>
 				</div>
 			</div>

@@ -54,5 +54,24 @@ public class OtpUtility {
 		return webResource.type(MediaType.APPLICATION_FORM_URLENCODED).
 				post(ClientResponse.class, formData);
 	}
+	
+	public void sendOtp(HttpServletRequest request,String email,String query, String requestorEmail){
+
+		sendEmail(request,email,query,requestorEmail);
+	}
+
+	private static ClientResponse sendEmail(HttpServletRequest request,String email,String query, String requestorEmail) {
+		String messageText = "The requestor email address is "+requestorEmail+". The customer query is "+query;
+		Client client = Client.create();
+		client.addFilter(new HTTPBasicAuthFilter("api","key-6ccbcefd92ef23373e638edb9fbcb84b"));
+		WebResource webResource = client.resource("https://api.mailgun.net/v3/sandbox49500e12fe5b4f679478baf006256263.mailgun.org" + "/messages");
+		MultivaluedMapImpl formData = new MultivaluedMapImpl();
+		formData.add("from", "Sun Devils Bank <mailgun@sandbox49500e12fe5b4f679478baf006256263.mailgun.org>");
+		formData.add("to", email);
+		formData.add("subject", "One Time Password");
+		formData.add("text", messageText);
+		return webResource.type(MediaType.APPLICATION_FORM_URLENCODED).
+				post(ClientResponse.class, formData);
+	}
 
 }

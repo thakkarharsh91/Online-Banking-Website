@@ -48,6 +48,69 @@ public class TopController {
 		return model;
 
 	}
+	
+	@RequestMapping(value = {"/findallproducts" }, method = RequestMethod.GET)
+	public ModelAndView products(HttpServletRequest request,HttpServletResponse response) throws IOException {
+		ModelAndView model = new ModelAndView();
+		model.setViewName("findallproducts");
+		return model;
+	}
+	
+	@RequestMapping(value = {"/aboutus" }, method = RequestMethod.GET)
+	public ModelAndView aboutus(HttpServletRequest request,HttpServletResponse response) throws IOException {
+		ModelAndView model = new ModelAndView();
+		model.setViewName("aboutus");
+		return model;
+	}
+	
+	@RequestMapping(value = {"/projects" }, method = RequestMethod.GET)
+	public ModelAndView projects(HttpServletRequest request,HttpServletResponse response) throws IOException {
+		ModelAndView model = new ModelAndView();
+		model.setViewName("projects");
+		return model;
+	}
+	
+	@RequestMapping(value = {"/team" }, method = RequestMethod.GET)
+	public ModelAndView team(HttpServletRequest request,HttpServletResponse response) throws IOException {
+		ModelAndView model = new ModelAndView();
+		model.setViewName("team");
+		return model;
+	}
+	
+	@RequestMapping(value = {"/contact" }, method = RequestMethod.GET)
+	public ModelAndView contact(HttpServletRequest request,HttpServletResponse response) throws IOException {
+		ModelAndView model = new ModelAndView();
+		model.setViewName("contact");
+		return model;
+	}
+	
+	@RequestMapping(value = {"/startbanking" }, method = RequestMethod.GET)
+	public ModelAndView startbanking(HttpServletRequest request,HttpServletResponse response) throws IOException {
+		ModelAndView model = new ModelAndView();
+		model.setViewName("startbanking");
+		return model;
+	}
+	
+	
+	@RequestMapping(value = {"/customerquery" },  method = {RequestMethod.GET, RequestMethod.POST})
+	public ModelAndView customerquery(HttpServletRequest request,HttpServletResponse response) throws IOException {
+		ModelAndView model = new ModelAndView();
+		String query = request.getParameter("query");
+		String email = request.getParameter("emailaddress");
+		if(request.getParameter("submit")!=null){
+			if(query.equals("") || email.equals("")){
+				model.addObject("mandatory", "All fields are mandatory");
+				model.setViewName("contact");
+			}
+			else{
+				OtpUtility otp = new OtpUtility();
+				otp.sendOtp(request, "thakkarharsh90@gmail.com",query,email);
+				model.addObject("success", "An email has been sent to the support team. They will contact you within 3-5 working days.");
+				model.setViewName("contact");
+			}
+		}
+		return model;
+	}
 
 	@RequestMapping(value = {"/transact**" }, method = {RequestMethod.GET, RequestMethod.POST})
 	public ModelAndView transactPage(HttpServletRequest request,HttpServletResponse response) throws IOException {
@@ -457,7 +520,8 @@ public class TopController {
 			if(rs.next()){
 				userName = rs.getString("username");
 				otp.sendUserName(request, userName, emailAddress);
-				model.setViewName("getusernamesuccess"); 
+				model.addObject("success", "Your username has been mailed to you. Please check your inbox to get the username.");
+				model.setViewName("forgotusername"); 
 			}
 			else{
 				model.addObject("wrongemail", "Please enter correct email address");
@@ -662,7 +726,8 @@ public class TopController {
 					admin = rs1.getString("username");
 					if(user.equals(userName) && account.equals(accountNumber)){
 						handler.insertUnlockRequests(user,"unlock", user, admin,"test", "pending","test","test");
-						model.setViewName("unlockaccountsuccess");
+						model.addObject("success","Your request has been generated successfully. You will be notified via email when your account is ready for use.");
+						model.setViewName("unlockaccount");
 					}
 					else{
 						model.addObject("incorrectFields","Either username and/or account number is incorrect");

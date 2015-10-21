@@ -26,7 +26,7 @@ public class CaptchaUtility {
 		response.setContentType("image/jpeg");
 		
 		String captchaStr=generateCaptchaTextMethod(6);
-		int width=175;     	int height=30;
+		int width=220;     	int height=30;
 
 		Color bg = new Color(100,100,100);
 		Color fg = new Color(0,0,0);
@@ -37,9 +37,9 @@ public class CaptchaUtility {
 
 		g.setFont(font);
 		g.setColor(bg);
-		g.fillRect(0, 0, width, height);
+		g.fillRoundRect(0, 0, width, height, 20, 20);
 		g.setColor(fg);
-		g.drawString(captchaStr,45,25);   
+		g.drawString(captchaStr,60,25);   
 		
 		HttpSession session = request.getSession(true);
 		session.setAttribute("CAPTCHA", captchaStr);

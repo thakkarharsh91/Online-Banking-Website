@@ -44,38 +44,20 @@
 	<div id="main-content">
 		<div class="container">
 			<div class="row">
-				<div class="span4">
-					<h2>Explore our products</h2>
-					<p>
-						<strong>Find the products that fits your individual and
-							family goals </strong>
-					</p>
-					<p class="text-center">
-						<a class="btn btn-primary" href="./findallproducts">Find all products</a>
-					</p>
-				</div>
-
-				<div class="span4">
+				<div class="span10">
 					<h2>Start banking with Us</h2>
 					<p>
 						<strong>You could apply for checking, savings accounts
 							and credit cards</strong>
 					</p>
-					<p class="text-center">
-						<a class="btn btn-primary" href="./startbanking">Apply Online</a>
+					<p>
+						<strong>For opening any type of account, please visit our nearest store and provide all the documentation that is required.</strong>
+					</p>
+					<p>
+						<strong>The activation of account will normally require two business days to go through all the activation process. So please bear with us.</strong>
 					</p>
 				</div>
 
-				<div class="span4">
-					<h2>Existing Users</h2>
-					<p>
-						<strong>Login to access your accounts and access the
-							transactions and requests</strong>
-					</p>
-					<p class="text-center">
-						<a class="btn btn-primary" href="./login">Sign in</a>
-					</p>
-				</div>
 			</div>
 		</div>
 	</div>
