@@ -16,7 +16,7 @@
 					<td><a href="http://www.asu.edu/">View Requests</a></td>
 				</tr>
 				<tr>
-					<td><a href="http://www.asu.edu/">Access Transactions</a></td>
+					<td><a href="${pageContext.request.contextPath}/updateAllow?${_csrf.parameterName}=${_csrf.token}">Access Transactions Requests</a></td>
 				</tr>
 				<tr>
 					<td><a href="http://www.asu.edu/">Critical Transactions</a></td>

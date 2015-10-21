@@ -25,7 +25,7 @@ public class RequestAuthorize {
 		
 		
 		try {
-			//return (ResultSet)sql.authRequest(User);
+			return (ResultSet)sql.authRequest(User);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -33,5 +33,42 @@ public class RequestAuthorize {
 	}
 
 	
+public void updateRequestStatus(String rStatus, String[] rID) {
+		
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		
+		try {
+			sql.updateStatus(rStatus, rID);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+public ResultSet checkRequestStatus(String rID) {
 	
+	try {
+		sql.getConnection();
+	} catch (ClassNotFoundException e) {
+		e.printStackTrace();
+	} catch (SQLException e) {
+		e.printStackTrace();
+	}
+	
+	
+	try {
+		return (ResultSet)sql.checkStatus(rID);
+		
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+	return null;
+}
 }

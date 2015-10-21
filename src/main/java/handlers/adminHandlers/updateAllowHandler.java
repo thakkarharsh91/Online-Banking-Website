@@ -12,7 +12,7 @@ public class updateAllowHandler {
 		sql = new MySQLAccess();
 	}
 	
-	public void requestUpdateHandler(String toUserName,String fromUserName,String type) {
+	public void requestUpdateHandler(String forUserName,String fromUserName,String toUserName,String type) {
 		
 		try {
 			sql.getConnection();
@@ -24,7 +24,7 @@ public class updateAllowHandler {
 		
 		
 		try {
-			sql.updateAllowDataBase(toUserName,fromUserName,type);
+			sql.updateAllowDataBase(forUserName,fromUserName,toUserName,type);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

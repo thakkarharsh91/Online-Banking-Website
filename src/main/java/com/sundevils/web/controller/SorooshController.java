@@ -188,7 +188,7 @@ public class SorooshController {
 		String signature = request.getParameter("signature");
 
 		ArrayList<String> errors = null;
-		String username = (String)session.getAttribute("MerchantUsername");
+		String username = (String)session.getAttribute("USERNAME");
 		
 		if(payer.equalsIgnoreCase(username)){
 			errors = new ArrayList<String>();

@@ -10,8 +10,11 @@
 <title>Insert title here</title>
 </head>
 <body>
+	<div style="text-align: center">
+		<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
+	</div>
 	<form:form name='loginForm'
-		action="${pageContext.servletContext.contextPath}/accessRequests/?${_csrf.parameterName}=${_csrf.token}"
+		action="${pageContext.servletContext.contextPath}/authRequest/?${_csrf.parameterName}=${_csrf.token}"
 		method='POST'>
 		<table border="3" align="center">
 
@@ -19,35 +22,43 @@
 				<u>Requests</u>
 			</h2>
 			<tr>
+				<th>Select</th>
 				<th>Request ID</th>
 				<th>Request From</th>
+				<th>Request For</th>
 				<th>Request Time</th>
 				<th>Request Status</th>
 			</tr>
 			<c:forEach var="view" items="${requestApprove}">
 				<tr>
+					<td><input type="checkbox" value="${view.requstID}"
+						name="check"></td>
 					<td><c:out value="${view.requstID}" /></td>
 					<td><c:out value="${view.rqstFrom}" /></td>
+					<td><c:out value="${view.rqstFor}" /></td>
 					<td><c:out value="${view.rqstTime}" /></td>
 					<td><c:out value="${view.rqstStatus}" /></td>
 				</tr>
 			</c:forEach>
 
 		</table>
-		<select name="Type">
-			<option value="Approve">Approve</option>
-			<option value="Reject">Reject</option>
-		</select>
-Enter the Request Id :
-<input type='text' name='RequestID' />
-		<input name="submit" type="submit" value="submit" />
+		</br>
+		</br>
+		<div style="text-align: center">
+			<select name="Type">
+				<option value="Approve">Approve</option>
+				<option value="Reject">Reject</option>
+			</select> <br></br> <br></br> <input name="submit" type="submit"
+				value="submit" />
+		</div>
 	</form:form>
 </body>
 </html>
 <%
 	int timeout = session.getMaxInactiveInterval();
+	//timeout/=60;
 	String url = request.getRequestURL().toString();
-	url = url.replace("/WEB-INF/pages/accessRequests.jsp", "/login");
-	response.setHeader("Refresh", timeout + "; URL =" + url);
+	url = url.replace("/WEB-INF/pages/accessRequests.jsp",
+			"/logoutusers");
+	response.setHeader("Refresh", "300; URL =" + url);
 %>
-</html>

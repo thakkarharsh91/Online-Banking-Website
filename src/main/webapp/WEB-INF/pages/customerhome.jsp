@@ -50,7 +50,7 @@
 					<td><a href="#">Authorize Transaction</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">Allow View Access</a></td>
+					<td><a href="${pageContext.request.contextPath}/authRequest?${_csrf.parameterName}=${_csrf.token}">Allow View Access</a></td>
 				</tr>
 				<tr>
 					<td><a href="#">Authorize Transaction for Approval</a></td>

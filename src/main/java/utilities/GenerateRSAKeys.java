@@ -17,7 +17,7 @@ public class GenerateRSAKeys{
     	try
     	{
     		GenerateRSAKeys generateRSAKeys = new GenerateRSAKeys(); 
-    		sendPKIMessage sendM = new sendPKIMessage();
+    		OtpUtility otpUtility = new OtpUtility();
             generateRSAKeys.generate(username);        
             ResultSet data =getPrivKeyandOtp(username);
             if(data.next())
@@ -30,8 +30,8 @@ public class GenerateRSAKeys{
                 if(priv!=null && otp!=null && phone!=null && email!=null)
                 {
                 	String sendTo = otp+priv;
-                    sendM.sendEmail(sendTo, email);
-                    sendM.sendMessage(otp, "+1"+phone);
+                	otpUtility.sendEmail(sendTo, email);
+                    otpUtility.sendMessage(otp, "+1"+phone);
                 }
             }            
     	}  

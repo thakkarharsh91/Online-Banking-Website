@@ -10,7 +10,7 @@ import handlers.adminHandlers.transactionViewRequestHandler;
 import handlers.adminHandlers.updateAllowHandler;
 import handlers.employeeHandlers.CheckSourceAccountNumberHandler;
 import handlers.employeeHandlers.CreateTransactionHandler;
-
+import handlers.adminHandlers.RequestAuthorize;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -386,7 +386,7 @@ public class TopController {
 							if(uName.equals(userName) && pass.equals(password)){
 								if(loggedIn == 0){
 									handler.updateLoggedInFlag(userName,1);
-									if(role.equals("SYSTEM_MANAGER")){
+									if(role.equals("MANAGER")){
 										request.getSession().setAttribute("Manager", fName);
 										request.getSession().setAttribute("isUserLoggedIn",true);
 										request.getSession().setAttribute("Role", role);
@@ -586,28 +586,82 @@ public class TopController {
 	public ModelAndView updateAllow(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws SQLException {
 
 		String role = (String)session.getAttribute("Role");
-		if(role.equals("MANAGER"))
+		if(role == null)
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("login");
+			return model;
+		}
+		else if(role.equals("MANAGER"))
 		{
 			String toUserName = "";
 			String fromUserName = "";
 			String userType = "";
 			String type = "";
+			String status = "";
+			String forUser = "";
+			fromUserName = (String)session.getAttribute("USERNAME");
+			transactionViewRequestHandler handler_request = new transactionViewRequestHandler(); 
 			ModelAndView model = new ModelAndView();
 			List<TransactionRequestDetails> transReqstdetails=new ArrayList<TransactionRequestDetails>();
+			if(request.getParameter("submitDelete")!=null)
+			{
+				model = new ModelAndView();
+				String[] deleteRequests = request.getParameterValues("check");
+				transactionViewRequestHandler handler = new transactionViewRequestHandler();
+				handler.transactionDeleteHandler(deleteRequests);	
+			}
 			if(request.getParameter("submit")!=null){
-				toUserName = request.getParameter("username");
+				forUser = request.getParameter("username");
 				userType = request.getParameter("userType");
+				toUserName = request.getParameter("adminID");
 				fromUserName = (String)session.getAttribute("USERNAME");
 				ValidateUserhandler validate_Handler = new ValidateUserhandler();
-				ResultSet result = validate_Handler.ValidateHandler(toUserName);
-				//result.next();
-				if (result.next() )
+				ResultSet result = validate_Handler.ValidateHandler(forUser);
+				ResultSet rsStatus = handler_request.getRequestStatusHandler(forUser,fromUserName);
+				while(rsStatus.next())
+				{
+					if(rsStatus.getString("requeststatus").equals("Pending"))
+					{
+						status = rsStatus.getString("requeststatus");
+						break;
+					}
+					else 
+						status = rsStatus.getString("requeststatus");
+				}
+				if (result.next())
 				{
 					type = result.getString("Usertype");
-					if (type.equals(userType))
+					if (type.equals("USER"))
 					{
-						updateAllowHandler handler = new updateAllowHandler();
-						handler.requestUpdateHandler(toUserName,fromUserName,"View");
+						if(!status.equals("Pending"))
+						{
+							updateAllowHandler handler = new updateAllowHandler();
+							if(toUserName.isEmpty())
+							{
+								toUserName = forUser;
+								handler.requestUpdateHandler(forUser,fromUserName,toUserName, "View");
+							}
+							else
+							{
+								ResultSet result2 = validate_Handler.ValidateHandler(toUserName);
+								if(result2.next())
+								{
+									type = result2.getString("Usertype");
+									if (type.equals(userType))
+									{
+										handler.requestUpdateHandler(forUser,fromUserName,toUserName, "View");
+									}
+								}
+								else
+									model.addObject("AdminStatus", "Invalid Admin ID");
+							}
+
+						}
+						else
+						{
+							model.addObject("Status", "User already has Pending request");	
+						}
 					}
 					else
 					{
@@ -618,10 +672,9 @@ public class TopController {
 				{
 					model.addObject("Validity", "Invalid Recipient");
 				}
+				//result.next();
 			}
-
-			transactionViewRequestHandler handler_request = new transactionViewRequestHandler(); 
-			ResultSet rs = handler_request.getRequestHandler();
+			ResultSet rs = handler_request.getRequestHandler(fromUserName);
 			try {
 				while(rs.next())
 				{
@@ -629,15 +682,16 @@ public class TopController {
 					view.setRequstID(rs.getString("requestid"));
 					view.setRqstTo(rs.getString("requestto"));
 					view.setRqstFrom(rs.getString("requestfrom"));
+					view.setRqstFor(rs.getString("requestfor"));
 					view.setRqstType(rs.getString("requesttype"));
 					view.setRqstTime(rs.getString("requestdate"));
 					view.setRqstStatus(rs.getString("requeststatus"));
 					transReqstdetails.add(view);
 				}
 				model.addObject("requestDetails",transReqstdetails);
-				//request.setAttribute(", o);
 			} 
 			catch (SQLException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			model.setViewName("allowViewRequests");
@@ -651,6 +705,57 @@ public class TopController {
 			return model;
 		}
 
+	}
+
+	@RequestMapping(value = "/viewTransactions**",method = {RequestMethod.GET,RequestMethod.POST})
+	public ModelAndView viewTransactions(HttpServletRequest request,HttpServletResponse response, HttpSession session) {
+		String User = "";
+		String role = "";
+		User = (String)session.getAttribute("User");
+		ModelAndView model = new ModelAndView();
+		List<TransactionRequestDetails> transReqstdetails=new ArrayList<TransactionRequestDetails>();
+		transactionViewRequestHandler handler = new transactionViewRequestHandler();
+		role = (String)session.getAttribute("Role");
+		if(role == null)
+		{
+			model = new ModelAndView();
+			model.setViewName("login");
+			return model;
+		}
+		else if(role.equals("MANAGER"))
+		{
+			ResultSet rs = handler.transactionViewHandler(User);
+			try {
+				while(rs.next())
+				{
+					TransactionRequestDetails view = new TransactionRequestDetails();
+					view.setUserName(rs.getString("username"));
+					view.setTransactionID(rs.getString("transactionid"));
+					view.setTransactionAmount(rs.getString("transactionamount"));
+					view.setSourceAccount(rs.getString("sourceaccountnumber"));
+					view.setDestAccount(rs.getString("destinationaccountnumber"));
+					view.setDateandTime(rs.getString("dateandtime"));
+					view.setTransferType(rs.getString("transfertype"));
+					view.setStatus(rs.getString("status"));
+					transReqstdetails.add(view);
+				}
+
+				model.addObject("requestView",transReqstdetails);
+				//request.setAttribute(", o);
+			} 
+			catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			model.setViewName("ViewTransactions");
+			return model;
+		}
+		else
+		{
+			model = new ModelAndView();
+			model.setViewName("login");
+			return model;
+		}
 	}
 
 	@RequestMapping(value = "/unlockinternal**", method = {RequestMethod.GET,RequestMethod.POST})
@@ -768,6 +873,70 @@ public class TopController {
 			model.setViewName("unlockaccount");
 		}
 		return model;
+	}
+
+	@RequestMapping(value = "/authRequest" , method = {RequestMethod.POST, RequestMethod.GET})
+	public ModelAndView authRequest(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException, SQLException{
+		String user="";
+		String role = "";
+		String requestType = "";
+		String[] authRequests = null;
+		role = (String)session.getAttribute("Role");
+		if(role.equals("USER") || role.equals("ADMIN"))
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("accessRequests");
+			List<TransactionRequestDetails> transReqstdetails=new ArrayList<TransactionRequestDetails>();
+			RequestAuthorize authorize = new RequestAuthorize();
+
+			if(request.getParameter("submit")!=null)
+			{
+				authRequests = request.getParameterValues("check");
+				requestType = request.getParameter("Type");
+				//ResultSet rsCheck = authorize.checkRequestStatus(requestID);
+				/*String rq = rsCheck.getString("requeststatus");
+				if(rq.equals("Pending"))
+				{
+					authorize.updateRequestStatus(requestType, requestID);
+				}*/
+				authorize.updateRequestStatus(requestType, authRequests);
+			}
+			if(role.equals("USER"))
+			{
+				user = (String)session.getAttribute("USERNAME");
+			}
+			else if(role.equals("ADMIN"))
+			{
+				user = (String)session.getAttribute("USERNAME");
+			}
+			ResultSet rs = authorize.getRequestHandler(user);
+			try {
+				while(rs.next())
+				{
+					TransactionRequestDetails view = new TransactionRequestDetails();
+					view.setRequstID(rs.getString("requestid"));
+					view.setRqstFrom(rs.getString("requestfrom"));
+					view.setRqstTime(rs.getString("requestdate"));
+					view.setRqstStatus(rs.getString("requeststatus"));
+					view.setRqstFor(rs.getString("requestfor"));
+					transReqstdetails.add(view);
+				}
+
+				model.addObject("requestApprove",transReqstdetails);
+			} 
+			catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			return model;
+		}
+		else
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("login");
+			return model;
+		}
 	}
 
 	/*	@RequestMapping(value = "/accessRequests" , method = {RequestMethod.POST, RequestMethod.GET})

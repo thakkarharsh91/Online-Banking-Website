@@ -16,7 +16,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 import utilities.MyStringRandomGen;
-import utilities.SendEmail;
+import utilities.OtpUtility;
 import authentication.ModifyUser;
 import authentication.Request;
 import authentication.Requests;
@@ -125,6 +125,22 @@ public class MySQLAccess {
 			preparedStatement.setString(1, userName);    
 			ResultSet resultSet = preparedStatement.executeQuery();
 			return resultSet;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public void updateAllowDataBase(String userNameFor, String userNameFrom, String userNameTo, String requestType ) throws Exception {
+		try {						
+			preparedStatement = connect.prepareStatement("INSERT INTO software_security.tbl_transaction_requests (requestfor, requestfrom, requesttype, requestto)"
+					+ "VALUES (?, ?, ?,?)"); 
+			//INSERT INTO `software_security`.`tbl_transaction_requests` (`requestto`, `requestfrom`, `requesttype`) VALUES ('arpit', 'arpit', 'View');
+			preparedStatement.setString(1, userNameFor); 
+			preparedStatement.setString(2, userNameFrom);
+			preparedStatement.setString(3, requestType);
+			preparedStatement.setString(4, userNameTo);
+			preparedStatement.executeUpdate();
 
 		} catch (Exception e) {
 			throw e;
@@ -247,20 +263,107 @@ public class MySQLAccess {
 		}
 	}
 
-	/*public ResultSet authRequest(String User) throws Exception {
+	public ResultSet getRequestInfo(String fromUser) throws Exception {
 		try {						
-						preparedStatement = connect.prepareStatement("SELECT requestid,requestfrom,requestdate,requeststatus FROM software_security.tbl_transaction_requests JOIN " 
-								+"software_security.tbl_user_details ON tbl_transaction_requests.requestto=tbl_user_details.username where tbl_transaction_requests.requestto = ?");
-						preparedStatement.setString(1, User);
-						ResultSet resultSet = preparedStatement.executeQuery();
-						return resultSet;
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_transaction_requests where requestfrom=?");
+			preparedStatement.setString(1, fromUser);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			return resultSet;
 
 		} catch (Exception e) {
 			throw e;
 		}
-	}*/
+	}
+	public void deleteRequest(String[] deleteRequests) throws Exception {
+		try {			
+			for(int i=0; i<deleteRequests.length; i++)
+			{
+				preparedStatement = connect.prepareStatement("DELETE FROM software_security.tbl_transaction_requests WHERE requestid=?");
+				preparedStatement.setString(1, deleteRequests[i]);
+				preparedStatement.executeUpdate();
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	public ResultSet getRequestStatusInfo(String forUser,String fromUser) throws Exception {
+		try {						
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_transaction_requests where requestfor=? and requestfrom=?");
+			preparedStatement.setString(1, forUser);
+			preparedStatement.setString(2, fromUser);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			return resultSet;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	public ResultSet getTransaction(String User) throws Exception {
+		try {						
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_transactions where username=?");
+			preparedStatement.setString(1, User);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			return resultSet;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	public ResultSet authRequest(String User) throws Exception {
+		try {						
+			preparedStatement = connect.prepareStatement("SELECT requestid,requestfrom,requestdate,requeststatus, requestfor FROM software_security.tbl_transaction_requests JOIN " 
+					+"software_security.tbl_user_details ON tbl_transaction_requests.requestto=tbl_user_details.username and tbl_transaction_requests.requestfor=tbl_user_details.username where tbl_transaction_requests.requestto = ? AND tbl_transaction_requests.requeststatus='Pending'");
+			preparedStatement.setString(1, User);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			return resultSet;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public ResultSet checkStatus(String User) throws Exception {
+		try {						
+			preparedStatement = connect.prepareStatement("SELECT requeststatus FROM software_security.tbl_transaction_requests where tbl_transaction_requests.requestid = ?");
+			preparedStatement.setString(1, User);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			return resultSet;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public void updateStatus(String rStatus, String[] rID) throws Exception {
+		try {				
+			for(int i=0; i<rID.length; i++)
+			{
+				preparedStatement = connect.prepareStatement("UPDATE software_security.tbl_transaction_requests SET requeststatus=? WHERE requestid=?");
+				preparedStatement.setString(1, rStatus);
+				preparedStatement.setString(2, rID[i]);
+				preparedStatement.executeUpdate();
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
 
 	public ResultSet validateUserInfo(String User) throws Exception {
+		try {						
+			preparedStatement = connect.prepareStatement("SELECT Usertype FROM software_security.tbl_user_details "
+					+"where username= ? ");
+			preparedStatement.setString(1, User); 
+			ResultSet resultSet = preparedStatement.executeQuery();
+			return resultSet;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public ResultSet validateUserInfo1(String User) throws Exception {
 		try {						
 			preparedStatement = connect.prepareStatement("SELECT Usertype FROM software_security.tbl_user_details "
 					+"where username= ? ");
@@ -695,8 +798,8 @@ public class MySQLAccess {
 				preparedStatement3.executeUpdate();
 				//Insert into USER details table
 				preparedStatement2.executeUpdate();
-				SendEmail sendemail=new SendEmail();
-				sendemail.sendEmailInvitation(tmpusername, tmppwd, privateKey);
+				OtpUtility otp = new OtpUtility();
+				otp.sendEmailInvitation(tmpusername, tmppwd, privateKey);
 
 			}
 			//insert into User Account
