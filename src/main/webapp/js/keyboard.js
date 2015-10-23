@@ -263,7 +263,7 @@ function VKI_buildKeyboardInputs() {
             ex.id = keyid;
           } else keyid = ex.id;
           var keybut = document.createElement('img');
-              //keybut.src = "/images/keyboard.png";
+              keybut.src = "images/keyboard.png";
               keybut.alt = "Keyboard Interface";
               keybut.className = "keyboardInputInitiator";
               keybut.title = "Display graphical keyboard interface";

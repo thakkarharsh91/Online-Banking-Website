@@ -42,8 +42,8 @@ public class ControllerClass {
 				model.setViewName("resetpassword");
 			}
 			else
-				model.addObject("success", "Your password has been successfully changed.");
-				model.setViewName("resetpassword");
+				model.addObject("successpassword", "Your password has been successfully changed.  You will be automatically redirected to login page within few seconds.");
+				model.setViewName("success");
 		}
 		return model;
 	}	

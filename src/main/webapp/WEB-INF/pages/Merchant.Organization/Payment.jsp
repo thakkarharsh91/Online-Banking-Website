@@ -35,6 +35,18 @@
 			</tr>
 
 			<tr>
+				<td>Choose the destination bank account:</td>
+				<td><select name="accountNumber">
+						<c:forEach items="${bankaccounts}" var="bankaccount">
+							<option value="${bankaccount.getAccountNumber()}">
+								${bankaccount.getAccountNumber()}
+								(${bankaccount.getAccountType()}) - B:
+								${bankaccount.getBalance()}</option>
+						</c:forEach>
+				</select></td>
+			</tr>
+
+			<tr>
 				<td>Signature:</td>
 				<td><input type="text" name="signature" /></td>
 			</tr>

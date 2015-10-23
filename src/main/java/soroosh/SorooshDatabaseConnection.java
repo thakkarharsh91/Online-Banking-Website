@@ -97,16 +97,17 @@ public class SorooshDatabaseConnection {
 		getConnection();
 
 		preparedStatement = connect
-				.prepareStatement("insert into  software_security.tbl_transactions values (?, ?, ?, ?, ?, ?, ?, ?)");
+				.prepareStatement("insert into  software_security.tbl_transactions values (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		// Parameters start with 1
 		preparedStatement.setBytes(1, username.getBytes());
 		preparedStatement.setBytes(2, null);
 		preparedStatement.setBytes(3, transactionamount.getBytes());
-		preparedStatement.setBytes(4, sourceaccountnumber.getBytes());
-		preparedStatement.setBytes(5, destinationaccountnumber.getBytes());
-		preparedStatement.setBytes(6, dateandtime.getBytes());
-		preparedStatement.setBytes(7, transfertype.getBytes());
-		preparedStatement.setBytes(8, status.getBytes());
+		preparedStatement.setBytes(4, transactionamount.getBytes());
+		preparedStatement.setBytes(5, sourceaccountnumber.getBytes());
+		preparedStatement.setBytes(6, destinationaccountnumber.getBytes());
+		preparedStatement.setBytes(7, dateandtime.getBytes());
+		preparedStatement.setBytes(8, transfertype.getBytes());
+		preparedStatement.setBytes(9, status.getBytes());
 
 		preparedStatement.executeUpdate();
 		close();
@@ -153,11 +154,12 @@ public class SorooshDatabaseConnection {
 		return errors;
 	}
 
-	public void putMerchantPaymentRequestInDatabase(String payer, String amount, String username) 
+	public void putMerchantPaymentRequestInDatabase(String payer, String amount, 
+			String accountNumber, String username) 
 			throws ClassNotFoundException, SQLException {
 		Calendar cal = Calendar.getInstance();
 		Date date = new Date(cal.getTimeInMillis());
-		putCustomerPaymentInDatabase(username, amount, payer, username, date.toString(), "PAYMENT", "WAITING_PAYER");
+		putCustomerPaymentInDatabase(username, amount, payer, accountNumber, date.toString(), "PAYMENT", "WAITING_PAYER");
 	}
 
 	public ArrayList<PaymentInfo> readAllPaymentsFromMerchant(String merchantUsername) throws Exception{
@@ -268,7 +270,7 @@ public class SorooshDatabaseConnection {
 				+ "SET Status = ?, Destinationaccountnumber = ?"
 				+ "WHERE tbl_transactions.Transactionid = ?");    
 
-		preparedStatement.setString(1, "WAITING_BANK");
+		preparedStatement.setString(1, "pendingapproval");
 		preparedStatement.setString(2, bankAccount);
 		preparedStatement.setInt(3, paymentId);
 
@@ -286,7 +288,7 @@ public class SorooshDatabaseConnection {
 				+ "WHERE tbl_transactions.Transactionid = ?");    
 
 		if(accept)
-			preparedStatement.setString(1, "WAITING_BANK");
+			preparedStatement.setString(1, "pendingapproval");
 		else preparedStatement.setString(1, "REJECT");
 		preparedStatement.setInt(2, paymentId);
 
@@ -339,7 +341,7 @@ public class SorooshDatabaseConnection {
 				+ "WHERE tbl_transactions.Transactionid = ?");    
 
 		if(accept)
-			preparedStatement.setString(1, "WAITING_BANK");
+			preparedStatement.setString(1, "pendingapproval");
 		else preparedStatement.setString(1, "REJECT");
 		preparedStatement.setInt(2, paymentId);
 
@@ -383,7 +385,7 @@ public class SorooshDatabaseConnection {
 		preparedStatement = connect.prepareStatement("UPDATE software_security.tbl_transactions "
 				+ "SET Status = ?, Sourceaccountnumber = ?"
 				+ "WHERE tbl_transactions.Transactionid = ?");    
-		preparedStatement.setString(1, "WAITING_BANK");
+		preparedStatement.setString(1, "pendingapproval");
 		preparedStatement.setString(2, accountNumber);
 		preparedStatement.setInt(3, payment.getPaymentId());
 		preparedStatement.executeUpdate();

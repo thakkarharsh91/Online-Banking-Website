@@ -3,6 +3,7 @@ package com.sundevils.web.controller;
 
 import handlers.adminHandlers.LoginHandler;
 import handlers.adminHandlers.ModifyUsersHandler;
+import handlers.adminHandlers.RequestAuthorize;
 import handlers.adminHandlers.UnlockInternalAccountHandler;
 import handlers.adminHandlers.ValidateUserhandler;
 import handlers.adminHandlers.ViewUsersHandler;
@@ -10,7 +11,7 @@ import handlers.adminHandlers.transactionViewRequestHandler;
 import handlers.adminHandlers.updateAllowHandler;
 import handlers.employeeHandlers.CheckSourceAccountNumberHandler;
 import handlers.employeeHandlers.CreateTransactionHandler;
-import handlers.adminHandlers.RequestAuthorize;
+
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,6 +30,7 @@ import org.springframework.web.servlet.ModelAndView;
 import utilities.CaptchaUtility;
 import utilities.OtpUtility;
 
+import com.user.info.Transactions.TransactionDetails;
 import com.user.info.Transactions.TransactionRequestDetails;
 
 
@@ -437,6 +439,7 @@ public class TopController {
 							}
 						}
 						else{
+							model.addObject("lock", "Your account has been locked. Please fill in the below details to make a request for unlock account.");
 							model.setViewName("unlockaccount");
 						}
 					}
@@ -528,8 +531,8 @@ public class TopController {
 			if(rs.next()){
 				userName = rs.getString("username");
 				otp.sendUserName(request, userName, emailAddress);
-				model.addObject("success", "Your username has been mailed to you. Please check your inbox to get the username.");
-				model.setViewName("forgotusername"); 
+				model.addObject("successusername", "Your username has been mailed to you. Please check your inbox to get the username. You will be automatically redirected to login page within few seconds.");
+				model.setViewName("success"); 
 			}
 			else{
 				model.addObject("wrongemail", "Please enter correct email address");
@@ -838,17 +841,24 @@ public class TopController {
 			else{
 				ResultSet rs = handler.requestAccountHandler(userName);
 				ResultSet rs1 = handler.requestAdminHandler("ADMIN");
+				ResultSet rs2 = handler.checkRequestExist(userName,"unlock","pending");
 				if(rs.next() && rs1.next()){
-					user = rs.getString("username");
-					account = rs.getString("accountnumber");
-					admin = rs1.getString("username");
-					if(user.equals(userName) && account.equals(accountNumber)){
-						handler.insertUnlockRequests(user,"unlock", user, admin,"test", "pending","test","test");
-						model.addObject("success","Your request has been generated successfully. You will be notified via email when your account is ready for use.");
-						model.setViewName("unlockaccount");
+					if(!rs2.next()){
+						user = rs.getString("username");
+						account = rs.getString("accountnumber");
+						admin = rs1.getString("username");
+						if(user.equals(userName) && account.equals(accountNumber)){
+							handler.insertUnlockRequests(user,"unlock", user, admin,"test", "pending","test","test");
+							model.addObject("successunlock","Your request has been generated successfully. You will be notified via email when your account is ready for use. You will be automatically redirected to login page within few seconds.");
+							model.setViewName("success");
+						}
+						else{
+							model.addObject("incorrectFields","Either username and/or account number is incorrect");
+							model.setViewName("unlockaccount");
+						}
 					}
 					else{
-						model.addObject("incorrectFields","Either username and/or account number is incorrect");
+						model.addObject("alreadypresent","You have already submitted the request. Please bear with us.");
 						model.setViewName("unlockaccount");
 					}
 				}
@@ -859,7 +869,7 @@ public class TopController {
 			}
 		}
 
-		else{
+		else{ 
 			String userSession = (String) session.getAttribute("USERNAME");
 			handler = new LoginHandler();
 			ResultSet rs = handler.requestLoginHandler(userSession);
@@ -893,22 +903,11 @@ public class TopController {
 			{
 				authRequests = request.getParameterValues("check");
 				requestType = request.getParameter("Type");
-				//ResultSet rsCheck = authorize.checkRequestStatus(requestID);
-				/*String rq = rsCheck.getString("requeststatus");
-				if(rq.equals("Pending"))
-				{
-					authorize.updateRequestStatus(requestType, requestID);
-				}*/
 				authorize.updateRequestStatus(requestType, authRequests);
 			}
-			if(role.equals("USER"))
-			{
-				user = (String)session.getAttribute("USERNAME");
-			}
-			else if(role.equals("ADMIN"))
-			{
-				user = (String)session.getAttribute("USERNAME");
-			}
+
+			user = (String)session.getAttribute("USERNAME");
+
 			ResultSet rs = authorize.getRequestHandler(user);
 			try {
 				while(rs.next())
@@ -925,7 +924,6 @@ public class TopController {
 				model.addObject("requestApprove",transReqstdetails);
 			} 
 			catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -939,87 +937,177 @@ public class TopController {
 		}
 	}
 
-	/*	@RequestMapping(value = "/accessRequests" , method = {RequestMethod.POST, RequestMethod.GET})
-	public ModelAndView allowViewAccess(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException{
-		ModelAndView model = new ModelAndView();
-		String user="";
+	@RequestMapping(value = "/approvetransaction" , method = {RequestMethod.POST, RequestMethod.GET})
+	public ModelAndView approveTransaction(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException, SQLException{
 		String role = "";
-		String type = "";
-		model.setViewName("accessRequests");
-		type = request.getParameter("Type");
-		List<TransactionRequestDetails> transReqstdetails=new ArrayList<TransactionRequestDetails>();
-		RequestAuthorize authorize = new RequestAuthorize(); 
+		String requestType = "";
+		String[] authRequests = null;
 		role = (String)session.getAttribute("Role");
+		double balance = 0.0;
+		boolean destinationFlag = false;
+		boolean sourceFlag = false;
+		double destinationAmount = 0.0;
+		String destinationAccountNumber = "";
+		double sourceAmount = 0.0;
+		String sourceAccountNumber = "";
+		if(role.equals("EMPLOYEE"))
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("approve");
+			List<TransactionDetails> transDetails=new ArrayList<TransactionDetails>();
+			RequestAuthorize authorize = new RequestAuthorize();
 
-		if(role.equals("USER"))
-		{
-		user = (String)session.getAttribute("USERNAME");
-		}
-		else if(role.equals("ADMIN"))
-		{
-		user = (String)session.getAttribute("USERNAME");
-		}
-		ResultSet rs = authorize.getRequestHandler(user);
-		try {
-			while(rs.next())
+			if(request.getParameter("submit")!=null)
 			{
-				TransactionRequestDetails view = new TransactionRequestDetails();
-				view.setRequstID(rs.getString("requestid"));
-				view.setRqstFrom(rs.getString("requestfrom"));
-				view.setRqstTime(rs.getString("requestdate"));
-				view.setRqstStatus(rs.getString("requeststatus"));
-				transReqstdetails.add(view);
-			}
-			if(request.getParameter("submit")!=null){
+				authRequests = request.getParameterValues("check");
+				requestType = request.getParameter("Type");
+				if(authRequests!=null){
+					balance = authorize.getBalance(authRequests);
 
+					if(requestType.equals("Approve")){
+						destinationFlag  = authorize.checkSameDestination(authRequests);
+						if(destinationFlag){
+							destinationAccountNumber = authorize.getDestinationAccount(authRequests[0]); 
+							destinationAmount = authorize.getDestinationBalance(destinationAccountNumber);
+							authorize.approveTransaction(requestType,balance + destinationAmount, authRequests);
+						}
+						else{
+							model.addObject("duplicateaccount","Transactions belonging to the same destination account should be done at a time while approving.");
+						}
+					}
+					else{
+						sourceFlag  = authorize.checkSameSource(authRequests);
+						if(sourceFlag){
+							sourceAccountNumber = authorize.getSourceAccount(authRequests[0]);
+							sourceAmount = authorize.getSourceBalance(sourceAccountNumber);
+							authorize.rejectTransaction(requestType,balance + sourceAmount, authRequests);
+						}
+						else{
+							model.addObject("duplicatesourceaccount","Transactions belonging to the same source account should be done at a time while rejecting.");
+						}
+					}
+				}
+				else{
+					model.addObject("check", "Please check atleast one checkbox to continue");
+				}
 			}
 
-			model.addObject("requestApprove",transReqstdetails);
-			//request.setAttribute(", o);
-		} 
-		catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			ResultSet rs = authorize.getTransactionHandler("pendingapproval",10000,"PAYMENT");
+			try {
+				while(rs.next())
+				{
+					TransactionDetails view = new TransactionDetails();
+					view.setUserName(rs.getString("username"));
+					view.setTransactionId(rs.getString("transactionid"));
+					view.setTransactionAmount(rs.getString("transactionamount"));
+					view.setNewAmount(rs.getString("newamount"));
+					view.setSourceAccount(rs.getString("sourceaccountnumber"));
+					view.setDestAccount(rs.getString("destinationaccountnumber"));
+					view.setDateandTime(rs.getString("dateandtime"));
+					view.setTransferType(rs.getString("transfertype"));
+					view.setStatus(rs.getString("status"));
+					transDetails.add(view);
+				}
+
+				model.addObject("transactionApprove",transDetails);
+			} 
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+			return model;
 		}
-		return model;
-	}*/
+		else
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("login");
+			return model;
+		}
+	}
 
-	/*	@RequestMapping(value = "/updateaccessRequests" , method = {RequestMethod.POST, RequestMethod.GET})
-	public ModelAndView updateViewAccess(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException{
-		ModelAndView model = new ModelAndView();
-		String user="";
+	@RequestMapping(value = "/moddeltransaction" , method = {RequestMethod.POST, RequestMethod.GET})
+	public ModelAndView modifyDeleteTransaction(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException, SQLException{
 		String role = "";
-		model.setViewName("accessRequests");
-		List<TransactionRequestDetails> transReqstdetails=new ArrayList<TransactionRequestDetails>();
-		RequestAuthorize authorize = new RequestAuthorize(); 
+		String requestType = "";
+		String[] authRequests = null;
 		role = (String)session.getAttribute("Role");
+		double amount = 0.0;
+		double balance = 0.0;
+		String accountNumber = "";
+		double sourceAmount = 0.0;
+		String sourceAccountNumber = "";
+		if(role.equals("EMPLOYEE"))
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("moddeltransaction");
+			List<TransactionDetails> transDetails=new ArrayList<TransactionDetails>();
+			RequestAuthorize authorize = new RequestAuthorize();
 
-		if(role.equals("USER"))
-		{
-		user = (String)session.getAttribute("USERNAME");
-		}
-		else if(role.equals("ADMIN"))
-		{
-		user = (String)session.getAttribute("USERNAME");
-		}
-		ResultSet rs = authorize.getRequestHandler(user);
-		try {
-			while(rs.next())
+			if(request.getParameter("submit")!=null)
 			{
-				TransactionRequestDetails view = new TransactionRequestDetails();
-				view.setRequstID(rs.getString("requestid"));
-				view.setRqstFrom(rs.getString("requestfrom"));
-				view.setRqstTime(rs.getString("requestdate"));
-				view.setRqstStatus(rs.getString("requeststatus"));
-				transReqstdetails.add(view);
+				authRequests = request.getParameterValues("check");
+				requestType = request.getParameter("Type");
+				if(authRequests!=null){
+					balance = authorize.getBalance(authRequests);
+					ArrayList<String> status = authorize.checkStatusOfId(authRequests);
+					if(requestType.equals("Modify")){
+						if(status.contains("pendingdelete")){
+							model.addObject("modify","Please select modifiable transactions only,");
+						}
+						else{
+							accountNumber = authorize.getDestinationAccount(authRequests[0]); 
+							amount = authorize.getDestinationBalance(accountNumber);
+							authorize.approveTransaction("approvedmodify",balance + amount,authRequests);
+						}
+					}
+					else if(requestType.equals("Delete")){
+						if(status.contains("pendingmodify")){
+							model.addObject("delete","Please select transactions to be deleted only.");
+						}
+						else{
+							sourceAccountNumber = authorize.getSourceAccount(authRequests[0]);
+							sourceAmount = authorize.getSourceBalance(sourceAccountNumber);
+							authorize.rejectTransaction("approveddelete",balance + sourceAmount, authRequests);
+							authorize.deleteTransaction(authRequests);
+						}
+					}
+				}
+				else{
+					model.addObject("select","Please select atleast one line item to continue");
+				}
 			}
-			model.addObject("requestApprove",transReqstdetails);
-			//request.setAttribute(", o);
-		} 
-		catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			ResultSet rs = authorize.getModDelHandler("pendingmodify","pendingdelete","PAYMENT",10000);
+			try {
+				while(rs.next())
+				{
+					TransactionDetails view = new TransactionDetails();
+					view.setUserName(rs.getString("username"));
+					view.setTransactionId(rs.getString("transactionid"));
+					view.setTransactionAmount(rs.getString("transactionamount"));
+					view.setNewAmount(rs.getString("newamount"));
+					view.setSourceAccount(rs.getString("sourceaccountnumber"));
+					view.setDestAccount(rs.getString("destinationaccountnumber"));
+					view.setDateandTime(rs.getString("dateandtime"));
+					view.setTransferType(rs.getString("transfertype"));
+					view.setStatus(rs.getString("status"));
+					transDetails.add(view);
+				}
+
+				model.addObject("transactionApprove",transDetails);
+			} 
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+			return model;
 		}
-		return model;
-	}*/
+		else
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("login");
+			return model;
+		}
+	}
+
 }

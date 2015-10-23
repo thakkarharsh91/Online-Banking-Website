@@ -33,30 +33,35 @@ public class SorooshController {
 	private ModelAndView redirectToAccessDeniedPage(String role) {
 		ModelAndView model = new ModelAndView();
 		if(role == null){
-			model.addObject("homeaddress", "");
+			model.setViewName("login");
 		}
 		else if(role.equalsIgnoreCase(managerRole)){
 			model.addObject("homeaddress", "managerhome");
+			model.setViewName("Access.Denied");
 		}
 		else if(role.equalsIgnoreCase(employeeRole)){
 			model.addObject("homeaddress", "employeehome");
+			model.setViewName("Access.Denied");
 		}
 		else if(role.equalsIgnoreCase(adminRole)){
 			model.addObject("homeaddress", "admin");
+			model.setViewName("Access.Denied");
 		}
 		else if(role.equalsIgnoreCase(merchantRole)){
 			model.addObject("homeaddress", "merchanthome");
+			model.setViewName("Access.Denied");
 		}
 		else if(role.equalsIgnoreCase(userRole)){
 			model.addObject("homeaddress", "customerhome");
+			model.setViewName("Access.Denied");
 		}
 		else if(role.equalsIgnoreCase(governmentRole)){
 			model.addObject("homeaddress", "governmenthome");
+			model.setViewName("Access.Denied");
 		}
 		else{
-			model.addObject("homeaddress", "");
+			model.setViewName("login");
 		}
-		model.setViewName("Access.Denied");
 		return model;
 	}
 	
@@ -135,6 +140,17 @@ public class SorooshController {
 			e.printStackTrace();
 			return model;
 		}
+		
+		try {
+			model.addObject("bankaccounts", handler.getAllAccountsForUserPayment((String)session.getAttribute("USERNAME")));
+		} catch (Exception e) {
+			ArrayList<String> errors = new ArrayList<String>();
+			errors.add("Internal error - please try again later");
+			model.addObject("errors", errors);
+			model.setViewName("Individual.Customers/Payment.Error");
+			e.printStackTrace();
+			return model;
+		}
 
 		model.setViewName("Merchant.Organization/Payment");
 		return model;
@@ -185,6 +201,7 @@ public class SorooshController {
 		
 		String payer = request.getParameter("payer");  
 		String amount = request.getParameter("amount"); 
+		String accountNumber = request.getParameter("accountNumber"); 
 		String signature = request.getParameter("signature");
 
 		ArrayList<String> errors = null;
@@ -200,7 +217,7 @@ public class SorooshController {
 		
 		PaymentInfoValidator formValidator = new PaymentInfoValidator();
 		try {
-			errors = formValidator.merchantPaymentRequestValidateData(username, payer, amount, signature);
+			errors = formValidator.merchantPaymentRequestValidateData(username, payer, amount, accountNumber, signature);
 		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
 			errors = new ArrayList<String>();
@@ -214,7 +231,7 @@ public class SorooshController {
 		
 		SorooshDatabaseConnection databaseConnection = new SorooshDatabaseConnection();
 		try {
-			databaseConnection.putMerchantPaymentRequestInDatabase(payer, amount, 
+			databaseConnection.putMerchantPaymentRequestInDatabase(payer, amount, accountNumber, 
 					(String)session.getAttribute("USERNAME"));
 		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
@@ -677,7 +694,7 @@ public class SorooshController {
 			if(errors.size() == 0){
 				model.setViewName("Merchant.Organization/Confirm.Payment.Action");
 				model.addObject("message", "You accepted to pay " + payment.getAmount() + " to " + 
-						payment.getDestinationAccountNumber());
+						payment.getUsername());
 			}
 			else{
 				model.addObject("errors", errors);

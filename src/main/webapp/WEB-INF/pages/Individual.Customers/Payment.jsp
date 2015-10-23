@@ -10,6 +10,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link href="<c:url value="/css/keyboard.css" />" rel="stylesheet"
 	type="text/css">
+<script type="text/javascript" src="<c:url value="/js/keyboard.js"/>"></script>
+
 <title>Insert title here</title>
 </head>
 <body>

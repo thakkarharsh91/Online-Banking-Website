@@ -7,6 +7,7 @@
 <html lang="en-US">
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta http-equiv="Refresh" content="5;url=login">
 <title>Sun Devils Bank Home Page</title>
 
 <script type="text/javascript"
@@ -50,43 +51,19 @@
 
 		</div>
 	</header>
-
-	<div id="login-box" align="center">
-		<h2 align="center">GET USERNAME</h2>
-		<strong><c:if test="${not empty emptyFields}">
-				<div class="msg">${emptyFields}</div>
-			</c:if> <c:if test="${not empty wrongemail}">
-				<div class="msg">${wrongemail}</div>
-			</c:if> <c:if test="${not empty success}">
-				<div class="msg">${success}</div>
-			</c:if></strong>
-		<form name="form"
-			action="${pageContext.servletContext.contextPath}/getusername?${_csrf.parameterName}=${_csrf.token}"
-			method='POST'>
-
-			<table align="center" border="0">
-				<tbody>
-					<tr>
-						<td>Enter Email Address :</td>
-						<td><input type="text" name="emailAddress"></td>
-					</tr>
-					<tr>
-						<td></td>
-						<td><input class="btn btn-primary" name="submit" type="submit" value="submit" /></td>
-					</tr>
-				</tbody>
-			</table>
-
-			<input type="hidden" name="${_csrf.parameterName}"
-				value="${_csrf.token}" />
-
-		</form>
-	</div>
+	<div>&nbsp;</div>
+	<strong><c:if test="${not empty successusername}">
+			<div class="msg" align="center">${successusername}</div>
+		</c:if> <c:if test="${not empty successpassword}">
+			<div class="msg" align="center">${successpassword}</div>
+		</c:if> <c:if test="${not empty successunlock}">
+			<div class="msg" align="center">${successunlock}</div>
+		</c:if></strong>
 </body>
 </html>
 <%
 	int timeout = session.getMaxInactiveInterval();
 	String url = request.getRequestURL().toString();
-	url = url.replace("/WEB-INF/pages/forgotusername.jsp", "/login");
+	url = url.replace("/WEB-INF/pages/forgotpassword.jsp", "/login");
 	response.setHeader("Refresh", timeout + "; URL =" + url);
 %>

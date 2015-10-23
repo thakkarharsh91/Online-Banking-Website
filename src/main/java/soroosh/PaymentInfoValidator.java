@@ -8,12 +8,12 @@ import javax.servlet.http.HttpSession;
 public class PaymentInfoValidator {
 
 	public ArrayList<String> merchantPaymentRequestValidateData(String username, String payerName, String amount, 
-			String signature) throws SQLException, ClassNotFoundException {
+			String bankAccount, String signature) throws SQLException, ClassNotFoundException {
 
 		ArrayList<String> errors = new ArrayList<String>();
 		SorooshDatabaseConnection database = new SorooshDatabaseConnection();
 
-		if(payerName == null || amount == null || signature == null)
+		if(payerName == null || amount == null || signature == null || bankAccount == null)
 			errors.add("all fields are mandatory");
 
 		else{
@@ -24,8 +24,18 @@ public class PaymentInfoValidator {
 				Double.parseDouble(amount);
 			} catch(NumberFormatException e){
 				errors.add("Invalid format for amount");
+				return errors;
 			}
 
+			if(Double.parseDouble(amount) <= 0){
+				errors.add("Invalid amount");
+			}
+			
+			if(!database.accountValid(bankAccount, username)){
+				errors.add("Source account is not valid");
+				return errors;
+			}
+			
 			if(!database.signatureValid(username, signature)){
 				errors.add("Invalid private key - make sure the signature is inputted correctly");
 			}
@@ -70,7 +80,7 @@ public class PaymentInfoValidator {
 				return errors;
 			}
 
-			if(doubleAmount < 0)
+			if(doubleAmount <= 0)
 				errors.add("Invalid amount");
 
 			if(!database.balanceAvailable(accountNumber, doubleAmount))

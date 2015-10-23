@@ -53,6 +53,24 @@ public class LoginHandler {
 
 	}
 	
+	public ResultSet checkRequestExist(String userName,String type,String status) {
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+			return (ResultSet)sql.checkRequest(userName,type,status);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	public ResultSet requestAdminHandler(String rolename) {
 
 		try {

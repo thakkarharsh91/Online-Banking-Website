@@ -35,9 +35,6 @@
 					<td><a href="${pageContext.servletContext.contextPath}/usermakepayment">Make a Payment</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">Reset Password</a></td>
-				</tr>
-				<tr>
 					<td><a href="#">View Payment Lists</a></td>
 				</tr>
 				<tr>

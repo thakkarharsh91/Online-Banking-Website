@@ -1,51 +1,59 @@
-<%@page import="gunpreetPackage.Model.Authentication"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ page trimDirectiveWhitespaces="true"%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-	pageEncoding="ISO-8859-1"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<!doctype html>
+<html lang="en-US">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Reset Password</title>
-<style>
-.error {
-	padding: 15px;
-	margin-bottom: 20px;
-	border: 1px solid transparent;
-	border-radius: 4px;
-	color: #a94442;
-	background-color: #f2dede;
-	border-color: #ebccd1;
-}
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>Sun Devils Bank Home Page</title>
 
-.msg {
-	padding: 15px;
-	margin-bottom: 20px;
-	border: 1px solid transparent;
-	border-radius: 4px;
-	color: #31708f;
-	background-color: #d9edf7;
-	border-color: #bce8f1;
-}
+<script type="text/javascript"
+	src="<c:url value="/js/bootstrap.min.js " />"></script>
+<script type="text/javascript"
+	src="<c:url value="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" />"></script>
 
-#login-box {
-	width: 300px;
-	padding: 20px;
-	margin: 100px auto;
-	background: #fff;
-	-webkit-border-radius: 2px;
-	-moz-border-radius: 2px;
-	border: 1px solid #000;
-}
-</style>
+<link href="<c:url value="/css/globalalter.css" />" rel="stylesheet"
+	type="text/css">
+<link href="<c:url value="/css/bootstrap-responsive.min.css" />"
+	rel="stylesheet" type="text/css">
+<link href="<c:url value="/css/bootstrap.min.css" />" rel="stylesheet"
+	type="text/css">
+
+<link
+	href="<c:url value="http://teamtreehouse.com/assets/favicon.ico" />"
+	rel="shortcut icon">
+<link
+	href="<c:url value="http://teamtreehouse.com/assets/favicon.ico" />"
+	rel="icon">
 </head>
+
 <body>
-	<h1 align="center">Reset Password</h1>
+	<nav id="navigation">
+		<div class="container">
+			<ul class="navlinks">
+				<li><a href="./">Home</a></li>
+				<li><a href="./aboutus">About Us</a></li>
+				<li><a href="./projects">Projects</a></li>
+				<li><a href="./team">The Team</a></li>
+				<li><a href="./contact">Contact Us</a></li>
+			</ul>
+		</div>
+	</nav>
+
+	<header id="heading">
+		<div class="container text-center">
+			<h1>Sun Devils Bank</h1>
+			<h4>Secure Banking Website by Group#1</h4>
+
+
+		</div>
+	</header>
+
 	<div id="login-box" align="center">
-		<h3>Change Password</h3>
-		<c:if test="${not empty errormessage}">
+		<h2 align="center">CHANGE PASSWORD</h2>
+		<strong><c:if test="${not empty errormessage}">
 			<div class="msg">${errormessage}</div>
 		</c:if>
 		<c:if test="${not empty emptyFields}">
@@ -53,7 +61,7 @@
 		</c:if>
 		<c:if test="${not empty success}">
 			<div class="msg">${success}</div>
-		</c:if>
+		</c:if></strong>
 		<form name="form"
 			action="${pageContext.servletContext.contextPath}/resetButton?${_csrf.parameterName}=${_csrf.token}"
 			method='POST'>
@@ -81,7 +89,7 @@
 					</tr>
 					<tr>
 						<td>&nbsp;</td>
-						<td><button type="submit">Reset Password</button></td>
+						<td><input class="btn btn-primary" align = "center" name="submit" type="submit" value="Reset Password" /></td>
 					</tr>
 				</tbody>
 			</table>
@@ -92,3 +100,9 @@
 	</div>
 </body>
 </html>
+<%
+	int timeout = session.getMaxInactiveInterval();
+	String url = request.getRequestURL().toString();
+	url = url.replace("/WEB-INF/pages/forgotpassword.jsp", "/login");
+	response.setHeader("Refresh", timeout + "; URL =" + url);
+%>

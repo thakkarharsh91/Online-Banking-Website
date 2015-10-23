@@ -161,6 +161,21 @@ public class MySQLAccess {
 		}
 	}
 
+	public ResultSet checkRequest(String userName,String type, String status) throws SQLException{
+		try{
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_requests where username=? AND requesttype=? AND approvalstatus = ?");
+			preparedStatement.setString(1,userName);
+			preparedStatement.setString(2,type);
+			preparedStatement.setString(3,status);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			return resultSet;
+		}
+		catch(Exception e){
+			throw e;
+		}
+
+	}
+
 	public ArrayList<Requests> getRequests(String requestto) throws SQLException{
 		try{
 			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_requests where requestto=? AND approvalstatus='PENDING'");
@@ -173,6 +188,7 @@ public class MySQLAccess {
 			throw e;
 		}
 	}
+
 	public void updaterequest(String requestid,String action) throws SQLException{
 		try{
 			preparedStatement = connect.prepareStatement("update software_security.tbl_requests set approvalstatus = ? where requestid = ?");
@@ -310,11 +326,41 @@ public class MySQLAccess {
 			throw e;
 		}
 	}
+
 	public ResultSet authRequest(String User) throws Exception {
 		try {						
 			preparedStatement = connect.prepareStatement("SELECT requestid,requestfrom,requestdate,requeststatus, requestfor FROM software_security.tbl_transaction_requests JOIN " 
 					+"software_security.tbl_user_details ON tbl_transaction_requests.requestto=tbl_user_details.username and tbl_transaction_requests.requestfor=tbl_user_details.username where tbl_transaction_requests.requestto = ? AND tbl_transaction_requests.requeststatus='Pending'");
 			preparedStatement.setString(1, User);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			return resultSet;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public ResultSet authTransaction(String status,int critical,String payment) throws Exception {
+		try {						
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_transactions where tbl_transactions.status=? and tbl_transactions.newamount < ? and tbl_transactions.transfertype <> ?");
+			preparedStatement.setString(1, status);
+			preparedStatement.setInt(2, critical);
+			preparedStatement.setString(3, payment);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			return resultSet;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public ResultSet modifyDeleteTransaction(String modifyStatus,String deleteStatus,String payment,int critical) throws Exception {
+		try {						
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_transactions where (tbl_transactions.status=? OR tbl_transactions.status=?) AND tbl_transactions.transfertype <> ? AND tbl_transactions.newamount < ?");
+			preparedStatement.setString(1, modifyStatus);
+			preparedStatement.setString(2, deleteStatus);
+			preparedStatement.setString(3, payment);
+			preparedStatement.setInt(4, critical);
 			ResultSet resultSet = preparedStatement.executeQuery();
 			return resultSet;
 
@@ -335,11 +381,247 @@ public class MySQLAccess {
 		}
 	}
 
+	public ArrayList<String> checkStatus(String[] rID) throws Exception {
+		try {		
+			ResultSet rs = null;
+			ArrayList<String> status = new ArrayList<String>();
+			for(int i=0; i<rID.length; i++)
+			{
+				preparedStatement = connect.prepareStatement("SELECT status FROM software_security.tbl_transactions where tbl_transactions.transactionid = ?");
+				preparedStatement.setString(1, rID[i]);
+				rs = preparedStatement.executeQuery();
+				if(rs.next())
+					status.add(rs.getString("status"));
+			}
+			return status;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public void deleteTransactions(String[] rID) throws Exception {
+		try {				
+			for(int i=0; i<rID.length; i++)
+			{
+				preparedStatement = connect.prepareStatement("DELETE from software_security.tbl_transactions WHERE transactionid=?");
+				preparedStatement.setString(1, rID[i]);
+				preparedStatement.executeUpdate();
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public void modifyTransactions(String[] rID,String status) throws Exception {
+		try {				
+			for(int i=0; i<rID.length; i++)
+			{
+				preparedStatement = connect.prepareStatement("UPDATE software_security.tbl_transactions SET status=? WHERE transactionid=?");
+				preparedStatement.setString(1, status);
+				preparedStatement.setString(2, rID[i]);
+				preparedStatement.executeUpdate();
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
 	public void updateStatus(String rStatus, String[] rID) throws Exception {
 		try {				
 			for(int i=0; i<rID.length; i++)
 			{
 				preparedStatement = connect.prepareStatement("UPDATE software_security.tbl_transaction_requests SET requeststatus=? WHERE requestid=?");
+				preparedStatement.setString(1, rStatus);
+				preparedStatement.setString(2, rID[i]);
+				preparedStatement.executeUpdate();
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public void approveTransactions(String rStatus, double balance,String[] rID) throws Exception {
+		try {				
+			for(int i=0; i<rID.length; i++)
+			{
+				preparedStatement = connect.prepareStatement("UPDATE software_security.tbl_transactions tt JOIN software_security.tbl_user_account tua ON tt.destinationaccountnumber = tua.accountnumber SET tt.status=?,tua.balance=? WHERE tt.transactionid=?");
+				preparedStatement.setString(1, rStatus);
+				preparedStatement.setDouble(2, balance);
+				preparedStatement.setString(3, rID[i]);
+				preparedStatement.executeUpdate();
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
+	public void rejectTransactions(String rStatus, double balance,String[] rID) throws Exception {
+		try {				
+			for(int i=0; i<rID.length; i++)
+			{
+				preparedStatement = connect.prepareStatement("UPDATE software_security.tbl_transactions tt JOIN software_security.tbl_user_account tua ON tt.sourceaccountnumber = tua.accountnumber SET tt.status=?,tua.balance=? WHERE tt.transactionid=?");
+				preparedStatement.setString(1, rStatus);
+				preparedStatement.setDouble(2, balance);
+				preparedStatement.setString(3, rID[i]);
+				preparedStatement.executeUpdate();
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
+	public String getDestinationAccountNumber(String rID) throws Exception {
+		ResultSet rs = null;
+		String account = "";
+		try {	
+				preparedStatement = connect.prepareStatement("SELECT destinationaccountnumber FROM software_security.tbl_transactions where tbl_transactions.transactionid = ?");
+				preparedStatement.setString(1, rID);
+				rs = preparedStatement.executeQuery();
+				if(rs.next()){
+					account = rs.getString("destinationaccountnumber");
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+		return account;
+	}
+	
+	public String getSourceAccountNumber(String rID) throws Exception {
+		ResultSet rs = null;
+		String account = "";
+		try {	
+				preparedStatement = connect.prepareStatement("SELECT sourceaccountnumber FROM software_security.tbl_transactions where tbl_transactions.transactionid = ?");
+				preparedStatement.setString(1, rID);
+				rs = preparedStatement.executeQuery();
+				if(rs.next()){
+					account = rs.getString("sourceaccountnumber");
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+		return account;
+	}
+
+	public Double getBalanceAmount(String[] rID) throws Exception {
+		ResultSet rs = null;
+		double balance = 0.0;
+		try {	
+			for(int i=0; i<rID.length; i++)
+			{
+				preparedStatement = connect.prepareStatement("SELECT newamount FROM software_security.tbl_transactions where tbl_transactions.transactionid = ?");
+				preparedStatement.setString(1, rID[i]);
+				rs = preparedStatement.executeQuery();
+				if(rs.next()){
+					balance += rs.getDouble("newamount");
+				}
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+		return balance;
+	}
+	
+	public Double getBalanceDestinationAccount(String accountNumber) throws Exception {
+		ResultSet rs = null;
+		double balance = 0.0;
+		try {	
+				preparedStatement = connect.prepareStatement("SELECT balance FROM software_security.tbl_user_account where tbl_user_account.accountnumber = ?");
+				preparedStatement.setString(1,accountNumber);
+				rs = preparedStatement.executeQuery();
+				if(rs.next()){
+					balance = rs.getDouble("balance");
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+		return balance;
+	}
+	
+	public Double getBalanceSourceAccount(String accountNumber) throws Exception {
+		ResultSet rs = null;
+		double balance = 0.0;
+		try {	
+				preparedStatement = connect.prepareStatement("SELECT balance FROM software_security.tbl_user_account where tbl_user_account.accountnumber = ?");
+				preparedStatement.setString(1,accountNumber);
+				rs = preparedStatement.executeQuery();
+				if(rs.next()){
+					balance = rs.getDouble("balance");
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+		return balance;
+	}
+
+	public Boolean checkSameAccountNumber(String[] rID) throws Exception {
+		ResultSet rs = null;
+		boolean flag = false;
+		ArrayList<String> accountList = new ArrayList<String>();
+		try {	
+			for(int i=0; i<rID.length; i++)
+			{
+				preparedStatement = connect.prepareStatement("SELECT destinationaccountnumber FROM software_security.tbl_transactions where tbl_transactions.transactionid = ?");
+				preparedStatement.setString(1, rID[i]);
+				rs = preparedStatement.executeQuery();
+				if(rs.next() && !flag){
+					if(!accountList.contains(rs.getString("destinationaccountnumber"))){
+						accountList.add(rs.getString("destinationaccountnumber"));
+						flag = false;
+					}
+					else
+						flag = true;
+				}
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+		return flag;
+	}
+	
+	public Boolean checkSameSourceAccountNumber(String[] rID) throws Exception {
+		ResultSet rs = null;
+		boolean flag = false;
+		ArrayList<String> accountList = new ArrayList<String>();
+		try {	
+			for(int i=0; i<rID.length; i++)
+			{
+				preparedStatement = connect.prepareStatement("SELECT sourceaccountnumber FROM software_security.tbl_transactions where tbl_transactions.transactionid = ?");
+				preparedStatement.setString(1, rID[i]);
+				rs = preparedStatement.executeQuery();
+				if(rs.next() && !flag){
+					if(!accountList.contains(rs.getString("sourceaccountnumber"))){
+						accountList.add(rs.getString("sourceaccountnumber"));
+						flag = false;
+					}
+					else
+						flag = true;
+				}
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+		return flag;
+	}
+
+
+	public void updateTransactionData(String rStatus, String[] rID) throws Exception {
+		try {				
+			for(int i=0; i<rID.length; i++)
+			{
+				preparedStatement = connect.prepareStatement("UPDATE software_security.tbl_transactions SET status=? WHERE transactionid=?");
 				preparedStatement.setString(1, rStatus);
 				preparedStatement.setString(2, rID[i]);
 				preparedStatement.executeUpdate();

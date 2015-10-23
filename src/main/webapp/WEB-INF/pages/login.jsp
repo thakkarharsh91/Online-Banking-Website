@@ -36,8 +36,7 @@
 	<header id="heading">
 		<div class="container text-center">
 			<h1>Sun Devils Bank</h1>
-			<h4>This is Secure Banking Project developed by Group#1 for Fall
-				2015</h4>
+			<h4>Secure Banking Website by Group#1</h4>
 
 
 		</div>
