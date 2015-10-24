@@ -22,24 +22,20 @@ $(document).ready(function() {
     <br>
     <br>
     <div align="center">
-        <h1>Upload the files like scanned copy of SSN, Passport and Business License</h1>
- 
+        <h2>Instructions:</h2>
+        <h3>For Individual Customer: Upload scanned copy of Passport or Driver License or DMV Identification Cards </h3>
+ 		<h3>For Merchant/Organization: Upload scanned copy of Business License</h3>
         <form:form method="POST"
-            modelAttribute="uploadForm" enctype="multipart/form-data" action="savefiles/?${_csrf.parameterName}=${_csrf.token}">
+            modelAttribute="uploadForm" enctype="multipart/form-data" action="savefiles/?${_csrf.parameterName}=${_csrf.token}" onsubmit="return Validate(this);">
  
-            <p>Select files to upload. Press Add button to add more file
+            <p>Select files to upload. 
                 inputs.</p>
  
             <table id="fileTable">
                 <tr>
                     <td><input name="files[0]" type="file" /></td>
                 </tr>
-                <tr>
-                    <td><input name="files[1]" type="file" /></td>
-                </tr>
-                <tr>
-                    <td><input name="files[2]" type="file" /></td>
-                </tr>
+                
             </table>
             <br />
             <input type="submit" value="Upload" />
@@ -47,7 +43,35 @@ $(document).ready(function() {
 				value="${_csrf.token}" />
             
         </form:form>
- 
+ 		<script type="text/javascript">
+        var _validFileExtensions = [".jpg", ".jpeg", ".doc", , ".docx", ".pdf", ".png"];    
+function Validate(oForm) {
+    var arrInputs = oForm.getElementsByTagName("input");
+    for (var i = 0; i < arrInputs.length; i++) {
+        var oInput = arrInputs[i];
+        if (oInput.type == "file") {
+            var sFileName = oInput.value;
+            if (sFileName.length > 0) {
+                var blnValid = false;
+                for (var j = 0; j < _validFileExtensions.length; j++) {
+                    var sCurExtension = _validFileExtensions[j];
+                    if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                        blnValid = true;
+                        break;
+                    }
+                }
+                
+                if (!blnValid) {
+                    alert("Sorry, " + sFileName + " is invalid, allowed extensions are: " + _validFileExtensions.join(", "));
+                    return false;
+                }
+            }
+        }
+    }
+  
+    return true;
+}
+    </script>
         <br />
     </div>
 

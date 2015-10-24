@@ -2,7 +2,6 @@ package handlers.systemmanagerHandlers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import databseHandler.MySQLAccess;
 
 
@@ -28,6 +27,7 @@ public class authorizeExtUserHandler {
 
 
 		try {
+			System.out.println("getExistingAccount"+ssn+accounttype);
 			return sql.getExsistingAccount(ssn, accounttype);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -46,6 +46,7 @@ public class authorizeExtUserHandler {
 
 
 		try {
+			System.out.println("getExistingAccount"+ssn+accounttype);
 			return sql.getExsistingApprovedAccount(ssn, accounttype);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -65,6 +66,7 @@ public class authorizeExtUserHandler {
 
 
 		try {
+			System.out.println("Accept: Indise handler account type: "+accounttype);
 			sql.approveUser(ssn, accounttype );
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -83,6 +85,7 @@ public class authorizeExtUserHandler {
 
 
 		try {
+			System.out.println("Handler: "+accounttype);
 			sql.rejectUser(ssn, accounttype );
 		} catch (Exception e) {
 			e.printStackTrace();

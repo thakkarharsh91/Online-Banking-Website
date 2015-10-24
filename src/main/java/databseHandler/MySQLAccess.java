@@ -7,6 +7,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -16,10 +17,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 import utilities.MyStringRandomGen;
-import utilities.OtpUtility;
+import utilities.SendEmail;
 import authentication.ModifyUser;
 import authentication.Request;
 import authentication.Requests;
+import authentication.User;
 
 public class MySQLAccess {
 	private Connection connect = null;
@@ -342,7 +344,7 @@ public class MySQLAccess {
 
 	public ResultSet authTransaction(String status,int critical,String payment) throws Exception {
 		try {						
-			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_transactions where tbl_transactions.status=? and tbl_transactions.newamount < ? and tbl_transactions.transfertype <> ?");
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_transactions where tbl_transactions.status=? and tbl_transactions.newamount >= ? and tbl_transactions.transfertype <> ?");
 			preparedStatement.setString(1, status);
 			preparedStatement.setInt(2, critical);
 			preparedStatement.setString(3, payment);
@@ -459,7 +461,7 @@ public class MySQLAccess {
 			throw e;
 		}
 	}
-	
+
 	public void rejectTransactions(String rStatus, double balance,String[] rID) throws Exception {
 		try {				
 			for(int i=0; i<rID.length; i++)
@@ -475,16 +477,16 @@ public class MySQLAccess {
 			throw e;
 		}
 	}
-	
+
 	public String getDestinationAccountNumber(String rID) throws Exception {
 		ResultSet rs = null;
 		String account = "";
 		try {	
-				preparedStatement = connect.prepareStatement("SELECT destinationaccountnumber FROM software_security.tbl_transactions where tbl_transactions.transactionid = ?");
-				preparedStatement.setString(1, rID);
-				rs = preparedStatement.executeQuery();
-				if(rs.next()){
-					account = rs.getString("destinationaccountnumber");
+			preparedStatement = connect.prepareStatement("SELECT destinationaccountnumber FROM software_security.tbl_transactions where tbl_transactions.transactionid = ?");
+			preparedStatement.setString(1, rID);
+			rs = preparedStatement.executeQuery();
+			if(rs.next()){
+				account = rs.getString("destinationaccountnumber");
 			}
 
 		} catch (Exception e) {
@@ -492,16 +494,16 @@ public class MySQLAccess {
 		}
 		return account;
 	}
-	
+
 	public String getSourceAccountNumber(String rID) throws Exception {
 		ResultSet rs = null;
 		String account = "";
 		try {	
-				preparedStatement = connect.prepareStatement("SELECT sourceaccountnumber FROM software_security.tbl_transactions where tbl_transactions.transactionid = ?");
-				preparedStatement.setString(1, rID);
-				rs = preparedStatement.executeQuery();
-				if(rs.next()){
-					account = rs.getString("sourceaccountnumber");
+			preparedStatement = connect.prepareStatement("SELECT sourceaccountnumber FROM software_security.tbl_transactions where tbl_transactions.transactionid = ?");
+			preparedStatement.setString(1, rID);
+			rs = preparedStatement.executeQuery();
+			if(rs.next()){
+				account = rs.getString("sourceaccountnumber");
 			}
 
 		} catch (Exception e) {
@@ -529,16 +531,16 @@ public class MySQLAccess {
 		}
 		return balance;
 	}
-	
+
 	public Double getBalanceDestinationAccount(String accountNumber) throws Exception {
 		ResultSet rs = null;
 		double balance = 0.0;
 		try {	
-				preparedStatement = connect.prepareStatement("SELECT balance FROM software_security.tbl_user_account where tbl_user_account.accountnumber = ?");
-				preparedStatement.setString(1,accountNumber);
-				rs = preparedStatement.executeQuery();
-				if(rs.next()){
-					balance = rs.getDouble("balance");
+			preparedStatement = connect.prepareStatement("SELECT balance FROM software_security.tbl_user_account where tbl_user_account.accountnumber = ?");
+			preparedStatement.setString(1,accountNumber);
+			rs = preparedStatement.executeQuery();
+			if(rs.next()){
+				balance = rs.getDouble("balance");
 			}
 
 		} catch (Exception e) {
@@ -546,16 +548,16 @@ public class MySQLAccess {
 		}
 		return balance;
 	}
-	
+
 	public Double getBalanceSourceAccount(String accountNumber) throws Exception {
 		ResultSet rs = null;
 		double balance = 0.0;
 		try {	
-				preparedStatement = connect.prepareStatement("SELECT balance FROM software_security.tbl_user_account where tbl_user_account.accountnumber = ?");
-				preparedStatement.setString(1,accountNumber);
-				rs = preparedStatement.executeQuery();
-				if(rs.next()){
-					balance = rs.getDouble("balance");
+			preparedStatement = connect.prepareStatement("SELECT balance FROM software_security.tbl_user_account where tbl_user_account.accountnumber = ?");
+			preparedStatement.setString(1,accountNumber);
+			rs = preparedStatement.executeQuery();
+			if(rs.next()){
+				balance = rs.getDouble("balance");
 			}
 
 		} catch (Exception e) {
@@ -574,13 +576,17 @@ public class MySQLAccess {
 				preparedStatement = connect.prepareStatement("SELECT destinationaccountnumber FROM software_security.tbl_transactions where tbl_transactions.transactionid = ?");
 				preparedStatement.setString(1, rID[i]);
 				rs = preparedStatement.executeQuery();
-				if(rs.next() && !flag){
-					if(!accountList.contains(rs.getString("destinationaccountnumber"))){
-						accountList.add(rs.getString("destinationaccountnumber"));
-						flag = false;
-					}
-					else
-						flag = true;
+				if(rs.next()){
+					accountList.add(rs.getString("destinationaccountnumber"));
+				}
+			}
+			for(int i = 0;i<accountList.size() -1 ;i++){
+				if(accountList.get(i).equals(accountList.get(i+1))){
+					flag = true;
+				}
+				else{
+					flag = false;
+					break;
 				}
 			}
 
@@ -589,7 +595,7 @@ public class MySQLAccess {
 		}
 		return flag;
 	}
-	
+
 	public Boolean checkSameSourceAccountNumber(String[] rID) throws Exception {
 		ResultSet rs = null;
 		boolean flag = false;
@@ -601,12 +607,16 @@ public class MySQLAccess {
 				preparedStatement.setString(1, rID[i]);
 				rs = preparedStatement.executeQuery();
 				if(rs.next() && !flag){
-					if(!accountList.contains(rs.getString("sourceaccountnumber"))){
-						accountList.add(rs.getString("sourceaccountnumber"));
-						flag = false;
-					}
-					else
-						flag = true;
+					accountList.add(rs.getString("sourceaccountnumber"));
+				}
+			}
+			for(int i = 0;i<accountList.size() -1 ;i++){
+				if(accountList.get(i).equals(accountList.get(i+1))){
+					flag = true;
+				}
+				else{
+					flag = false;
+					break;
 				}
 			}
 
@@ -929,7 +939,7 @@ public class MySQLAccess {
 
 		preparedStatement1 = connect.prepareStatement("insert into software_security.tbl_requests values (?,?,?,?,?,?,?,?,?)");
 		preparedStatement1.setString(1, "EXTERNAL_USERS");
-		preparedStatement1.setString(2,requestid );
+		preparedStatement1.setString(2,null );
 		preparedStatement1.setString(3, "ADD_ACCOUNT");
 		preparedStatement1.setString(4, "EXTERNAL_USERS");
 		preparedStatement1.setString(5, "SYSTEM_MANAGER");
@@ -1059,12 +1069,24 @@ public class MySQLAccess {
 
 
 
-				//Generate Public Private Key pair
+				// Get the public/private key pair
 				KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
 				keyGen.initialize(1024);
-				KeyPair keypair = keyGen.genKeyPair();
-				PrivateKey temp_privateKey = keypair.getPrivate();
-				String privateKey = String.valueOf(temp_privateKey);
+				KeyPair keyPair = keyGen.genKeyPair();
+				PrivateKey privateKey = keyPair.getPrivate();
+				PublicKey publicKey = keyPair.getPublic();
+
+
+				// Get the bytes of the public and private keys
+				byte[] privateKeyBytes = privateKey.getEncoded();
+				byte[] publicKeyBytes = publicKey.getEncoded();
+
+
+
+				String pri= String.valueOf(privateKeyBytes);
+				String pub = String.valueOf(publicKeyBytes);
+
+
 				//insert into User Authentication Table
 				preparedStatement3 = connect.prepareStatement("insert into software_security.tbl_user_authentication values (?,?,?,?,?,?,?,?,?,?)");
 				preparedStatement3.setString(1, tmpusername);
@@ -1074,14 +1096,15 @@ public class MySQLAccess {
 				preparedStatement3.setString(5, "No");
 				preparedStatement3.setString(6, tmpusername);
 				preparedStatement3.setString(7, tmppwd);
-				preparedStatement3.setString(8, "Public Key");
-				preparedStatement3.setString(9, "Private Key");
+				preparedStatement3.setString(8, pub);
+				preparedStatement3.setString(9, pri);
 				preparedStatement3.setString(10, "No");
 				preparedStatement3.executeUpdate();
+
 				//Insert into USER details table
 				preparedStatement2.executeUpdate();
-				OtpUtility otp = new OtpUtility();
-				otp.sendEmailInvitation(tmpusername, tmppwd, privateKey);
+				SendEmail sendemail=new SendEmail();
+				sendemail.sendEmailApprove(tmpusername, tmppwd, pri,email);
 
 			}
 			//insert into User Account
@@ -1140,6 +1163,48 @@ public class MySQLAccess {
 			throw e;
 		}
 	}
+
+	//Sayantan: Review External User Application by System Manager
+
+	public ArrayList<User> reviewExtUser(String ssn, String accounttype) throws Exception {
+		try {						
+			preparedStatement = connect.prepareStatement("SELECT concat('XXX-XXX',substr(ssn,8)) AS ssn, accounttype, usertype, firstname, lastname, email, phonenumber FROM software_security.tbl_temporary_user WHERE tbl_temporary_user.ssn=? AND tbl_temporary_user.accounttype=?");
+			preparedStatement.setString(1, ssn);
+			preparedStatement.setString(2, accounttype);
+			ResultSet rs = preparedStatement.executeQuery();
+			ArrayList<User> users = writeResultSet1(rs);
+			rs.close();
+			return users;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	//Sayantan: For generate set of users
+	private ArrayList<User> writeResultSet1(ResultSet resultSet) throws SQLException, NoSuchAlgorithmException {
+		// ResultSet is initially before the first data set
+		ArrayList<User> users = new ArrayList<User>();
+
+		while (resultSet.next()) {
+
+			String ssn = resultSet.getString("ssn");
+			String accounttype = resultSet.getString("accounttype");
+			String usertype = resultSet.getString("usertype");
+			String firstname = resultSet.getString("firstname");
+			String lastname = resultSet.getString("lastname");
+
+			String email1 = resultSet.getString("email");
+			String phonenumber = resultSet.getString("phonenumber");
+
+
+			users.add(new User(new String(ssn), new String(accounttype), new String(usertype), 
+					new String(firstname), new String(lastname),new String(email1),new String(phonenumber)));
+		}
+
+		return users;
+	}
+
+
 	public void insertIntoDatabase(byte[] user, byte[] password, 
 			byte[] email, byte[] firstname, byte[] lastname) throws SQLException, NoSuchAlgorithmException{
 		// PreparedStatements can use variables and are more efficient

@@ -45,6 +45,8 @@
 									style="margin-left: 50px; float: left;">approve</button>
 								<button name="decline" type="submit"  value="${request.requestid}"
 									style="margin-left: 50px; float: left;">decline</button>
+								<button name="review" type="submit"  value="${request.requestid}"
+									style="margin-left: 50px; float: left;">review</button>
 							</div>
 						</td>
 					</tr>

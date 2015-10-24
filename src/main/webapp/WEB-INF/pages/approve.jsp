@@ -11,6 +11,9 @@
 </head>
 <body>
 	<div style="text-align: center">
+		<a href="${pageContext.servletContext.contextPath}/employeehomenavigate">Home</a>
+	</div>
+	<div style="text-align: center">
 		<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 	</div>
 	<form:form name='loginForm'
@@ -75,7 +78,6 @@
 	int timeout = session.getMaxInactiveInterval();
 	//timeout/=60;
 	String url = request.getRequestURL().toString();
-	url = url.replace("/WEB-INF/pages/approve.jsp",
-			"/logoutusers");
+	url = url.replace("/WEB-INF/pages/approve.jsp", "/logoutusers");
 	response.setHeader("Refresh", "300; URL =" + url);
 %>

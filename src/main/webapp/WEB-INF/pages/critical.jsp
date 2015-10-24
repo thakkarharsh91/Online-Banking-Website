@@ -7,31 +7,28 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Insert title here</title>
+<title>Critical Transactions</title>
 </head>
 <body>
-	<div style="text-align: center">
-		<a href="${pageContext.servletContext.contextPath}/employeehomenavigate">Home</a>
-	</div>
 	<div style="text-align: center">
 		<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 	</div>
 	<form:form name='loginForm'
-		action="${pageContext.servletContext.contextPath}/moddeltransaction/?${_csrf.parameterName}=${_csrf.token}"
+		action="${pageContext.servletContext.contextPath}/criticaltransaction/?${_csrf.parameterName}=${_csrf.token}"
 		method='POST'>
 		<table border="3" align="center">
 
 			<h2 align="center">
-				<u>Transactions</u>
+				<u>Critical Transactions</u>
 			</h2>
-			<c:if test="${not empty select}">
-				<div class="msg" align="center">${select}</div>
+			<c:if test="${not empty duplicateaccount}">
+				<div class="msg" align="center">${duplicateaccount}</div>
 			</c:if>
-			<c:if test="${not empty delete}">
-				<div class="msg" align="center">${delete}</div>
+			<c:if test="${not empty duplicatesourceaccount}">
+				<div class="msg" align="center">${duplicatesourceaccount}</div>
 			</c:if>
-			<c:if test="${not empty modify}">
-				<div class="msg" align="center">${modify}</div>
+			<c:if test="${not empty check}">
+				<div class="msg" align="center">${check}</div>
 			</c:if>
 			<tr>
 				<th>Select</th>
@@ -66,8 +63,8 @@
 		</br>
 		<div style="text-align: center">
 			<select name="Type">
-				<option value="Modify">Modify</option>
-				<option value="Delete">Delete</option>
+				<option value="Approve">Approve</option>
+				<option value="Reject">Reject</option>
 			</select> <br></br> <br></br> <input name="submit" type="submit"
 				value="submit" />
 		</div>
@@ -78,6 +75,7 @@
 	int timeout = session.getMaxInactiveInterval();
 	//timeout/=60;
 	String url = request.getRequestURL().toString();
-	url = url.replace("/WEB-INF/pages/approve.jsp", "/logoutusers");
+	url = url.replace("/WEB-INF/pages/approve.jsp",
+			"/logoutusers");
 	response.setHeader("Refresh", "300; URL =" + url);
 %>

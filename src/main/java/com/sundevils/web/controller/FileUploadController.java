@@ -30,13 +30,27 @@ public class FileUploadController {
 	public String crunchifySave(HttpServletRequest request,HttpServletResponse response,HttpSession session,
 			@ModelAttribute("uploadForm") FileUpload uploadForm,
 			Model map ) throws IllegalStateException, IOException {
+		boolean success = false;
 		String ssnvalue = (String)session.getAttribute("SSN_Value");
+		System.out.println(ssnvalue);
 		String saveDirectory = "C:/AccountOpeningDocuments/" + ssnvalue + "/";
 		File directory = new File(saveDirectory); 
-		 
-		if(!directory.exists()) 
+		if (directory.exists()) 
 		{ 
-			directory.mkdirs(); 
+			System.out.println("Directory already exists ..."); 
+		} 
+		else 
+		{ 
+			System.out.println("Directory not exists, creating now"); 
+			success = directory.mkdirs(); 
+			if (success)
+			{ 
+				System.out.printf("Successfully created new directory : %s%n", saveDirectory);
+			} 
+			else 
+			{ 
+				System.out.printf("Failed to create new directory: %s%n", saveDirectory); 
+			} 
 		}
 
 		List<MultipartFile> crunchifyFiles = uploadForm.getFiles();

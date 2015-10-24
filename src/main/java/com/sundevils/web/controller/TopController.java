@@ -93,6 +93,13 @@ public class TopController {
 		model.setViewName("startbanking");
 		return model;
 	}
+	
+	@RequestMapping(value = {"/employeehomenavigate" }, method = RequestMethod.GET)
+	public ModelAndView empployeeHome(HttpServletRequest request,HttpServletResponse response) throws IOException {
+		ModelAndView model = new ModelAndView();
+		model.setViewName("employeehome");
+		return model;
+	}
 
 
 	@RequestMapping(value = {"/customerquery" },  method = {RequestMethod.GET, RequestMethod.POST})
@@ -694,7 +701,6 @@ public class TopController {
 				model.addObject("requestDetails",transReqstdetails);
 			} 
 			catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			model.setViewName("allowViewRequests");
@@ -744,10 +750,8 @@ public class TopController {
 				}
 
 				model.addObject("requestView",transReqstdetails);
-				//request.setAttribute(", o);
 			} 
 			catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			model.setViewName("ViewTransactions");
@@ -937,6 +941,96 @@ public class TopController {
 		}
 	}
 
+	@RequestMapping(value = "/criticaltransaction" , method = {RequestMethod.POST, RequestMethod.GET})
+	public ModelAndView criticalTransaction(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException, SQLException{
+		String role = "";
+		String requestType = "";
+		String[] authRequests = null;
+		role = (String)session.getAttribute("Role");
+		double balance = 0.0;
+		boolean destinationFlag = true;
+		boolean sourceFlag = true;
+		double destinationAmount = 0.0;
+		String destinationAccountNumber = "";
+		double sourceAmount = 0.0;
+		String sourceAccountNumber = "";
+		if(role.equals("MANAGER"))
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("critical");
+			List<TransactionDetails> transDetails=new ArrayList<TransactionDetails>();
+			RequestAuthorize authorize = new RequestAuthorize();
+
+			if(request.getParameter("submit")!=null)
+			{
+				authRequests = request.getParameterValues("check");
+				requestType = request.getParameter("Type");
+				if(authRequests!=null){
+					balance = authorize.getBalance(authRequests);
+
+					if(requestType.equals("Approve")){
+						if(authRequests.length > 1)
+							destinationFlag  = authorize.checkSameDestination(authRequests);
+						if(destinationFlag){
+							destinationAccountNumber = authorize.getDestinationAccount(authRequests[0]); 
+							destinationAmount = authorize.getDestinationBalance(destinationAccountNumber);
+							authorize.approveTransaction(requestType,balance + destinationAmount, authRequests);
+						}
+						else{
+							model.addObject("duplicateaccount","Transactions belonging to the same destination account should be done at a time while approving.");
+						}
+					}
+					else{
+						if(authRequests.length > 1)
+							sourceFlag  = authorize.checkSameSource(authRequests);
+						if(sourceFlag){
+							sourceAccountNumber = authorize.getSourceAccount(authRequests[0]);
+							sourceAmount = authorize.getSourceBalance(sourceAccountNumber);
+							authorize.rejectTransaction(requestType,balance + sourceAmount, authRequests);
+						}
+						else{
+							model.addObject("duplicatesourceaccount","Transactions belonging to the same source account should be done at a time while rejecting.");
+						}
+					}
+				}
+				else{
+					model.addObject("check", "Please check atleast one checkbox to continue");
+				}
+			}
+
+			ResultSet rs = authorize.getTransactionHandler("pendingapproval",10000,"PAYMENT");
+			try {
+				while(rs.next())
+				{
+					TransactionDetails view = new TransactionDetails();
+					view.setUserName(rs.getString("username"));
+					view.setTransactionId(rs.getString("transactionid"));
+					view.setTransactionAmount(rs.getString("transactionamount"));
+					view.setNewAmount(rs.getString("newamount"));
+					view.setSourceAccount(rs.getString("sourceaccountnumber"));
+					view.setDestAccount(rs.getString("destinationaccountnumber"));
+					view.setDateandTime(rs.getString("dateandtime"));
+					view.setTransferType(rs.getString("transfertype"));
+					view.setStatus(rs.getString("status"));
+					transDetails.add(view);
+				}
+
+				model.addObject("transactionApprove",transDetails);
+			} 
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+			return model;
+		}
+		else
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("login");
+			return model;
+		}
+	}
+
 	@RequestMapping(value = "/approvetransaction" , method = {RequestMethod.POST, RequestMethod.GET})
 	public ModelAndView approveTransaction(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException, SQLException{
 		String role = "";
@@ -944,8 +1038,8 @@ public class TopController {
 		String[] authRequests = null;
 		role = (String)session.getAttribute("Role");
 		double balance = 0.0;
-		boolean destinationFlag = false;
-		boolean sourceFlag = false;
+		boolean destinationFlag = true;
+		boolean sourceFlag = true;
 		double destinationAmount = 0.0;
 		String destinationAccountNumber = "";
 		double sourceAmount = 0.0;
@@ -965,7 +1059,8 @@ public class TopController {
 					balance = authorize.getBalance(authRequests);
 
 					if(requestType.equals("Approve")){
-						destinationFlag  = authorize.checkSameDestination(authRequests);
+						if(authRequests.length > 1)
+							destinationFlag  = authorize.checkSameDestination(authRequests);
 						if(destinationFlag){
 							destinationAccountNumber = authorize.getDestinationAccount(authRequests[0]); 
 							destinationAmount = authorize.getDestinationBalance(destinationAccountNumber);
@@ -976,7 +1071,8 @@ public class TopController {
 						}
 					}
 					else{
-						sourceFlag  = authorize.checkSameSource(authRequests);
+						if(authRequests.length > 1)
+							sourceFlag  = authorize.checkSameSource(authRequests);
 						if(sourceFlag){
 							sourceAccountNumber = authorize.getSourceAccount(authRequests[0]);
 							sourceAmount = authorize.getSourceBalance(sourceAccountNumber);
@@ -1036,6 +1132,8 @@ public class TopController {
 		String accountNumber = "";
 		double sourceAmount = 0.0;
 		String sourceAccountNumber = "";
+		boolean destinationFlag = true;
+		boolean sourceFlag = true;
 		if(role.equals("EMPLOYEE"))
 		{
 			ModelAndView model = new ModelAndView();
@@ -1055,9 +1153,13 @@ public class TopController {
 							model.addObject("modify","Please select modifiable transactions only,");
 						}
 						else{
-							accountNumber = authorize.getDestinationAccount(authRequests[0]); 
-							amount = authorize.getDestinationBalance(accountNumber);
-							authorize.approveTransaction("approvedmodify",balance + amount,authRequests);
+							if(authRequests.length > 1)
+								destinationFlag  = authorize.checkSameDestination(authRequests);
+							if(destinationFlag){
+								accountNumber = authorize.getDestinationAccount(authRequests[0]); 
+								amount = authorize.getDestinationBalance(accountNumber);
+								authorize.approveTransaction("approvedmodify",balance + amount,authRequests);
+							}
 						}
 					}
 					else if(requestType.equals("Delete")){
@@ -1065,10 +1167,14 @@ public class TopController {
 							model.addObject("delete","Please select transactions to be deleted only.");
 						}
 						else{
-							sourceAccountNumber = authorize.getSourceAccount(authRequests[0]);
-							sourceAmount = authorize.getSourceBalance(sourceAccountNumber);
-							authorize.rejectTransaction("approveddelete",balance + sourceAmount, authRequests);
-							authorize.deleteTransaction(authRequests);
+							if(authRequests.length > 1)
+								sourceFlag  = authorize.checkSameSource(authRequests);
+							if(sourceFlag){
+								sourceAccountNumber = authorize.getSourceAccount(authRequests[0]);
+								sourceAmount = authorize.getSourceBalance(sourceAccountNumber);
+								authorize.rejectTransaction("approveddelete",balance + sourceAmount, authRequests);
+								authorize.deleteTransaction(authRequests);
+							}
 						}
 					}
 				}
