@@ -16,6 +16,15 @@
 <body>
 <table>
 	<tr>
+		<td><a href="./home">Home</a></td>
+		<td><a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></td>
+	</tr>
+</table>
+<br/>
+<br/>
+<br/>
+<table border="1">
+	<tr>
 		<th>Account Number</th>
 		<th>Account Type</th>
 		<th>Balance</th>

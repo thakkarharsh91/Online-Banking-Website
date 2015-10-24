@@ -52,7 +52,7 @@
 					<td><c:out value="${view.userName}" /></td>
 					<td><c:out value="${view.transactionId}" /></td>
 					<td><c:out value="${view.transactionAmount}" /></td>
-					<td><c:out value="${view.newAmount}" /></td>
+					<td><input type="text" name="newamount" value="${view.newAmount}" /></td>
 					<td><c:out value="${view.sourceAccount}" /></td>
 					<td><c:out value="${view.destAccount}" /></td>
 					<td><c:out value="${view.dateandTime}" /></td>

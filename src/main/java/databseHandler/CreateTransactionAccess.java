@@ -27,33 +27,37 @@ public class CreateTransactionAccess {
 	
 	
 	public String insertIntotransDatabase(byte[] username, byte[] transactionamount, 
-			byte[] sourceaccountnumber, byte[] destinationaccountnumber, byte[] transfertype) throws SQLException, NoSuchAlgorithmException{
-		// PreparedStatements can use variables and are more efficient
+			byte[] sourceaccountnumber, byte[] destinationaccountnumber) throws SQLException, NoSuchAlgorithmException{
+		
 		int count=0;
 		DateFormat dateFormat=new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Date date=new Date();
 		String dttime=dateFormat.format(date);
 		byte[] dateandtime = dttime.getBytes();
+		
 		Random ran = new Random();
 		Integer transactionid=ran.nextInt(1000) + 5;
-		String stat="WAITING_BANK";
+		
+		
+		String stat="pendingapproval";
 		byte[] status=stat.getBytes();
-		//byte[] transactionid = new byte[0]; //change to int if database schema changes
-		//byte[] dateandtime = new byte[0];   //change according to database changes
+		byte[] transfertype="TRANSFER".getBytes();
+		
 		
 		try
 		{
 		preparedStatement = connect
-				.prepareStatement("insert into  software_security.tbl_transactions values (?, ?, ?, ?, ?, ?, ?, ?)");
+				.prepareStatement("insert into  software_security.tbl_transactions values (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		// Parameters start with 1
 		preparedStatement.setBytes(1, username);
 		preparedStatement.setInt(2, transactionid);  //DB trigger populates this field. Change to Int when db changes
 		preparedStatement.setBytes(3, transactionamount);
-		preparedStatement.setBytes(4, sourceaccountnumber);
-		preparedStatement.setBytes(5, destinationaccountnumber);
-		preparedStatement.setBytes(6, dateandtime);   //DB trigger populates this field
-		preparedStatement.setBytes(7, transfertype);
-		preparedStatement.setBytes(8, status);
+		preparedStatement.setBytes(4, transactionamount);
+		preparedStatement.setBytes(5, sourceaccountnumber);
+		preparedStatement.setBytes(6, destinationaccountnumber);
+		preparedStatement.setBytes(7, dateandtime);   //DB trigger populates this field
+		preparedStatement.setBytes(8, transfertype);
+		preparedStatement.setBytes(9, status);
 		count=preparedStatement.executeUpdate();
 		
 		}
@@ -63,7 +67,7 @@ public class CreateTransactionAccess {
 		}
 		
 		if(count>0)
-			return "successfully inserted";
+			return "Transaction successfully created";
 			else
 		    return "insertion error";
 	}

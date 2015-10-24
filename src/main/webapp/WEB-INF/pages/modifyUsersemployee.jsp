@@ -103,8 +103,7 @@ type="text/javascript" charset="utf-8"></script>
 				
 			</tr>
 			<tr>
-			<td><input type=submit  name =delete value=delete /></td>
-				
+			
 				<td><input type= hidden name= hiddenUser id='hiddenUser' value="${user.username}" /></td>
 				<td><input type= hidden name= hiddenUserNumber id='hiddenUserNumber' value="${user.username}" /></td>
 			</tr>

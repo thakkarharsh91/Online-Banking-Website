@@ -5,6 +5,8 @@ public class AccountDetails {
 	private String accountNumber;
 	private String accountType;
 	private double balance;
+	private String userName;
+	private String userNameAccount;
 	
 	public String getAccountNumber() {
 		return accountNumber;
@@ -23,6 +25,18 @@ public class AccountDetails {
 	}
 	public void setBalance(double balance) {
 		this.balance = balance;
+	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	public String getUserNameAccount() {
+		return userNameAccount;
+	}
+	public void setUserNameAccount(String userNameAccount) {
+		this.userNameAccount = userNameAccount;
 	}
 	
 	

@@ -1,14 +1,11 @@
-package handlers.systemmanagerHandlers;
+package handlers.employeeHandlers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import databseHandler.MySQLAccess;
 
-
-
-
-public class authorizeExtUserHandler {
+public class ViewAccounts {
 
 	static MySQLAccess sql;
 
@@ -16,8 +13,8 @@ public class authorizeExtUserHandler {
 		sql = new MySQLAccess();
 	}
 
-	public ResultSet getExsistingAccount(String ssn, String accounttype) {
-		
+	public ResultSet requestAccountHandler() {
+
 		try {
 			sql.getConnection();
 		} catch (ClassNotFoundException e) {
@@ -28,14 +25,15 @@ public class authorizeExtUserHandler {
 
 
 		try {
-			return sql.getExsistingAccount(ssn, accounttype);
+			return (ResultSet)sql.readRequestDataBase();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
+
 	}
-	public ResultSet getExsistingApprovedAccount(String ssn, String accounttype) {
-		
+	public ResultSet requestAccountDetailsHandler(String Username) {
+
 		try {
 			sql.getConnection();
 		} catch (ClassNotFoundException e) {
@@ -46,14 +44,15 @@ public class authorizeExtUserHandler {
 
 
 		try {
-			return sql.getExsistingApprovedAccount(ssn, accounttype);
+			return (ResultSet)sql.readRequestAccountDataBase(Username);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
-	}
 
-	public void approveUser(String ssn, String accounttype) {
+	}
+	
+	public ResultSet requestPersonalDetailsHandler(String Username) {
 
 		try {
 			sql.getConnection();
@@ -65,31 +64,11 @@ public class authorizeExtUserHandler {
 
 
 		try {
-			sql.approveUser(ssn, accounttype );
+			return (ResultSet)sql.readRequestPersonalDataBase(Username);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return;
+		return null;
+
 	}
-	public void rejectUser(String ssn, String accounttype) {
-
-		try {
-			sql.getConnection();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-
-		try {
-			sql.rejectUser(ssn, accounttype );
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return;
-	}
-
 }
-
-

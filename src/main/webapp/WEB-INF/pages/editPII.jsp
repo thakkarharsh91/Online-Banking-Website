@@ -55,14 +55,23 @@
 				
 		<h2 align="justify">Edit Personal Information</h2>
 		<c:if test="${not empty emptyFields}">
-			<div class="msg">${emptyFields}</div>
+			<div class="msg"><c:out value="${emptyFields}" /></div>
 		</c:if>
 		<c:if test="${not empty phoneNum}">
-			<div class="msg">${phoneNum}</div>
+			<div class="msg"><c:out value="${phoneNum}" /></div>
 		</c:if>
 		<c:if test="${not empty wrongOtp}">
-			<div class="msg">${wrongOtp}</div>
+			<div class="msg"><c:out value="${wrongOtp}" /></div>
 		</c:if>
+			<table>
+				<tr>
+					<td><a href="./home">Home</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></td>
+				</tr>
+			</table>
+			<br/>
+			<br/>
+			<br/>
 			<table width="500" border="0">
 				<tbody>
 					<tr>

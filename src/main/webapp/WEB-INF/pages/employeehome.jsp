@@ -12,20 +12,20 @@
 		<table width="500" border="0">
 			<tbody>
 				<tr>
-					<td><a href="http://www.asu.edu/">Create Transaction</a></td>
+					<td><a href=${pageContext.servletContext.contextPath}/transact">Create Transaction</a></td>
 				</tr>
 				<tr>
 					<td><a href="${pageContext.servletContext.contextPath}/approvetransaction">Approve Transaction</a></td>
-				</tr>
-				<tr>
-					<td><a href="http://www.asu.edu/">View Transaction</a></td>
 				</tr>
 				<tr>
 					<td><a href="${pageContext.servletContext.contextPath}/moddeltransaction">Modify/Delete
 							Transaction</a></td>
 				</tr>
 				<tr>
-					<td><a href="http://www.asu.edu/">Manage External user</a></td>
+					<td><a href="./modifyUs">Search User</a></td>
+				</tr>
+					<tr>
+					<td><a href="${pageContext.servletContext.contextPath}/viewaccount">View External user</a></td>
 				</tr>
 				<tr>
 					<td><a href="${pageContext.servletContext.contextPath}/reset">Change

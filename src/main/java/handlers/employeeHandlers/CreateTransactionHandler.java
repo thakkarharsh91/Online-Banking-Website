@@ -8,14 +8,10 @@ import databseHandler.CreateTransactionAccess;
 public class CreateTransactionHandler {
 
 	static CreateTransactionAccess sql;
-	
+
 	static { 
 		sql = new CreateTransactionAccess();
 	}
-	
-	//public Object transactionHandler(String username,String transactionamount,String sourceaccountnumber,String destinationaccountnumber,String transfertype) {
-		
-		
 
 	public Object transactionHandler(String userName, String transamount,
 			String sourceacc, String destacc, String type) {
@@ -27,24 +23,23 @@ public class CreateTransactionHandler {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
-		
+
+
 		try {
 			byte[] uname = userName.getBytes();
 			byte[] tamount = transamount.getBytes();
 			byte[] source = sourceacc.getBytes();
 			byte[] destination = destacc.getBytes();
-			byte[] ttype= type.getBytes();
 			
-			return (Object)sql.insertIntotransDatabase(uname, tamount, source, destination,ttype);
+			return (Object)sql.insertIntotransDatabase(uname, tamount, source, destination);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
-		
+
 	}
-		
-	
-	
+
+
+
 }
 

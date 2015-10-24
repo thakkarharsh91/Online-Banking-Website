@@ -124,7 +124,8 @@ function check_User(val){
 			<u>Requests</u>
 		</h2>
 		<tr>
-		    <th>Select</th>
+		    <th>Select to delete</th>
+		    <th>Select to View</th>
 			<th>Request ID</th>
 			<th>Request To</th>
 			<th>Request From</th>
@@ -138,6 +139,7 @@ function check_User(val){
 			
 			<c:if test="${view.rqstStatus == 'Approve'}">
 			<td><input type="checkbox" value="${view.requstID}" name="check"></td>
+			<td><INPUT TYPE="radio" name="radio" value="${view.rqstFor}"/></td>
 			<td><c:out value="${view.requstID}" /></td>
 			<c:set var="User" value="${view.rqstFor}"/>
 			<%session.setAttribute("User",(String)pageContext.getAttribute("User"));
@@ -145,26 +147,26 @@ function check_User(val){
 			    <c:set var="User" value="${view.requstID}"/>
 				<td><c:out value="${view.rqstTo}" /></td>
 				<td><c:out value="${view.rqstFrom}" /></td>
-				<td><a href="${pageContext.request.contextPath}/viewTransactions?${_csrf.parameterName}=${_csrf.token}>" target="_blank"><c:out value="${view.rqstFor}" /></a></td>
+				<td><c:out value="${view.rqstFor}" /></td>
 				<td><c:out value="${view.rqstType}" /></td>
 				<td><c:out value="${view.rqstTime}" /></td>
 				<td><c:out value="${view.rqstStatus}" /></td>
 		</c:if>
 		<c:if test="${view.rqstStatus == 'Reject'}">
 			<td><input type="checkbox" value="${view.requstID}" name="check"></td>
+			<td></td>
 			<td><c:out value="${view.requstID}" /></td>
 			<c:set var="User" value="${view.rqstFor}"/>
-			<%session.setAttribute("User",(String)pageContext.getAttribute("User"));
-			%>
 			    <c:set var="User" value="${view.requstID}"/>
 				<td><c:out value="${view.rqstTo}" /></td>
 				<td><c:out value="${view.rqstFrom}" /></td>
-				<td><a href="${pageContext.request.contextPath}/viewTransactions?${_csrf.parameterName}=${_csrf.token}>" target="_blank"><c:out value="${view.rqstFor}" /></a></td>
+				<td><c:out value="${view.rqstFor}" /></td>
 				<td><c:out value="${view.rqstType}" /></td>
 				<td><c:out value="${view.rqstTime}" /></td>
 				<td><c:out value="${view.rqstStatus}" /></td>
 		</c:if>
 		<c:if test="${view.rqstStatus == 'Pending'}">
+		    <td></td>
 		    <td></td>
 			<td><c:out value="${view.requstID}" /></td>
 				<td><c:out value="${view.rqstTo}" /></td>
@@ -182,6 +184,11 @@ function check_User(val){
 	</br>
 	<div class="buttonHolder">
 	<input name="submitDelete" type="submit" value="Delete"/>
+	</div>
+	</br>
+	
+	<div class="buttonHolder">
+	<input name="submitView" type="submit" value="View"/>
 	</div>
 	<input type="hidden" name="${_csrf.parameterName}"
 				value="${_csrf.token}" />

@@ -12,7 +12,7 @@ public class CheckSourceAccountNumberHandler {
 		sql = new CheckSourceAccountAccess();
 	}
 	
-	public Object requestHandler(String username,String fromaccountnumber) {
+	public Object requestHandler(String username,String fromaccountnumber,String transamount) {
 		
 		try {
 			sql.getConnection();
@@ -24,7 +24,7 @@ public class CheckSourceAccountNumberHandler {
 		
 		
 		try {
-			return (Object)sql.readDataBaseAccount(username,fromaccountnumber);
+			return (Object)sql.readDataBaseAccount(username,fromaccountnumber,transamount);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

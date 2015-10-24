@@ -129,5 +129,36 @@ public class OtpUtility {
 			e.printStackTrace();
 		}
 	}
+	
+	/* Method to send the view request notification to the recipient*/
+	public static ClientResponse sendEmailViewRequest(String email, String role, String Sender, String firstName, String middleName,String lastName, String forUser,String first_recipient, String middle_recipient, String last_recipient) {
+		String messageText="";
+		if(middleName==null)
+		{
+			middleName="";
+		}
+		if(middle_recipient==null)
+		{
+			middle_recipient="";
+		}
+		if(forUser.equals(""))
+		{
+		messageText = role+" "+firstName+" "+middleName+" "+lastName+" has requested you to authorize him to view your transaction";	
+		}
+		else
+		{
+		messageText = role+" "+firstName+" "+middleName+" "+lastName+"("+Sender+")"+" has requested you to authorize him to view the transaction of "+first_recipient+" "+middle_recipient+" "+last_recipient+" with user name "+forUser;	
+		}
+		Client client = Client.create();
+		client.addFilter(new HTTPBasicAuthFilter("api","key-6ccbcefd92ef23373e638edb9fbcb84b"));
+		WebResource webResource = client.resource("https://api.mailgun.net/v3/sandbox49500e12fe5b4f679478baf006256263.mailgun.org" + "/messages");
+		MultivaluedMapImpl formData = new MultivaluedMapImpl();
+		formData.add("from", "Sun Devils Bank <mailgun@sandbox49500e12fe5b4f679478baf006256263.mailgun.org>");
+		formData.add("to", email);
+		formData.add("subject", "View Trasaction Request");
+		formData.add("text", messageText);
+		return webResource.type(MediaType.APPLICATION_FORM_URLENCODED).
+				post(ClientResponse.class, formData);
+	}
 
 }

@@ -53,6 +53,15 @@ type="text/javascript" charset="utf-8"></script>
        
    }
 </script>
+<script type = "text/javascript" >
+    history.pushState(null, null, 'reqModify');
+    window.addEventListener('popstate', function(event) {
+    history.pushState(null, null, 'reqModify');
+    });
+    document.addEventListener("contextmenu", function(e){
+        e.preventDefault();
+    }, false);
+    </script>
 
 </head>
 <body>
@@ -67,14 +76,10 @@ type="text/javascript" charset="utf-8"></script>
 	<option value=zip>Zip</option>
 	<option value=businesslicense>Business License</option>
 	</select>
-	<label> User Name </label>
-	<input type= text name = username>
+	
 	<label> New Value </label>
 	<input type= text name = newvalue>
-	<select name=usertype>
-	<option value=EMPLOYEE> Employee </option>
-	<option value="System Admin"> System Admin </option>
-	<option value="System Manager">System Manager </option>
+	<label> Select Manager </label>
     <input type= submit name=submit value="Request Permission"> 
     <br>
  

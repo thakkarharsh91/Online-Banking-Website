@@ -3,18 +3,18 @@ package databseHandler;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import javax.xml.bind.DatatypeConverter;
 
 import authentication.UserAccount;
 
 public class CheckSourceAccountAccess {
 	private Connection connect = null;
 	private Statement statement = null;
-	
+	private PreparedStatement preparedStatement = null;
+
 	public void getConnection() throws ClassNotFoundException, SQLException{
 		// This will load the MySQL driver, each DB has its own driver
 		Class.forName("com.mysql.jdbc.Driver");
@@ -23,47 +23,64 @@ public class CheckSourceAccountAccess {
 				.getConnection("jdbc:mysql://localhost:3306/software_security?"
 						+ "user=root&password=Incredibles9");
 	}
-	
-	
-	public boolean readDataBaseAccount(String username,String fromaccnumber) throws Exception {
+
+
+	public String readDataBaseAccount(String username,String fromaccnumber,String transamount) throws Exception {
 		try {
-			byte[] uname=username.getBytes();
-			String username_hex= DatatypeConverter.printHexBinary(uname);
-			// Statements allow to issue SQL queries to the database
-			statement = connect.createStatement();
-			// Result set get the result of the SQL query
-			ResultSet resultSet2 = statement
-					.executeQuery("select * from software_security.tbl_user_account WHERE username=0x"+username_hex);
+			Double newbal=0.0;
+			String newbalance="";
+			preparedStatement = connect.prepareStatement("select * from software_security.tbl_user_account WHERE username=?");
+			preparedStatement.setString(1, username);
+			ResultSet resultSet2 = preparedStatement.executeQuery();
 			UserAccount useracc = writeResultSetAccount(resultSet2);
-			resultSet2.close();
+			resultSet2.close();			
+			if(Double.parseDouble(transamount)<0)
+				return "negative";
 			if(useracc!=null && useracc.getAccountnumber().equals(fromaccnumber))
-			   return true;
+			{  preparedStatement = connect
+			.prepareStatement("update software_security.tbl_user_account set balance=? WHERE username=?");
+			newbal=Double.parseDouble(useracc.getBalance())-Double.parseDouble(transamount);
+			if(newbal<0)
+				return "insufficient";
+			newbalance=newbal.toString();
+			preparedStatement.setString(1, newbalance);
+			preparedStatement.setString(2,username);
+			int count=preparedStatement.executeUpdate();
+			System.out.println(count);
+			return "done";
+			}
 			else
-				return false;
-					   
-		} catch (Exception e) {
+				return "incorrect";
+
+		} 
+
+		catch(NumberFormatException ne){
+			return "NFE";
+		}
+		catch (Exception e) {
 			throw e;
 		}
 	}
-	
+
 	private UserAccount writeResultSetAccount(ResultSet resultSet) throws SQLException, NoSuchAlgorithmException {
 		// ResultSet is initially before the first data set
 		UserAccount useracc = null;
-		
+
 		while (resultSet.next()) {			
 
-				byte[] username = resultSet.getBytes("username");
-				byte[] accountnumber = resultSet.getBytes("accountnumber");
-				byte[] accounttype = resultSet.getBytes("accounttype");
-				byte[] balance = resultSet.getBytes("balance");				
+			byte[] username = resultSet.getBytes("username");
+			System.out.println(username.toString());
+			byte[] accountnumber = resultSet.getBytes("accountnumber");
+			byte[] accounttype = resultSet.getBytes("accounttype");
+			byte[] balance = resultSet.getBytes("balance");				
 
-				useracc=new UserAccount(new String(username), new String(accountnumber), new String(accounttype), 
-						new String(balance));			
+			useracc=new UserAccount(new String(username), new String(accountnumber), new String(accounttype), 
+					new String(balance));			
 		}
-		
+
 		return useracc;
 	}
-	
+
 	public void close() {
 		try {
 			if (statement != null) {
@@ -78,5 +95,4 @@ public class CheckSourceAccountAccess {
 		}
 	}
 }
-	
-	
+

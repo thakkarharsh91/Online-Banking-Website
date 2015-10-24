@@ -13,7 +13,10 @@
 		<table width="500" border="0">
 			<tbody>
 				<tr>
-					<td><a href="http://www.asu.edu/">View Requests</a></td>
+					<td><a href="./viewReq">View Requests</a></td>
+				</tr>
+				<tr>
+					<td><a href="./modifyUs">Manage User</a></td>
 				</tr>
 				<tr>
 					<td><a href="${pageContext.request.contextPath}/updateAllow?${_csrf.parameterName}=${_csrf.token}">Access Transactions Requests</a></td>

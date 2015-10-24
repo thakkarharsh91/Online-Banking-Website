@@ -14,13 +14,13 @@
 					<th scope="col">&nbsp;</th>
 				</tr>
 				<tr>
-					<td><a href="#">View Balance</a></td>
+					<td><a href="./viewBal">View Balance</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">Edit PII</a></td>
+					<td><a href="./editPersonalInfo">Edit PII</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">Debit and Credit Funds</a></td>
+					<td><a href="./debitAndCredit">Debit and Credit Funds</a></td>
 				</tr>
 				<tr>
 					<td><a href="#">Add A Recipient</a></td>
@@ -44,7 +44,7 @@
 					<td><a href="#">Submit Payment to Bank</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">Permission to Modify Personal Information</a></td>
+					<td><a href="./reqModify">Permission to Modify Personal Information</a></td>
 				</tr>
 				<tr>
 					<td><a href="#">Reset Password</a></td>
@@ -58,6 +58,9 @@
 				<tr>
 					<td><a href="${pageContext.servletContext.contextPath}/reset">Change
 							Password</a></td>
+				</tr>
+				<tr>
+					<td><a href="${pageContext.servletContext.contextPath}/downloadStatement" target="_blank">View Statement</a></td>
 				</tr>
 				<tr>
 					<td><a

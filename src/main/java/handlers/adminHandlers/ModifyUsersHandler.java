@@ -1,5 +1,6 @@
 package handlers.adminHandlers;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import databseHandler.MySQLAccess;
@@ -25,6 +26,25 @@ public class ModifyUsersHandler {
 
 		try {
 			return (Object)sql.readUserDetails(userName,parameterType);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+
+	}
+	public Object requestManagers() {
+
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+			return (Object)sql.readSystemManagers();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -88,6 +108,48 @@ public class ModifyUsersHandler {
 
 
 	}
+	
+	public ResultSet requestCountHandler() {
+
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+			return (ResultSet)sql.countRequestDatabase();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+
+
+	}
+	
+	public void updateCountHandler(int count,String Username) {
+
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+			sql.updatecountDatabase(count,Username);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+
+	}
+	
 	public void updateRequestHandler(String newvalue, String columnname, String user) {
 
 		try {
@@ -126,7 +188,7 @@ public class ModifyUsersHandler {
 
 
 	}
-	public Object viewRequestHandler() {
+	public Object viewRequestHandler(String Manager) {
 
 		try {
 			sql.getConnection();
@@ -138,7 +200,7 @@ public class ModifyUsersHandler {
 
 
 		try {
-			return sql.viewRequestDatabase();
+			return sql.viewRequestDatabase( Manager);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

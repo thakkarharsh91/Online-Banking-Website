@@ -14,7 +14,7 @@
 		<table width="500" border="0">
 			<tbody>
 				<tr>
-					<td><a href="http://www.asu.edu/">View Requests</a></td>
+					<td><a href="${pageContext.request.contextPath}/authRequest?${_csrf.parameterName}=${_csrf.token}">View Requests</a></td>
 				</tr>
 				<tr>
 					<td><a href="http://www.asu.edu/">View Logs</a></td>

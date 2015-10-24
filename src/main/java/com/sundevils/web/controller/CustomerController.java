@@ -25,11 +25,12 @@ import utilities.CaptchaUtility;
 import utilities.OtpUtility;
 
 import com.user.info.AccountDetails;
+import com.user.info.Transactions.TransactionRequestDetails;
 
 @Controller
 public class CustomerController {
 	long startTime = 0;
-	@RequestMapping(value = "/login/debitAndCredit", method = {RequestMethod.POST, RequestMethod.GET})
+	@RequestMapping(value = "/login/**/debitAndCredit", method = {RequestMethod.POST, RequestMethod.GET})
 	public ModelAndView creditAndDebit (HttpServletRequest request,HttpSession session){
 		ModelAndView model = new ModelAndView();
 		String userName="";
@@ -40,7 +41,7 @@ public class CustomerController {
 		return model;
 	}
 
-	@RequestMapping(value = "/login/viewBal", method = {RequestMethod.POST, RequestMethod.GET}) 
+	@RequestMapping(value = "/login/**/viewBal", method = {RequestMethod.POST, RequestMethod.GET}) 
 	public ModelAndView viewBalance(HttpServletRequest request,HttpSession session){
 		ModelAndView model = new ModelAndView();
 		LoginHandler handler = new LoginHandler(); 
@@ -80,7 +81,8 @@ public class CustomerController {
 			String option=request.getParameter("transaction");
 			String accountNum=request.getParameter("transactions");
 			String amount=request.getParameter("amount");
-			if(amount!=null){
+			try{
+				double am=Double.parseDouble(amount); 
 				LoginHandler handler = new LoginHandler(); 
 				ResultSet rs = handler.requestBalance(userName);
 				double balance=0;
@@ -111,10 +113,10 @@ public class CustomerController {
 						Date date=new Date();
 						boolean flag;
 						if(option.equalsIgnoreCase("debit")){
-							flag=handler.insertTransactionDetails(userName,random,amount,accountNum,"",date.toString(),option,"No");
+							flag=handler.insertTransactionDetails(userName,random,amount,accountNum,"",date.toString(),option,"PENDING");
 						}
 						else{
-							flag=handler.insertTransactionDetails(userName,random,amount,"",accountNum,date.toString(),option,"No");
+							flag=handler.insertTransactionDetails(userName,random,amount,"",accountNum,date.toString(),option,"PENDING");
 						}
 
 						if(flag){
@@ -130,8 +132,8 @@ public class CustomerController {
 					e.printStackTrace();
 				}
 			}
-			else{
-				model.addObject("emptyFields", "Amount Field is mandatory");
+			catch(NumberFormatException nfe){
+				model.addObject("emptyFields", "Amount Field has invalid input");
 				getAccountNumbers(model,userName);
 				model.setViewName("creditAndDebit");
 			}
@@ -155,9 +157,11 @@ public class CustomerController {
 		}
 	}
 
-	@RequestMapping(value = "/login/editPersonalInfo", method = {RequestMethod.POST, RequestMethod.GET})
-	public ModelAndView editPersonalInfo (HttpServletRequest request){
+	@RequestMapping(value = "/login/**/editPersonalInfo", method = {RequestMethod.POST, RequestMethod.GET})
+	public ModelAndView editPersonalInfo (HttpServletRequest request,HttpServletResponse response,HttpSession session){
 		ModelAndView model = new ModelAndView();
+		String userName="";
+		userName = (String)session.getAttribute("USERNAME");
 		model.setViewName("editPII");
 		return model;
 	}
@@ -216,7 +220,7 @@ public class CustomerController {
 			String email = null;
 			ResultSet rs = handler.getEmail(userName);
 			while(rs.next()){
-				email=rs.getString("username");
+				email=rs.getString("email");
 			}
 			otp.sendOtp(request,email);
 			model.setViewName("editPII");
@@ -231,6 +235,47 @@ public class CustomerController {
 		CaptchaUtility captcha = new CaptchaUtility();
 		captcha.generateCaptcha(request,response);
 		model.setViewName("login");
+		return model;
+	}
+	
+	@RequestMapping(value = "**/downloadStatement", method = {RequestMethod.POST, RequestMethod.GET})
+	public ModelAndView downloadStatement(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException, SQLException{
+		LoginHandler handler = new LoginHandler(); 
+		String userName = (String)session.getAttribute("USERNAME");
+		ResultSet rs = handler.requestTrasactionDetails(userName);
+		List<TransactionRequestDetails> transactionDetails=new ArrayList<TransactionRequestDetails>();
+		while(rs.next()){
+			TransactionRequestDetails details=new TransactionRequestDetails();
+			details.setTransactionID(rs.getString("transactionid"));
+			details.setTransactionAmount(rs.getString("transactionamount"));
+			details.setSourceAccount(rs.getString("sourceaccountnumber"));
+			details.setDestAccount(rs.getString("destinationaccountnumber"));
+			details.setDateandTime(rs.getString("dateandtime"));
+			details.setTransferType(rs.getString("transfertype"));
+			details.setStatus(rs.getString("status"));
+			transactionDetails.add(details);
+		}
+		
+		return new ModelAndView("WritePDF", "transactionDetails", transactionDetails);
+		
+	}
+	
+	@RequestMapping(value = "**/home", method = {RequestMethod.POST, RequestMethod.GET})
+	public ModelAndView homePage(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws SQLException{
+		ModelAndView model=new ModelAndView();
+		String role=(String) request.getSession().getAttribute("Role");
+		String userName=(String) request.getSession().getAttribute("USERNAME");
+		LoginHandler handler=new LoginHandler();
+		ResultSet rs = handler.getEmail(userName);
+		while(rs.next()){
+			role=rs.getString("usertype");
+		}
+		if(role.equalsIgnoreCase("USER")){
+			model.setViewName("customerhome");
+		}
+		else if(role.equalsIgnoreCase("MERCHANT")){
+			model.setViewName("merchanthome");
+		}
 		return model;
 	}
 }

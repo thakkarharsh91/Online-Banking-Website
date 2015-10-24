@@ -1,7 +1,6 @@
 package com.sundevils.web.controller;
 
 import handlers.adminHandlers.LoginHandler;
-import com.sundevils.web.controller.SayantanController;
 import handlers.individualuserHandlers.AddRecepientHandler;
 import handlers.individualuserHandlers.UserAccounts;
 import handlers.individualuserHandlers.UserRecepients;
@@ -39,7 +38,7 @@ public class AnishaController {
 	AddRecepientHandler handler = new AddRecepientHandler();
 	LoginHandler lhandler = new LoginHandler();
 	String userEmail = "";
-	
+
 	@RequestMapping(value="/VerifyExternalUser",method=RequestMethod.GET)
 	public ModelAndView ViewRequests(){
 		ModelAndView model = new ModelAndView("VerifyExternalUser");
@@ -66,69 +65,62 @@ public class AnishaController {
 		String lastname="";
 		String regex = "^(?!000|666)[0-8][0-9]{2}-(?!00)[0-9]{2}-(?!0000)[0-9]{4}$";
 		if(id!=null){
-		for(Iterator<Requests> it=requests.iterator();it.hasNext();){
-			request1= it.next();
-			if(request1.getRequestid().equals(id)){
-				Requesttype=request1.getRequesttype();
-				break;
+			for(Iterator<Requests> it=requests.iterator();it.hasNext();){
+				request1= it.next();
+				if(request1.getRequestid().equals(id)){
+					Requesttype=request1.getRequesttype();
+					break;
+				}
 			}
-		}
-		if(Requesttype.equals("CHANGE_OF_PERSONAL_INFORMATION")){
-		handler.updatePI(request1.getUsername(), request1.getModifiedcolumn(), request1.getOldvalue(), request1.getNewvalue());
-		//request should be removed from db?
-	    handler.updateRequest(id,"APPROVE");
-	    requests.remove(request1);
-		}
-		else if(Requesttype.equals("ADD_ACCOUNT")){
+			if(Requesttype.equals("CHANGE_OF_PERSONAL_INFORMATION")){
+				handler.updatePI(request1.getUsername(), request1.getModifiedcolumn(), request1.getOldvalue(), request1.getNewvalue());
+				//request should be removed from db?
+				handler.updateRequest(id,"APPROVE");
+				requests.remove(request1);
+			}
+			else if(Requesttype.equals("ADD_ACCOUNT")){
 
-             //sayatan
-			System.out.println("Inside Approve Statement");
-            accounttype=request.getParameter("accounttype");
-            ssn=request.getParameter("ssn");
-			Pattern pattern = Pattern.compile(regex);
-			Matcher matcher = pattern.matcher(ssn);
-			//Check for validation
-			if (!matcher.matches())
-			{
-				model.addObject("emptyFields", "SSN should be of format XXX-XXX-XXXX.\n The first three digits called the area number. \nThe area number cannot be 000, 666, or between 900 and 999.Digits four and five are called the group number and range from 01 to 99.\nThe last four digits are serial numbers from 0001 to 9999.");
-				model.setViewName("System.Manager.Add.External.User");
-			}
-			else if(accounttype.equals("") || ssn.equals(""))
-			{
-                model.addObject("emptyFields", "Account type and SSN are mandatory fields");
-				model.setViewName("System.Manager.Add.External.User");
-			}
-			else 
-			{
-				authorizeExtUserHandler handler = new authorizeExtUserHandler();
-				System.out.println("SSN:"+ssn);
-				System.out.println("Account Type:"+accounttype);
-				ResultSet rs =  handler.getExsistingAccount(ssn,accounttype);
-				ResultSet rs1 =  handler.getExsistingApprovedAccount(ssn,accounttype);
-				if(!rs.next())
+				//sayatan
+				accounttype=request.getParameter("accounttype");
+				ssn=request.getParameter("ssn");
+				Pattern pattern = Pattern.compile(regex);
+				Matcher matcher = pattern.matcher(ssn);
+				//Check for validation
+				if (!matcher.matches())
 				{
-
-					System.out.println("Inside RS next");
-					model.addObject("ExsistingUser", " Recepient with entered SSN and Account Type does not exists");
-					model.setViewName("System.Manager.Add.External.User");
-					}
-				else if (rs1.next())
-				{
-
-					model.addObject("ExsistingUser", " The application has been already approved");
+					model.addObject("emptyFields", "SSN should be of format XXX-XXX-XXXX.\n The first three digits called the area number. \nThe area number cannot be 000, 666, or between 900 and 999.Digits four and five are called the group number and range from 01 to 99.\nThe last four digits are serial numbers from 0001 to 9999.");
 					model.setViewName("System.Manager.Add.External.User");
 				}
-				else {
-
-					System.out.println("Else RS Next");
-					handler.approveUser(request.getParameter("ssn"),request.getParameter("accounttype"));
-					model.addObject("Successful", "Application has been appoved");
+				else if(accounttype.equals("") || ssn.equals(""))
+				{
+					model.addObject("emptyFields", "Account type and SSN are mandatory fields");
 					model.setViewName("System.Manager.Add.External.User");
-                    }
-              }
-		}
-		 handler.updateRequest(id,"APPROVE");
-		 requests.remove(request1);
+				}
+				else 
+				{
+					authorizeExtUserHandler handler = new authorizeExtUserHandler();
+					ResultSet rs =  handler.getExsistingAccount(ssn,accounttype);
+					ResultSet rs1 =  handler.getExsistingApprovedAccount(ssn,accounttype);
+					if(!rs.next())
+					{
+						model.addObject("ExsistingUser", " Recepient with entered SSN and Account Type does not exists");
+						model.setViewName("System.Manager.Add.External.User");
+					}
+					else if (rs1.next())
+					{
+
+						model.addObject("ExsistingUser", " The application has been already approved");
+						model.setViewName("System.Manager.Add.External.User");
+					}
+					else {
+						handler.approveUser(request.getParameter("ssn"),request.getParameter("accounttype"));
+						model.addObject("Successful", "Application has been appoved");
+						model.setViewName("System.Manager.Add.External.User");
+					}
+				}
+			}
+			handler.updateRequest(id,"APPROVE");
+			requests.remove(request1);
 		}
 		else if(id1!=null) {
 			//request update in db
@@ -152,32 +144,25 @@ public class AnishaController {
 			else 
 			{
 				authorizeExtUserHandler handler = new authorizeExtUserHandler();
-				System.out.println("SSN: "+ssn);
-				System.out.println("Account type: "+accounttype);
 				ResultSet rs =  handler.getExsistingAccount(ssn,accounttype);
 				if(!rs.next())
 				{
-					System.out.println("Inside RS Next");
 					model.addObject("ExsistingUser", " Recepient with entered SSN and Account Type does not exsists");
 					model.setViewName("System.Manager.Add.External.User");
-                 }
+				}
 				else 
 				{
-
-					System.out.println("Else RS Next");
 					handler.rejectUser(request.getParameter("ssn"),request.getParameter("accounttype"));
 					model.addObject("Successful", "Application has been rejected");
 					model.setViewName("System.Manager.Add.External.User");
-
-
 				}
 
 			}
 			handler.updateRequest(id,"REJECTED");
 			requests.remove(request1);
-        }
+		}
 		else if(id2!=null){
-			
+
 		}
 		if(!requests.isEmpty())
 			model.addObject("requests", requests);

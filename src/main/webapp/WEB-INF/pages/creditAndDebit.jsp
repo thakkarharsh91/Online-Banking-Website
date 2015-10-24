@@ -49,13 +49,22 @@
 <div id=creditAndDebit align="center">
 	<h3>Credit And Debit Transactions</h3>
 	<c:if test="${not empty emptyFields}">
-			<div class="msg">${emptyFields}</div>
+			<div class="msg"><c:out value="${emptyFields}" /></div>
 	</c:if>
 	<c:if test="${not empty insuffFunds}">
-			<div class="msg">${insuffFunds}</div>
+			<div class="msg"><c:out value="${insuffFunds}" /></div>
 	</c:if>
 	<form:form name='creditAndDebitForm'
 			action="${pageContext.servletContext.contextPath}/creditAndDebitFull/?${_csrf.parameterName}=${_csrf.token}" method='POST'>
+			<table>
+				<tr>
+					<td><a href="./home">Home</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></td>
+				</tr>
+			</table>
+			<br/>
+			<br/>
+			<br/>
 			<table>
 				<tr>
 					<td><input type="radio" name="transaction" value="credit" checked>Credit</td>

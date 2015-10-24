@@ -3,8 +3,6 @@ package handlers.externaluserHandlers;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
-
 import databseHandler.MySQLAccess;
 
 public class openAccountHandler {

@@ -35,13 +35,13 @@
 					<td><a href="${pageContext.servletContext.contextPath}/usermakepayment">Make a Payment</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">View Payment Lists</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/downloadStatement" target="_blank">View Statement</a></td>
 				</tr>
 				<tr>
 					<td><a href="${pageContext.servletContext.contextPath}/usershowpayments">Approval of Payment Request</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">Permission to Modify Personal Information</a></td>
+					<td><a href="./reqModify">Permission to Modify Personal Information</a></td>
 				</tr>
 				<tr>
 					<td><a href="#">Authorize Transaction</a></td>

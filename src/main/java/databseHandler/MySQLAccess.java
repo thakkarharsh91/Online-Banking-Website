@@ -57,6 +57,77 @@ public class MySQLAccess {
 			throw e;
 		}
 	}
+ 
+	/*get the username who requested for info change*/
+	public ResultSet readRequestDataBase() throws Exception {
+		try {						
+			// Statements allow to issue SQL queries to the database
+			preparedStatement = connect.prepareStatement("select * from software_security.tbl_requests");
+			// Result set get the result of the SQL query
+			ResultSet resultSet = preparedStatement.executeQuery();
+			return resultSet;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
+	/* get the Account info of the user*/
+	public ResultSet readRequestAccountDataBase(String Username) throws Exception {
+		try {						
+			// Statements allow to issue SQL queries to the database
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_user_account where username=?");
+			// Result set get the result of the SQL query
+			preparedStatement.setString(1, Username);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			return resultSet;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
+	/* get the Personal info of the user*/
+	public ResultSet readRequestPersonalDataBase(String Username) throws Exception {
+		try {						
+			// Statements allow to issue SQL queries to the database
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_user_details where username=?");
+			// Result set get the result of the SQL query
+			preparedStatement.setString(1, Username);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			return resultSet;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
+	/* Reads all the Managers from the database */
+	public ArrayList<String> readSystemManagers() throws Exception {
+		try {						
+			// Statements allow to issue SQL queries to the database
+			preparedStatement = connect.prepareStatement("select username from software_security.tbl_user_details where usertype='MANAGER'");
+			// Result set get the result of the SQL query
+
+			ResultSet resultSet = preparedStatement.executeQuery();
+			ArrayList<String> managers= new ArrayList<String>();
+			while (resultSet.next()) {
+
+				byte[] managername = resultSet.getBytes("username");
+				String manager = new String(managername);
+
+
+
+
+				managers.add(manager);
+			}
+			resultSet.close();
+			return managers;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
 
 	public ArrayList<ModifyUser> readUserDetails(String userName,String parameterType) throws Exception {
 		try { 
@@ -97,17 +168,13 @@ public class MySQLAccess {
 		}
 	}
 
-	public ArrayList<Request> viewRequestDatabase() throws Exception {
+	/* reads all the requests of the personal information*/
+	public ArrayList<Request> viewRequestDatabase(String Manager) throws Exception {
 		try { 
-
-
-			/*preparedStatement = connect
-						.prepareStatement("update software_security.tbl_user_details set tbl_user_details.firstname = ? where tbl_user_details.username = ?");
-				preparedStatement.setString(1, "Kartik123456");
-				preparedStatement.setString(2, userName);
-				int count=preparedStatement.executeUpdate();	*/
-			preparedStatement = connect.prepareStatement("SELECT requestfrom,modifiedcolumn,oldvalue,newvalue from software_security.tbl_requests where software_security.tbl_requests.approvalstatus=?");    
+			preparedStatement = connect.prepareStatement("SELECT requestfrom,modifiedcolumn,oldvalue,newvalue from software_security.tbl_requests where software_security.tbl_requests.approvalstatus=? AND software_security.tbl_requests.requestto=? ");    
 			preparedStatement.setString(1, "pending");
+			preparedStatement.setString(2, Manager);
+
 			ResultSet resultSet = preparedStatement.executeQuery();
 			ArrayList<Request> users = writeResultSetRequests (resultSet);
 			return users;
@@ -118,7 +185,23 @@ public class MySQLAccess {
 			throw e;
 		}
 	}
+	
+	/* to count the request of each manager */
+	public ResultSet countRequestDatabase() throws Exception {
+		try { 
 
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_user_account_view_request WHERE requestcount =  ( SELECT MIN(requestcount) FROM software_security.tbl_user_account_view_request )");    
+			ResultSet resultSet = preparedStatement.executeQuery();
+			return resultSet;
+
+
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+/*reads the login information of the desired user*/
 	public ResultSet readLoginDataBase(String userName) throws Exception {
 		try {						
 			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_user_details JOIN "
@@ -133,11 +216,11 @@ public class MySQLAccess {
 		}
 	}
 
+	/*Inserts the new transaction related requests */
 	public void updateAllowDataBase(String userNameFor, String userNameFrom, String userNameTo, String requestType ) throws Exception {
 		try {						
 			preparedStatement = connect.prepareStatement("INSERT INTO software_security.tbl_transaction_requests (requestfor, requestfrom, requesttype, requestto)"
 					+ "VALUES (?, ?, ?,?)"); 
-			//INSERT INTO `software_security`.`tbl_transaction_requests` (`requestto`, `requestfrom`, `requesttype`) VALUES ('arpit', 'arpit', 'View');
 			preparedStatement.setString(1, userNameFor); 
 			preparedStatement.setString(2, userNameFrom);
 			preparedStatement.setString(3, requestType);
@@ -149,6 +232,7 @@ public class MySQLAccess {
 		}
 	}
 
+	/*reads the account information of the desired user */
 	public ResultSet readAccount(String userName) throws Exception {
 		try {						
 			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_user_details JOIN "
@@ -190,7 +274,8 @@ public class MySQLAccess {
 			throw e;
 		}
 	}
-
+	
+	/* updates the request table with the new approval status of the given request ID*/
 	public void updaterequest(String requestid,String action) throws SQLException{
 		try{
 			preparedStatement = connect.prepareStatement("update software_security.tbl_requests set approvalstatus = ? where requestid = ?");
@@ -281,6 +366,7 @@ public class MySQLAccess {
 		}
 	}
 
+	/* gives all the requests from the specified user */
 	public ResultSet getRequestInfo(String fromUser) throws Exception {
 		try {						
 			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_transaction_requests where requestfrom=?");
@@ -292,6 +378,8 @@ public class MySQLAccess {
 			throw e;
 		}
 	}
+	
+	/* Deletes the selected requests */
 	public void deleteRequest(String[] deleteRequests) throws Exception {
 		try {			
 			for(int i=0; i<deleteRequests.length; i++)
@@ -305,6 +393,8 @@ public class MySQLAccess {
 			throw e;
 		}
 	}
+	
+	/*Gives all the requests from the specified manager to the specified recipient*/
 	public ResultSet getRequestStatusInfo(String forUser,String fromUser) throws Exception {
 		try {						
 			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_transaction_requests where requestfor=? and requestfrom=?");
@@ -317,6 +407,8 @@ public class MySQLAccess {
 			throw e;
 		}
 	}
+	
+	/* reads all the transactions of the given user */
 	public ResultSet getTransaction(String User) throws Exception {
 		try {						
 			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_transactions where username=?");
@@ -328,7 +420,8 @@ public class MySQLAccess {
 			throw e;
 		}
 	}
-
+	
+	/*Gives all the pending requests from the specified user */
 	public ResultSet authRequest(String User) throws Exception {
 		try {						
 			preparedStatement = connect.prepareStatement("SELECT requestid,requestfrom,requestdate,requeststatus, requestfor FROM software_security.tbl_transaction_requests JOIN " 
@@ -794,7 +887,7 @@ public class MySQLAccess {
 		preparedStatement.setString(1, user);
 		ResultSet resultSet = preparedStatement.executeQuery();
 		while (resultSet.next()){
-			byte [] test= resultSet.getBytes("address");
+			byte [] test= resultSet.getBytes(parametertype);
 			preparedStatement = connect
 					.prepareStatement("INSERT into software_security.tbl_requests(username,requesttype,requestfrom,requestto,modifiedcolumn,approvalstatus,oldvalue,newvalue)VALUES(?,?,?,?,?,?,?,?); ");
 			preparedStatement.setString(1, user);
@@ -824,6 +917,18 @@ public class MySQLAccess {
 		preparedStatement.setString(4, newvalue);
 		preparedStatement.executeUpdate();
 	}
+	
+	/*Updates the count of the requests in the database */
+	public void updatecountDatabase(int count,String User) throws SQLException{
+		// Remove again the insert comment
+		preparedStatement = connect
+				.prepareStatement("UPDATE software_security.tbl_user_account_view_request SET requestcount=? WHERE username=?");
+		preparedStatement.setInt(1, count);
+		preparedStatement.setString(2, User);
+		preparedStatement.executeUpdate();
+	}
+	
+	
 	public void declineRequestDatabase(String newvalue, String columnname, String user) throws SQLException{
 		// Remove again the insert comment
 
@@ -1374,25 +1479,24 @@ public class MySQLAccess {
 		}
 	}
 
+	/* inserts the new transactions in the table */
 	public boolean insertTransactions(String userName, String TransactionID,
 			String amount, String SourceAccountnumber, String DestinationAccountnumber, String date,
 			String transactionType, String status) {
 		try {
 			preparedStatement = connect
-					.prepareStatement("insert into  software_security.tbl_transactions values (?, ?, ?, ?, ?, ?, ?, ?)");
+					.prepareStatement("insert into  software_security.tbl_transactions(username,amount,sourceaccountnumber,destinationaccountnumber,datenadtime,transfertype,status) values (?, ?, ?, ?, ?, ?, ?)");
 			preparedStatement.setBytes(1, userName.getBytes());
-			preparedStatement.setBytes(2, TransactionID.getBytes());
-			preparedStatement.setBytes(3, amount.getBytes());
-			preparedStatement.setBytes(4, SourceAccountnumber.getBytes());
-			preparedStatement.setBytes(5, DestinationAccountnumber.getBytes());
-			preparedStatement.setBytes(6, date.getBytes());
-			preparedStatement.setBytes(7, transactionType.getBytes());
-			preparedStatement.setBytes(8, status.getBytes());
+			preparedStatement.setBytes(2, amount.getBytes());
+			preparedStatement.setBytes(3, SourceAccountnumber.getBytes());
+			preparedStatement.setBytes(4, DestinationAccountnumber.getBytes());
+			preparedStatement.setBytes(5, date.getBytes());
+			preparedStatement.setBytes(6, transactionType.getBytes());
+			preparedStatement.setBytes(7, status.getBytes());
 			preparedStatement.executeUpdate();
 
 			return true;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
@@ -1439,6 +1543,18 @@ public class MySQLAccess {
 	public ResultSet getEmail(String userName) throws Exception {
 		try {						
 			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_user_details where tbl_user_details.username = ?");    
+			preparedStatement.setString(1, userName);    
+			ResultSet resultSet = preparedStatement.executeQuery();
+			return resultSet;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public ResultSet getTransactions(String userName) throws Exception {
+		try {						
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_transactions where tbl_transactions.username = ?");    
 			preparedStatement.setString(1, userName);    
 			ResultSet resultSet = preparedStatement.executeQuery();
 			return resultSet;
