@@ -48,9 +48,9 @@ tr td:hover { background: #666; color: #FFF; } /* Hover cell effect! */
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"  
 type="text/javascript" charset="utf-8"></script>  
 <script type = "text/javascript" >
-    history.pushState(null, null, 'modifyUs');
+    history.pushState(null, null,window.location.href);
     window.addEventListener('popstate', function(event) {
-    history.pushState(null, null, 'modifyUs');
+    history.pushState(null, null, window.location.href);
     });
     document.addEventListener("contextmenu", function(e){
         e.preventDefault();

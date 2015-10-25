@@ -20,6 +20,15 @@
 	src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type="text/javascript" language="javascript" charset="utf-8"
 	src="js/bootstrap.min.js"></script>
+	<script type = "text/javascript" >
+    history.pushState(null, null,window.location.href);
+    window.addEventListener('popstate', function(event) {
+    history.pushState(null, null, window.location.href);
+    });
+    document.addEventListener("contextmenu", function(e){
+        e.preventDefault();
+    }, false);
+    </script>
 </head>
 
 <body>

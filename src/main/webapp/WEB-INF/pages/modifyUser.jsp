@@ -61,6 +61,15 @@ tr td:hover {
 
 	}
 </script>
+<script type = "text/javascript" >
+    history.pushState(null, null,window.location.href);
+    window.addEventListener('popstate', function(event) {
+    history.pushState(null, null, window.location.href);
+    });
+    document.addEventListener("contextmenu", function(e){
+        e.preventDefault();
+    }, false);
+    </script>
 
 </head>
 <body>

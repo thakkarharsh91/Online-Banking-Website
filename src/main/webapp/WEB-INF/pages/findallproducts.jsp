@@ -19,6 +19,15 @@
 <script type="text/javascript" language="javascript" charset="utf-8"
 	src="js/bootstrap.min.js"></script>
 </head>
+<script type = "text/javascript" >
+    history.pushState(null, null,window.location.href);
+    window.addEventListener('popstate', function(event) {
+    history.pushState(null, null, window.location.href);
+    });
+    document.addEventListener("contextmenu", function(e){
+        e.preventDefault();
+    }, false);
+    </script>
 
 <body>
 	<nav id="navigation">

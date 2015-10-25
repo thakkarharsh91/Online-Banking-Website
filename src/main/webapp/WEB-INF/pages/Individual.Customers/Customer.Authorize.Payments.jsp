@@ -8,6 +8,15 @@
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+	<script type = "text/javascript" >
+    history.pushState(null, null,window.location.href);
+    window.addEventListener('popstate', function(event) {
+    history.pushState(null, null, window.location.href);
+    });
+    document.addEventListener("contextmenu", function(e){
+        e.preventDefault();
+    }, false);
+    </script>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Authorize Transaction</title>
 <style>

@@ -9,6 +9,15 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Insert title here</title>
+<script type = "text/javascript" >
+    history.pushState(null, null,window.location.href);
+    window.addEventListener('popstate', function(event) {
+    history.pushState(null, null, window.location.href);
+    });
+    document.addEventListener("contextmenu", function(e){
+        e.preventDefault();
+    }, false);
+    </script>
 </head>
 <body>
 <table border="3" align="center">

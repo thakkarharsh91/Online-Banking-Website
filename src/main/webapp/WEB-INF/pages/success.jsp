@@ -14,6 +14,15 @@
 	src="<c:url value="/js/bootstrap.min.js " />"></script>
 <script type="text/javascript"
 	src="<c:url value="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" />"></script>
+	<script type = "text/javascript" >
+    history.pushState(null, null,window.location.href);
+    window.addEventListener('popstate', function(event) {
+    history.pushState(null, null, window.location.href);
+    });
+    document.addEventListener("contextmenu", function(e){
+        e.preventDefault();
+    }, false);
+    </script>
 
 <link href="<c:url value="/css/globalalter.css" />" rel="stylesheet"
 	type="text/css">

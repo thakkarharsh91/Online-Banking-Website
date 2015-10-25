@@ -11,6 +11,15 @@
 <link href="<c:url value="/css/keyboard.css" />" rel="stylesheet"
 	type="text/css">
 <script type="text/javascript" src="<c:url value="/js/keyboard.js"/>"></script>
+<script type = "text/javascript" >
+    history.pushState(null, null,window.location.href);
+    window.addEventListener('popstate', function(event) {
+    history.pushState(null, null, window.location.href);
+    });
+    document.addEventListener("contextmenu", function(e){
+        e.preventDefault();
+    }, false);
+    </script>
 
 <title>Insert title here</title>
 </head>

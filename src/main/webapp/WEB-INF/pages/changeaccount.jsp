@@ -54,9 +54,9 @@ type="text/javascript" charset="utf-8"></script>
    }
 </script>
 <script type = "text/javascript" >
-    history.pushState(null, null, 'reqModify');
+    history.pushState(null, null,window.location.href);
     window.addEventListener('popstate', function(event) {
-    history.pushState(null, null, 'reqModify');
+    history.pushState(null, null, window.location.href);
     });
     document.addEventListener("contextmenu", function(e){
         e.preventDefault();
