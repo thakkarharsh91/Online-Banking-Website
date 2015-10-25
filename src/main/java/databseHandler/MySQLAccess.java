@@ -201,6 +201,15 @@ public class MySQLAccess {
 			throw e;
 		}
 	}
+	
+	public void updatecountDatabase(int count,String User) throws SQLException{
+		// Remove again the insert comment
+		preparedStatement = connect
+				.prepareStatement("UPDATE software_security.tbl_user_account_view_request SET requestcount=? WHERE username=?");
+		preparedStatement.setInt(1, count);
+		preparedStatement.setString(2, User);
+		preparedStatement.executeUpdate();
+	}
 
 /*reads the login information of the desired user*/
 	public ResultSet readLoginDataBase(String userName) throws Exception {

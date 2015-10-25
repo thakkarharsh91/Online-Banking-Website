@@ -1,6 +1,7 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html>
 <head>
+<meta http-equiv="Refresh" content="5;url=login">
 <title>Application successfully submitted</title>
 <style type="text/css">
 </style>

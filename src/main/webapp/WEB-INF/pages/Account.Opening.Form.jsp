@@ -32,12 +32,12 @@
       <td>Type of  External Users:</td>
       <td>
       	<label>
-      		<input type="radio" name="usertype" value="Individual Customer" id="usertype_0" checked>Individual Customer
+      		<input type="radio" name="usertype" value="USER" id="usertype_0" checked>Individual Customer
       	</label>
       </td>
       <td>
       	<label>
-      		<input type="radio" name="usertype" value="Merchant/Organization" id="usertype_1">Merchant/Organization
+      		<input type="radio" name="usertype" value="MANAGER" id="usertype_1">Merchant/Organization
       	</label>
       </td>
     </tr>
