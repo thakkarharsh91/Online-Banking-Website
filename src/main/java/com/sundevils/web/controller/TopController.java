@@ -44,6 +44,9 @@ public class TopController {
 	long startEmailTime = 0;
 	long startTime = 0;
 	int count = 0;
+	String otpGenerateTime;
+	String otpEnterTime;
+	String modelTime="2015/10/24 00:00:00";
 	@RequestMapping(value = {"/","/welcome**" }, method = RequestMethod.GET)
 	public ModelAndView welcomePage(HttpServletRequest request,HttpServletResponse response) throws IOException {
 
@@ -62,7 +65,7 @@ public class TopController {
 		model.setViewName("findallproducts");
 		return model;
 	}
-	
+
 	@RequestMapping(value = {"/accountopening" }, method = RequestMethod.GET)
 	public ModelAndView startForm(HttpServletRequest request,HttpServletResponse response) throws IOException {
 		ModelAndView model = new ModelAndView();
@@ -105,6 +108,35 @@ public class TopController {
 		return model;
 	}
 
+	@RequestMapping(value = {"**/changeaccount" }, method={RequestMethod.GET, RequestMethod.POST})
+	public ModelAndView changeaccount(HttpServletRequest request,HttpServletResponse response) throws IOException {
+		ModelAndView model = new ModelAndView();
+		if(request.getParameter("search")!=null){
+			ModifyUsersHandler handler = new ModifyUsersHandler();
+			model.addObject("account",handler.getaccounttypeHandler((String) request.getSession().getAttribute("USERNAME"),request.getParameter("accountnumber")));
+			model.addObject("managers", handler.requestManagers());
+			model.addObject("accountnumber",request.getParameter("accountnumber"));
+			model.setViewName("changeaccount");}
+		else{
+			model.setViewName("searchaccounttochange");
+		}
+
+		return model;
+
+	}
+	@RequestMapping(value = {"**/reqchangeaccount" }, method={RequestMethod.GET, RequestMethod.POST})
+	public ModelAndView reqchangeaccount(HttpServletRequest request,HttpServletResponse response) throws IOException {
+		ModelAndView model = new ModelAndView();
+		ModifyUsersHandler handler = new ModifyUsersHandler();
+		if (request.getParameter("accountchange")!=null){
+			handler.updateaccountrequest((String) request.getSession().getAttribute("USERNAME"),request.getParameter("managername"),request.getParameter("accountnumber"));
+			model.setViewName("searchaccounttochange");
+
+		}
+		return model;
+	}
+
+
 	@RequestMapping(value = {"/employeehomenavigate" }, method = RequestMethod.GET)
 	public ModelAndView empployeeHome(HttpServletRequest request,HttpServletResponse response) throws IOException {
 		ModelAndView model = new ModelAndView();
@@ -133,7 +165,7 @@ public class TopController {
 		return model;
 	}
 
-	@RequestMapping(value = {"/transact**" }, method = {RequestMethod.GET, RequestMethod.POST})
+	@RequestMapping(value = {"/transact" }, method = {RequestMethod.GET, RequestMethod.POST})
 	public ModelAndView transactPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException {
 		String role = (String)session.getAttribute("Role");		
 		if(role!=null && role.equals("EMPLOYEE"))
@@ -189,7 +221,11 @@ public class TopController {
 		else
 		{
 			ModelAndView model = new ModelAndView();
-			model.setViewName("login");
+			LoginHandler handler = new LoginHandler();
+			String userName = (String)session.getAttribute("USERNAME");
+			handler.updateLoggedInFlag(userName,0);
+			session.invalidate();
+			model.setViewName("index");
 			return model;
 		}
 	}
@@ -223,9 +259,10 @@ public class TopController {
 	public ModelAndView modifyUsersPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException  {
 		ModelAndView model = null;
 		try{
-
+			
 			String searchParameter = "";
 			String deleteParameter="";
+			String accountnumber="";
 			String searchParameterType = "";
 			String role=(String) request.getSession().getAttribute("Role");
 			model = new ModelAndView();	
@@ -245,13 +282,14 @@ public class TopController {
 				else if (role.equalsIgnoreCase("MANAGER")){
 					model.setViewName("modifyUsers");
 				}
-
+			
 			}
 
 			else if (request.getParameter("delete")!= null){
 				deleteParameter =request.getParameter("hiddenUser");
+				accountnumber = request.getParameter("hiddenUserNumber");
 				ModifyUsersHandler handler = new ModifyUsersHandler(); 
-				handler.deleteRequestHandler(deleteParameter);
+				handler.deleteRequestHandler(deleteParameter,accountnumber);
 				searchParameter = request.getParameter("hiddenUser");
 				searchParameterType = "UserName";
 
@@ -261,7 +299,7 @@ public class TopController {
 				model.setViewName("modifyUsers");
 
 			}
-
+			
 			else if (role.equalsIgnoreCase("EMPLOYEE")){
 				model.setViewName("modifyUsersemployee");
 			}
@@ -280,11 +318,63 @@ public class TopController {
 		return model;
 
 	}
+
+@RequestMapping(value = "**/reqModify", method = {RequestMethod.POST,RequestMethod.GET})
+	public ModelAndView reqPermissionPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException  {
+		ModelAndView model = null;
+		try{
+			String updateParameter = "";
+            String ManagerName = "";
+			String updateParameterType = "";
+			int count = 0;
+			model = new ModelAndView();	
+			if (request.getParameter("submit")!=null){
+				updateParameter = request.getParameter("newvalue");
+				updateParameterType = request.getParameter("searchcat");
+				ModifyUsersHandler handler = new ModifyUsersHandler();
+				ResultSet rs = handler.requestCountHandler();
+				try {
+					while(rs.next())
+					{
+					  ManagerName = rs.getString("username");
+					  count = rs.getInt("requestcount");
+					  count = count+1;
+					  handler.updateCountHandler(count, ManagerName);
+					  break;
+					}
+				} 
+				catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				handler.requestModifyHandler((String) request.getSession().getAttribute("USERNAME"),updateParameter,updateParameterType,ManagerName);
+				String role=(String) request.getSession().getAttribute("Role");
+				
+				if(role.equalsIgnoreCase("USER")){
+					model.setViewName("customerhome");
+				}
+				else if(role.equalsIgnoreCase("MERCHANT")){
+					model.setViewName("merchanthome");
+				}
+			}
+			else {
+				ModifyUsersHandler handler = new ModifyUsersHandler();
+				model.addObject("managers", handler.requestManagers());
+	        	model.setViewName("requestpermissionmodify");
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return model;
+	}
+
+	
 	@RequestMapping(value = "**/viewReq", method = {RequestMethod.POST,RequestMethod.GET})
 	public ModelAndView viewPermissionPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException  {
 		ModelAndView model = null;
 		try{
-
 			model = new ModelAndView();	
 			if (request.getParameter("approve")!=null){
 				ModifyUsersHandler handler = new ModifyUsersHandler();
@@ -303,63 +393,6 @@ public class TopController {
 				model.addObject("title", "All users in the database");
 				model.addObject("message", "This is protected page!");
 				model.setViewName("viewpermissions");
-			}
-
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-
-		return model;
-
-	}
-
-	@RequestMapping(value = "**/reqModify", method = {RequestMethod.POST,RequestMethod.GET})
-	public ModelAndView reqPermissionPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException  {
-		ModelAndView model = null;
-		try{
-			String updateParameter = "";
-			String ManagerName = "";
-			String updateParameterType = "";
-			int count = 0;
-			model = new ModelAndView();	
-			if (request.getParameter("submit")!=null){
-				updateParameter = request.getParameter("newvalue");
-				updateParameterType = request.getParameter("searchcat");
-				ModifyUsersHandler handler = new ModifyUsersHandler();
-				ResultSet rs = handler.requestCountHandler();
-				try {
-					while(rs.next())
-					{
-						ManagerName = rs.getString("username");
-						count = rs.getInt("requestcount");
-						count = count+1;
-						handler.updateCountHandler(count, ManagerName);
-						break;
-					}
-				} 
-				catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				handler.requestModifyHandler((String) request.getSession().getAttribute("USERNAME"),updateParameter,updateParameterType,ManagerName);
-				String role=(String) request.getSession().getAttribute("Role");
-
-				if(role.equalsIgnoreCase("USER")){
-					model.setViewName("customerhome");
-				}
-				else if(role.equalsIgnoreCase("MERCHANT")){
-					model.setViewName("merchanthome");
-				}
-			}
-
-
-
-			else {
-				ModifyUsersHandler handler = new ModifyUsersHandler();
-				model.addObject("managers", handler.requestManagers());
-				model.setViewName("requestpermissionmodify");
 			}
 
 		}
@@ -426,11 +459,19 @@ public class TopController {
 							String pass = rs.getString("usercurrentpassword");
 							String role = rs.getString("usertype");
 							int loggedIn = rs.getInt("isloggedin");
+							String ispwdchange = rs.getString("ispasswordchange");
 							int lock = rs.getInt("islocked");
 							session.setAttribute("USERNAME", userName);
 							if(lock == 0){
 								if(uName.equals(userName) && pass.equals(password)){
 									if(loggedIn == 0){
+
+										if(ispwdchange.equals("1"))
+										{
+											model.addObject("user", userName);
+											model.setViewName("resetpassword");
+											return model;
+										}
 										handler.updateLoggedInFlag(userName,1);
 										request.getSession().setAttribute("Role", role);
 										if(role.equals("MANAGER")){
@@ -637,7 +678,7 @@ public class TopController {
 		if(role == null)
 		{
 			ModelAndView model = new ModelAndView();
-			model.setViewName("login");
+			model.setViewName("index");
 			return model;
 		}
 		else if(role.equals("MANAGER"))
@@ -736,7 +777,8 @@ public class TopController {
 							{
 								toUserName = forUser;
 								OtpUtility.sendEmailViewRequest(email,role,"",firstname, middleName,lastName,"","","","");
-								handler.requestUpdateHandler(forUser,fromUserName,toUserName, "View");
+								String date = TimeUtility.generateDateMethod();
+								handler.requestUpdateHandler(forUser,fromUserName,toUserName, "View",date);
 							}
 							else
 							{
@@ -748,7 +790,8 @@ public class TopController {
 									OtpUtility.sendEmailViewRequest(email,role, fromUserName, firstname, middleName,lastName,forUser,firstname_Recipient,middleName_Recipient,lastName_Recipient);
 									if (type.equals(userType))
 									{
-										handler.requestUpdateHandler(forUser,fromUserName,toUserName, "View");
+										String date = TimeUtility.generateDateMethod();
+										handler.requestUpdateHandler(forUser,fromUserName,toUserName, "View",date);
 									}
 								}
 								else
@@ -798,7 +841,11 @@ public class TopController {
 		else
 		{
 			ModelAndView model = new ModelAndView();
-			model.setViewName("login");
+			LoginHandler handler = new LoginHandler();
+			String userName = (String)session.getAttribute("USERNAME");
+			handler.updateLoggedInFlag(userName,0);
+			session.invalidate();
+			model.setViewName("index");
 			return model;
 		}
 
@@ -814,7 +861,7 @@ public class TopController {
 		if(role == null)
 		{
 			model = new ModelAndView();
-			model.setViewName("login");
+			model.setViewName("index");
 			return model;
 		}
 		else if(role.equals("EMPLOYEE"))
@@ -909,7 +956,7 @@ public class TopController {
 		else
 		{
 			model = new ModelAndView();
-			model.setViewName("login");
+			model.setViewName("index");
 			return model;
 		}
 	}
@@ -927,7 +974,7 @@ public class TopController {
 		if(role == null)
 		{
 			model = new ModelAndView();
-			model.setViewName("login");
+			model.setViewName("index");
 			return model;
 		}
 		else if(role.equals("MANAGER"))
@@ -958,7 +1005,10 @@ public class TopController {
 		}
 		else
 		{
-			model = new ModelAndView();
+			LoginHandler handler1 = new LoginHandler();
+			String userName = (String)session.getAttribute("USERNAME");
+			handler1.updateLoggedInFlag(userName,0);
+			session.invalidate();
 			model.setViewName("login");
 			return model;
 		}
@@ -1005,7 +1055,11 @@ public class TopController {
 		else
 		{
 			ModelAndView model = new ModelAndView();
-			model.setViewName("login");
+			LoginHandler handler = new LoginHandler();
+			String userName = (String)session.getAttribute("USERNAME");
+			handler.updateLoggedInFlag(userName,0);
+			session.invalidate();
+			model.setViewName("index");
 			return model;
 		}
 	}
@@ -1028,9 +1082,10 @@ public class TopController {
 			userName=request.getParameter("username");
 			otpCode = request.getParameter("otpCode");
 			otpString = (String)session.getAttribute("OTP");
-			long diff = System.currentTimeMillis() - startTime;
-			int minutes = (int) ((diff / (1000*60)) % 60);
-			if(minutes > 3){
+			otpEnterTime=TimeUtility.generateDateMethod()+" "+TimeUtility.generateHoursMethod()+":"+TimeUtility.generateMinutesMethod()+":"+TimeUtility.generateSecondsMethod();
+			long genSec=TimeUtility.getDifferenceinSeconds(modelTime,otpGenerateTime);
+			long enterSec=TimeUtility.getDifferenceinSeconds(modelTime,otpEnterTime);
+			if((enterSec-genSec)>180){
 				otpString = "";
 			}
 			if(accountNumber.equals("") || userName.equals("") || otpCode.equals("")){
@@ -1072,7 +1127,7 @@ public class TopController {
 			}
 		}
 
-		else{ 
+		else if(request.getParameter("submit")!=null){ 
 			String userSession = (String) session.getAttribute("USERNAME");
 			handler = new LoginHandler();
 			ResultSet rs = handler.requestLoginHandler(userSession);
@@ -1081,9 +1136,16 @@ public class TopController {
 				email = rs.getString("email");
 			}
 			OtpUtility otp = new OtpUtility();
+			otpGenerateTime=TimeUtility.generateDateMethod()+" "+TimeUtility.generateHoursMethod()+":"+TimeUtility.generateMinutesMethod()+":"+TimeUtility.generateSecondsMethod();
 			otp.sendOtp(request,email);
 			startTime = System.currentTimeMillis();
 			model.setViewName("unlockaccount");
+		}
+		else{
+			userName = (String)session.getAttribute("USERNAME");
+			handler.updateLoggedInFlag(userName,0);
+			session.invalidate();
+			model.setViewName("index");
 		}
 		return model;
 	}
@@ -1106,12 +1168,6 @@ public class TopController {
 			{
 				authRequests = request.getParameterValues("check");
 				requestType = request.getParameter("Type");
-				//ResultSet rsCheck = authorize.checkRequestStatus(requestID);
-				/*String rq = rsCheck.getString("requeststatus");
-				if(rq.equals("Pending"))
-				{
-					authorize.updateRequestStatus(requestType, requestID);
-				}*/
 				authorize.updateRequestStatus(requestType, authRequests);
 			}
 			if(role.equals("USER"))
@@ -1165,7 +1221,13 @@ public class TopController {
 		double sourceAmount = 0.0;
 		String sourceAccountNumber = "";
 		Boolean status = false;
-		if(role.equals("MANAGER"))
+		if(role == null)
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("index");
+			return model;
+		}
+		else if(role.equals("MANAGER"))
 		{
 			ModelAndView model = new ModelAndView();
 			model.setViewName("critical");
@@ -1249,7 +1311,11 @@ public class TopController {
 		else
 		{
 			ModelAndView model = new ModelAndView();
-			model.setViewName("login");
+			LoginHandler handler = new LoginHandler();
+			String userName = (String)session.getAttribute("USERNAME");
+			handler.updateLoggedInFlag(userName,0);
+			session.invalidate();
+			model.setViewName("index");
 			return model;
 		}
 	}
@@ -1268,7 +1334,13 @@ public class TopController {
 		double sourceAmount = 0.0;
 		String sourceAccountNumber = "";
 		Boolean status = false;
-		if(role.equals("EMPLOYEE"))
+		if(role == null)
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("index");
+			return model;
+		}
+		else if(role.equals("EMPLOYEE"))
 		{
 			ModelAndView model = new ModelAndView();
 			model.setViewName("approve");
@@ -1353,7 +1425,11 @@ public class TopController {
 		else
 		{
 			ModelAndView model = new ModelAndView();
-			model.setViewName("login");
+			LoginHandler handler = new LoginHandler();
+			String userName = (String)session.getAttribute("USERNAME");
+			handler.updateLoggedInFlag(userName,0);
+			session.invalidate();
+			model.setViewName("index");
 			return model;
 		}
 	}
@@ -1372,6 +1448,12 @@ public class TopController {
 		String sourceAccountNumber = "";
 		boolean sourceFlag = true;
 		Boolean status = true;
+		if(role == null)
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("index");
+			return model;
+		}
 		if(role.equals("EMPLOYEE"))
 		{
 			ModelAndView model = new ModelAndView();
@@ -1462,7 +1544,7 @@ public class TopController {
 		else
 		{
 			ModelAndView model = new ModelAndView();
-			model.setViewName("login");
+			model.setViewName("index");
 			return model;
 		}
 	}

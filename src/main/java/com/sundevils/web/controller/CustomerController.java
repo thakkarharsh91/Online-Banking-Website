@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -23,6 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import utilities.CaptchaUtility;
 import utilities.OtpUtility;
+import utilities.TimeUtility;
 
 import com.user.info.AccountDetails;
 import com.user.info.Transactions.TransactionRequestDetails;
@@ -30,14 +30,33 @@ import com.user.info.Transactions.TransactionRequestDetails;
 @Controller
 public class CustomerController {
 	long startTime = 0;
+	String modelTime="2015/10/24 00:00:00";
+	String otpGenerateTime;
+	String otpEnterTime;
 	@RequestMapping(value = "/login/**/debitAndCredit", method = {RequestMethod.POST, RequestMethod.GET})
 	public ModelAndView creditAndDebit (HttpServletRequest request,HttpSession session){
 		ModelAndView model = new ModelAndView();
 		String userName="";
+		LoginHandler handler=new LoginHandler();
 		userName = (String)session.getAttribute("USERNAME");
-		getAccountNumbers(model,userName);
-
-		model.setViewName("creditAndDebit");
+		String role=(String)session.getAttribute("Role");
+		try{
+			if(role!=null && !role.isEmpty()&&(role.equalsIgnoreCase("USER")||role.equalsIgnoreCase("MERCHANT"))){
+				getAccountNumbers(model,userName);
+				model.setViewName("creditAndDebit");
+			}
+			else{
+				if(!userName.isEmpty() || !userName.equalsIgnoreCase(null)){
+					handler.updateLoggedInFlag(userName,0);
+				}
+				session.invalidate();
+				model.setViewName("index");
+			}
+		}
+		catch(Exception e){
+			session.invalidate();
+			model.setViewName("index");
+		}
 		return model;
 	}
 
@@ -47,25 +66,43 @@ public class CustomerController {
 		LoginHandler handler = new LoginHandler(); 
 		String userName="";
 		userName = (String)session.getAttribute("USERNAME");
-		ResultSet rs = handler.requestBalance(userName);
-		List<AccountDetails> acntdetails=new ArrayList<AccountDetails>();
-
-		try {
-			while(rs.next()){
-				AccountDetails details=new AccountDetails();
-				details.setAccountNumber(rs.getString("accountnumber"));
-				details.setAccountType(rs.getString("accounttype"));
-				details.setBalance(rs.getDouble("balance"));
-				acntdetails.add(details);
+		String role=(String)session.getAttribute("Role");
+		try{
+			if(role!=null && !role.isEmpty()&&(role.equalsIgnoreCase("USER")||role.equalsIgnoreCase("MERCHANT"))){
+				ResultSet rs = handler.requestBalance(userName);
+				List<AccountDetails> acntdetails=new ArrayList<AccountDetails>();
+		
+				try {
+					while(rs.next()){
+						AccountDetails details=new AccountDetails();
+						details.setAccountNumber(rs.getString("accountnumber"));
+						details.setAccountType(rs.getString("accounttype"));
+						details.setBalance(rs.getDouble("balance"));
+						acntdetails.add(details);
+					}
+					model.addObject("accountDetails",acntdetails);
+					rs.close();
+		
+				} catch (SQLException e) {
+					model.addObject("accountDetails","");
+					e.printStackTrace();
+				}
+		
+				model.setViewName("viewBalance");
 			}
-			model.addObject("accountDetails",acntdetails);
-
-		} catch (SQLException e) {
-			model.addObject("accountDetails","");
-			e.printStackTrace();
+			else{
+				if(!userName.isEmpty() || !userName.equalsIgnoreCase(null)){
+					handler.updateLoggedInFlag(userName,0);
+				}
+				session.invalidate();
+				model.setViewName("index");
+			}
 		}
-
-		model.setViewName("viewBalance");
+		catch(Exception e){
+			session.invalidate();
+			model.setViewName("index");
+		}
+		
 		return model;
 
 	}
@@ -110,16 +147,22 @@ public class CustomerController {
 					}
 					else{
 						int random = (new Random()).nextInt(900000) + 100000;
-						Date date=new Date();
-						boolean flag;
+						//Date date=new Date();
+						boolean flag1 = false;
+						boolean flag2 = false;
 						if(option.equalsIgnoreCase("debit")){
-							flag=handler.insertTransactionDetails(userName,random,amount,accountNum,"",date.toString(),option,"PENDING");
+							flag1=handler.insertTransactionDetails(userName,random,amount,accountNum,"",TimeUtility.generateDateMethod(),option,"pendingapproval");
+							balance=balance-Double.parseDouble(amount);
+							flag2=handler.updateBalance(userName,balance);
+							
 						}
-						else{
-							flag=handler.insertTransactionDetails(userName,random,amount,"",accountNum,date.toString(),option,"PENDING");
+						else if(option.equalsIgnoreCase("credit")){
+							flag1=handler.insertTransactionDetails(userName,random,amount,"",accountNum,TimeUtility.generateDateMethod(),option,"pendingapproval");
+							balance=balance+Double.parseDouble(amount);
+							flag2=handler.updateBalance(userName,balance);
 						}
 
-						if(flag){
+						if(flag1 && flag2){
 							model.addObject("sucess", "Transaction is Sucess");
 							model.setViewName("customerhome");
 						}
@@ -128,6 +171,7 @@ public class CustomerController {
 							model.setViewName("customerhome");
 						}
 					}
+					rs.close();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -151,6 +195,7 @@ public class CustomerController {
 				accountNumbers.add(rs.getString("accountnumber"));
 			}
 			model.addObject("accountNumbers",accountNumbers);
+			rs.close();
 		} catch (SQLException e) {
 
 			e.printStackTrace();
@@ -170,6 +215,7 @@ public class CustomerController {
 	public ModelAndView editPII(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException, SQLException {
 		ModelAndView model=new ModelAndView();
 		LoginHandler handler = new LoginHandler();
+		
 		String userName = (String)session.getAttribute("USERNAME");
 		if(request.getParameter("submit")!=null){
 			String changeColumn=request.getParameter("PII");
@@ -178,10 +224,13 @@ public class CustomerController {
 			String confirmNewInfo=request.getParameter("cnfrmNewInfo");
 			String otp=request.getParameter("otpCode");
 			String otpString = (String)session.getAttribute("OTP");
-			long diff = System.currentTimeMillis() - startTime;
+			otpEnterTime=TimeUtility.generateDateMethod()+" "+TimeUtility.generateHoursMethod()+":"+TimeUtility.generateMinutesMethod()+":"+TimeUtility.generateSecondsMethod();
+//			long diff = System.currentTimeMillis() - startTime;
 			int random = (new Random()).nextInt(900000) + 100000;
-			int minutes = (int) ((diff / (1000*60)) % 60);
-			if(minutes > 3){
+//			int minutes = (int) ((diff / (1000*60)) % 60);
+			long genSec=TimeUtility.getDifferenceinSeconds(modelTime,otpGenerateTime);
+			long enterSec=TimeUtility.getDifferenceinSeconds(modelTime,otpEnterTime);
+			if((enterSec-genSec)>180){
 				otpString = "";
 			}
 			if(currentInfo.isEmpty() ||newInfo.isEmpty()||confirmNewInfo.isEmpty()||otp.isEmpty()){
@@ -216,6 +265,7 @@ public class CustomerController {
 		}
 		else if(request.getParameter("otpButton")!=null){
 			startTime = System.currentTimeMillis();
+			otpGenerateTime=TimeUtility.generateDateMethod()+" "+TimeUtility.generateHoursMethod()+":"+TimeUtility.generateMinutesMethod()+":"+TimeUtility.generateSecondsMethod();
 			OtpUtility otp = new OtpUtility();
 			String email = null;
 			ResultSet rs = handler.getEmail(userName);
@@ -255,7 +305,7 @@ public class CustomerController {
 			details.setStatus(rs.getString("status"));
 			transactionDetails.add(details);
 		}
-		
+		rs.close();
 		return new ModelAndView("WritePDF", "transactionDetails", transactionDetails);
 		
 	}
@@ -276,6 +326,7 @@ public class CustomerController {
 		else if(role.equalsIgnoreCase("MERCHANT")){
 			model.setViewName("merchanthome");
 		}
+		rs.close();
 		return model;
 	}
 }

@@ -23,6 +23,9 @@
 					<td><a href="${pageContext.servletContext.contextPath}/debitAndCredit">Debit and Credit Funds</a></td>
 				</tr>
 				<tr>
+					<td><a href="${pageContext.servletContext.contextPath}/changeaccount">Change Account Type</a></td>
+				</tr>
+				<tr>
 					<td><a href="${pageContext.servletContext.contextPath}/addRecepient">Add A Recipient</a></td>
 				</tr>
 				<tr>
@@ -35,13 +38,7 @@
 					<td><a href="${pageContext.servletContext.contextPath}/merchantstartpayment">Make a Payment Request</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">Request Payment from Merchant</a></td>
-				</tr>
-				<tr>
 					<td><a href="${pageContext.servletContext.contextPath}/merchantshowpayments">View Payment Lists</a></td>
-				</tr>
-				<tr>
-					<td><a href="#">Submit Payment to Bank</a></td>
 				</tr>
 				<tr>
 					<td><a href="${pageContext.servletContext.contextPath}/reqModify">Permission to Modify Personal Information</a></td>
@@ -66,3 +63,10 @@
 	</form>
 </body>
 </html>
+<%
+	int timeout = session.getMaxInactiveInterval();
+	String url = request.getRequestURL().toString();
+	url = url.replace("/WEB-INF/pages/merchanthome.jsp",
+			"/logoutusers");
+	response.setHeader("Refresh", "300; URL =" + url);
+%>

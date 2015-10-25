@@ -90,6 +90,6 @@
 	int timeout = session.getMaxInactiveInterval();
 	//timeout/=60;
 	String url = request.getRequestURL().toString();
-	url = url.replace("/WEB-INF/pages/approve.jsp", "/logoutusers");
+	url = url.replace("/WEB-INF/pages/moddeltransaction.jsp", "/logoutusers");
 	response.setHeader("Refresh", "300; URL =" + url);
 %>

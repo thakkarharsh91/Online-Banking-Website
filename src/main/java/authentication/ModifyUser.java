@@ -13,6 +13,7 @@ public class ModifyUser  {
 	private String zip;
 	private String passport;
 	private String businessLicense;
+	private String accountnumber;
 
 
 
@@ -20,7 +21,7 @@ public class ModifyUser  {
 	/* Spring Security fields*/
 	public ModifyUser(){}
 
-	public ModifyUser(String username, String email, String firstname, String lastname,String address,String dateOfBirth,String phonenumber,String state, String zip, String passport,String businessLicense ){
+	public ModifyUser(String username,String accountnumber, String email, String firstname, String lastname,String address,String dateOfBirth,String phonenumber,String state, String zip, String passport,String businessLicense ){
 		this.username = username;
 		this.email = email;
 		this.firstName = firstname;
@@ -32,6 +33,7 @@ public class ModifyUser  {
 		this.zip = zip;
 		this.passport=passport;
 		this.businessLicense=businessLicense;
+		this.accountnumber= accountnumber;
 	}
 
 
@@ -41,6 +43,13 @@ public class ModifyUser  {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+	public String getaccountnumber() {
+		return accountnumber;
+	}
+
+	public void setaccountnumber(String accountnumber) {
+		this.accountnumber = accountnumber;
 	}
 
 	public String getAddress() {

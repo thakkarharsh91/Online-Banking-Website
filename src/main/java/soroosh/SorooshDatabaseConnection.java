@@ -8,8 +8,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Calendar;
 
+import utilities.TimeUtility;
 import authentication.User;
 
 public class SorooshDatabaseConnection {
@@ -115,8 +115,7 @@ public class SorooshDatabaseConnection {
 
 	public ArrayList<String> putCustomerPaymentInDatabase(PaymentInfo payment) 
 			throws SQLException, ClassNotFoundException{
-		Calendar cal = Calendar.getInstance();
-		Date date = new Date(cal.getTimeInMillis());
+		String date = TimeUtility.generateDateMethod();
 		double currentBalance = 0;
 		ArrayList<String> errors = new ArrayList<String>();
 
@@ -156,9 +155,8 @@ public class SorooshDatabaseConnection {
 
 	public void putMerchantPaymentRequestInDatabase(String payer, String amount, 
 			String accountNumber, String username) 
-			throws ClassNotFoundException, SQLException {
-		Calendar cal = Calendar.getInstance();
-		Date date = new Date(cal.getTimeInMillis());
+					throws ClassNotFoundException, SQLException {
+		String date = TimeUtility.generateDateMethod();
 		putCustomerPaymentInDatabase(username, amount, payer, accountNumber, date.toString(), "PAYMENT", "WAITING_PAYER");
 	}
 

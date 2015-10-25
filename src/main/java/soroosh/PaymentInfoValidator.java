@@ -5,6 +5,8 @@ import java.util.ArrayList;
 
 import javax.servlet.http.HttpSession;
 
+import utilities.TimeUtility;
+
 public class PaymentInfoValidator {
 
 	public ArrayList<String> merchantPaymentRequestValidateData(String username, String payerName, String amount, 
@@ -52,7 +54,16 @@ public class PaymentInfoValidator {
 				|| (signature == null)){
 			errors.add("all fields are mandatory");
 		}
-		
+		String otpEnteredtime=TimeUtility.generateDateMethod()+" "+TimeUtility.generateHoursMethod()+":"+TimeUtility.generateMinutesMethod()+":"+TimeUtility.generateSecondsMethod();
+		//String otpGeneratedTime=request.getSession.getAttribute(otpGenerateTime)
+		String modelTime="2015/10/24 00:00:00";
+		/*
+		 * long genSec=TimeUtility.getDifferenceinSeconds(modelTime,otpGenerateTime);
+			long enterSec=TimeUtility.getDifferenceinSeconds(modelTime,otpEnterTime);
+			if((enterSec-genSec)>180){
+				otpString = "";
+			}
+		 */
 		if(session.getAttribute("OTP") == null){
 			errors.add("Please order OTP");
 			return errors;

@@ -148,7 +148,7 @@ public class AddRecepientHandler {
 		}
 		return null;
 }
-	public boolean submitTrasferRequest(String userName,String TransactionID,String Amount,String SourceAccount,String DestinationAccount,String dateandtime,String transferType,String Status,boolean success) {
+	public boolean submitTrasferRequest(String userName,int TransactionID,String Amount,String SourceAccount,String DestinationAccount,String dateandtime,String transferType,String Status,boolean success) {
 
 		try {
 			sql.getConnection();

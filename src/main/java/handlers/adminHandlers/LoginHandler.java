@@ -2,6 +2,7 @@ package handlers.adminHandlers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 
 import databseHandler.MySQLAccess;
 
@@ -165,7 +166,7 @@ public class LoginHandler {
 	}
 
 	public boolean insertTransactionDetails(String userName, int random,
-			String amount, String accountNum, String accountNum2, String date,
+			String amount, String accountNum, String accountNum2, String string2,
 			String transactionType, String status) {
 		try {
 			sql.getConnection();
@@ -177,7 +178,7 @@ public class LoginHandler {
 
 
 		try {
-			return sql.insertTransactions(userName,random,amount,accountNum,accountNum2,date,transactionType,status);
+			return sql.insertTransactions(userName,random,amount,accountNum,accountNum2, string2,transactionType,status);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -276,6 +277,25 @@ public class LoginHandler {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public boolean updateBalance(String userName, double balance) {
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		boolean flag=false;
+		try {
+			flag=sql.updateBalance(userName,balance);
+			return flag;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return flag;
 	}
 	
 }

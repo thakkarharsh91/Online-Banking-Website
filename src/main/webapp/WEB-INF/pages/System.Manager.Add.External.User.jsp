@@ -51,3 +51,10 @@
 </form>
 </body>
 </html>
+<%
+  int timeout = session.getMaxInactiveInterval();
+  String url = request.getRequestURL().toString();
+  url = url.replace("/WEB-INF/pages/System.Manager.Add.External.User.jsp",
+      "/logoutusers");
+  response.setHeader("Refresh", "300; URL =" + url);
+%>

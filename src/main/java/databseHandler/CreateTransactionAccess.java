@@ -6,10 +6,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Random;
+
+import utilities.TimeUtility;
 
 public class CreateTransactionAccess {
 	private Connection connect = null;
@@ -30,9 +29,7 @@ public class CreateTransactionAccess {
 			byte[] sourceaccountnumber, byte[] destinationaccountnumber) throws SQLException, NoSuchAlgorithmException{
 		
 		int count=0;
-		DateFormat dateFormat=new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		Date date=new Date();
-		String dttime=dateFormat.format(date);
+		String dttime=TimeUtility.generateDateMethod();
 		byte[] dateandtime = dttime.getBytes();
 		
 		Random ran = new Random();
@@ -41,7 +38,7 @@ public class CreateTransactionAccess {
 		
 		String stat="pendingapproval";
 		byte[] status=stat.getBytes();
-		byte[] transfertype="TRANSFER".getBytes();
+		byte[] transfertype="fundstransfer".getBytes();
 		
 		
 		try

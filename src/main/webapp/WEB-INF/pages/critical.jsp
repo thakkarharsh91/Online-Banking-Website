@@ -73,9 +73,8 @@
 </html>
 <%
 	int timeout = session.getMaxInactiveInterval();
-	//timeout/=60;
 	String url = request.getRequestURL().toString();
-	url = url.replace("/WEB-INF/pages/approve.jsp",
+	url = url.replace("/WEB-INF/pages/critical.jsp",
 			"/logoutusers");
 	response.setHeader("Refresh", "300; URL =" + url);
 %>

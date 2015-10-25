@@ -1,7 +1,8 @@
 package handlers.adminHandlers;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import com.mysql.jdbc.ResultSet;
 
 import databseHandler.MySQLAccess;
 
@@ -25,7 +26,7 @@ public class ModifyUsersHandler {
 
 
 		try {
-			return (Object)sql.readUserDetails(userName,parameterType);
+			return (Object)sql.readModifyUser(userName,parameterType);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -51,7 +52,7 @@ public class ModifyUsersHandler {
 		return null;
 
 	}
-	public void deleteRequestHandler(String userName) {
+	public ResultSet requestCountHandler() {
 
 		try {
 			sql.getConnection();
@@ -63,7 +64,47 @@ public class ModifyUsersHandler {
 
 
 		try {
-			sql.deleteUserDetails(userName);
+			return (ResultSet)sql.countRequestDatabase();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+
+
+	}
+	
+	public void updateCountHandler(int count,String Username) {
+
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+			sql.updatecountDatabase(count,Username);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+
+	}
+	public void deleteRequestHandler(String userName,String accountnumber) {
+
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+			sql.deleteUserDetails(userName,accountnumber);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -108,48 +149,6 @@ public class ModifyUsersHandler {
 
 
 	}
-	
-	public ResultSet requestCountHandler() {
-
-		try {
-			sql.getConnection();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-
-		try {
-			return (ResultSet)sql.countRequestDatabase();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-
-
-	}
-	
-	public void updateCountHandler(int count,String Username) {
-
-		try {
-			sql.getConnection();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-
-		try {
-			sql.updatecountDatabase(count,Username);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-
-	}
-	
 	public void updateRequestHandler(String newvalue, String columnname, String user) {
 
 		try {
@@ -207,6 +206,46 @@ public class ModifyUsersHandler {
 
 		return null;
 	}
+	
+	public Object getaccounttypeHandler(String username, String accountnumber) {
+
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+			return sql.readAccountType(username,accountnumber);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+	public Object updateaccountrequest(String username,String manager,String Accountnumber) {
+
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+		 sql.insertAccountChangeRequest(username,manager,Accountnumber);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+	
 
 }
 

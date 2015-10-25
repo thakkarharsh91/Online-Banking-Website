@@ -213,7 +213,7 @@ public class SayantanController
 		String role = (String) session.getAttribute("Role");
 		if(role == null){
 			ModelAndView model = new ModelAndView();
-			model.setViewName("login");
+			model.setViewName("index");
 			return model;
 		}
 		else if(role.equals("GOVERNMENT")){
@@ -303,7 +303,7 @@ public class SayantanController
 			String username = (String) session.getAttribute("USERNAME");
 			lhandler.updateLoggedInFlag(username, 0);
 			session.invalidate();
-			model.setViewName("login");
+			model.setViewName("index");
 			return model;
 		}
 	}
@@ -313,7 +313,7 @@ public class SayantanController
 		String role = (String) session.getAttribute("Role");
 		if(role == null){
 			ModelAndView model = new ModelAndView();
-			model.setViewName("login");
+			model.setViewName("index");
 			return model;
 		}
 		else if(role.equals("GOVERNMENT")){
@@ -341,7 +341,7 @@ public class SayantanController
 			String username = (String) session.getAttribute("USERNAME");
 			lhandler.updateLoggedInFlag(username, 0);
 			session.invalidate();
-			model.setViewName("login");
+			model.setViewName("index");
 			return model;
 		}
 	}
@@ -353,7 +353,7 @@ public class SayantanController
 		String role = (String) session.getAttribute("Role");
 		if(role == null){
 			ModelAndView model = new ModelAndView();
-			model.setViewName("login");
+			model.setViewName("index");
 			return model;
 		}
 		else if(role.equals("MERCHANT") || role.equals("USER")){
@@ -381,7 +381,7 @@ public class SayantanController
 			String username = (String) session.getAttribute("USERNAME");
 			lhandler.updateLoggedInFlag(username, 0);
 			session.invalidate();
-			model.setViewName("login");
+			model.setViewName("index");
 			return model;
 		}
 	}
@@ -391,7 +391,7 @@ public class SayantanController
 	{String role = (String) session.getAttribute("Role");
 	if(role == null){
 		ModelAndView model = new ModelAndView();
-		model.setViewName("login");
+		model.setViewName("index");
 		return model;
 	}
 	else if(role.equals("MERCHANT") || role.equals("USER")){
@@ -460,7 +460,7 @@ public class SayantanController
 		String username = (String) session.getAttribute("USERNAME");
 		lhandler.updateLoggedInFlag(username, 0);
 		session.invalidate();
-		model.setViewName("login");
+		model.setViewName("index");
 		return model;
 	}
 }
@@ -473,7 +473,7 @@ public class SayantanController
 		String role = (String) session.getAttribute("Role");
 		if(role == null){
 			ModelAndView model = new ModelAndView();
-			model.setViewName("login");
+			model.setViewName("index");
 			return model;
 		}
 		else if(role.equals("MANAGER")){
@@ -610,7 +610,7 @@ public class SayantanController
 		String username = (String) session.getAttribute("USERNAME");
 		lhandler.updateLoggedInFlag(username, 0);
 		session.invalidate();
-		model.setViewName("login");
+		model.setViewName("index");
 		return model;
 	}
 }
@@ -620,7 +620,7 @@ public class SayantanController
 		String role = (String) session.getAttribute("Role");
 		if(role == null){
 			ModelAndView model = new ModelAndView();
-			model.setViewName("login");
+			model.setViewName("index");
 			return model;
 		}
 		else if(role.equals("MANAGER")){
@@ -708,7 +708,7 @@ public class SayantanController
 			String username = (String) session.getAttribute("USERNAME");
 			lhandler.updateLoggedInFlag(username, 0);
 			session.invalidate();
-			model.setViewName("login");
+			model.setViewName("index");
 			return model;
 		}
 	}

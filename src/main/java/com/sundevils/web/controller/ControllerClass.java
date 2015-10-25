@@ -1,6 +1,7 @@
 package com.sundevils.web.controller;
 
 import gunpreetPackage.BusinessLogic.CheckAuthentication;
+import handlers.adminHandlers.PasswordChangeHandler;
 
 import javax.servlet.http.HttpSession;
 
@@ -41,9 +42,12 @@ public class ControllerClass {
 				model.addObject("errormessage", result);
 				model.setViewName("resetpassword");
 			}
-			else
+			else{
+				PasswordChangeHandler handler = new PasswordChangeHandler();
+				handler.requestHandler(userName);
 				model.addObject("successpassword", "Your password has been successfully changed.  You will be automatically redirected to login page within few seconds.");
 				model.setViewName("success");
+			}
 		}
 		return model;
 	}	

@@ -58,6 +58,11 @@ type="text/javascript" charset="utf-8"></script>
     </script>
 </head>
 <body oncontextmenu="return false;">
+<div>
+<a href="">Home</a>
+<a
+href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
+</div>
 <form:form name='SearchForm'
 			action="${pageContext.servletContext.contextPath}/modifyUs/?${_csrf.parameterName}=${_csrf.token}" method='POST'>
 	<select name=searchcat>
@@ -73,6 +78,7 @@ type="text/javascript" charset="utf-8"></script>
 	<c:if test="${users != null && users.size() != 0}">:
 	<table>
 		<th>User Name</th>
+		<th>Account Number</th>
 		<th>Email</th>
 		<th>First Name</th>
 		<th>Last Name</th>
@@ -81,7 +87,7 @@ type="text/javascript" charset="utf-8"></script>
 		<th>Passport Number</th>
 		<th>State </th>
 		<th>Zip</th>
-		<th>Business License</th>
+		
 
 		<c:forEach items="${users}" var="user">
 		<form:form name='SearchForm'
@@ -93,20 +99,21 @@ type="text/javascript" charset="utf-8"></script>
 				</td>
 				<td><input type=text value="${user.firstName}" disabled />
 				</td>
+				<td><input type=text  value="${user.accountnumber}" disabled /></td>
 				<td><input type=text  value="${user.lastName}" disabled /></td>
 				<td><input type=text  value="${user.address}" disabled /></td>
 				<td><input type=text  value="${user.phonenumber}" disabled /></td>
 				<td><input type=text  value="${user.passport}" disabled /></td>
 				<td><input type=text  value="${user.state}" disabled /></td>
 				<td><input type=text  value="${user.zip}" disabled /></td>
-				<td><input type=text  value="${user.businessLicense}" disabled /></td>
+				
 				
 			</tr>
 			<tr>
 			<td><input type=submit  name =delete value=delete /></td>
 				
-				<td><input type= hidden name= hiddenUser id='hiddenUser' value="${user.username}" /></td>
-				<td><input type= hidden name= hiddenUserNumber id='hiddenUserNumber' value="${user.username}" /></td>
+				<td><input type= hidden name= 'hiddenUser' id='hiddenUser' value="${user.username}" /></td>
+				<td><input type= hidden name= 'hiddenUserNumber'id='hiddenUserNumber' value="${user.accountnumber}" /></td>
 			</tr>
 			</form:form>
 		</c:forEach>

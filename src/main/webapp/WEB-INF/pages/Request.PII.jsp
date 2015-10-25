@@ -48,7 +48,6 @@
 					<td><select name="sysadminsList">
 						<c:forEach items="${sysadmins}" var="sysAdmin">
 							<option value="${sysAdmin.getusername()}">
-								${sysAdmin.getusername()} - 
 								${sysAdmin.getfirstname()}.   
 								${sysAdmin.getlastname()}</option>
 						</c:forEach>
@@ -67,3 +66,10 @@
 
 </body>
 </html>
+<%
+	int timeout = session.getMaxInactiveInterval();
+	String url = request.getRequestURL().toString();
+	url = url.replace("/WEB-INF/pages/RequestPII.jsp",
+			"/logoutusers");
+	response.setHeader("Refresh", "300; URL =" + url);
+%>

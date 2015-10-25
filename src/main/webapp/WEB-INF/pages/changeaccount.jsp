@@ -53,24 +53,45 @@ type="text/javascript" charset="utf-8"></script>
        
    }
 </script>
+<script type = "text/javascript" >
+    history.pushState(null, null, 'reqModify');
+    window.addEventListener('popstate', function(event) {
+    history.pushState(null, null, 'reqModify');
+    });
+    document.addEventListener("contextmenu", function(e){
+        e.preventDefault();
+    }, false);
+    </script>
 
 </head>
 <body>
-<form:form action="${pageContext.servletContext.contextPath}/reqModify/?${_csrf.parameterName}=${_csrf.token}" method='POST'>
-	<select name=searchcat>
-	<option value=firstname> First Name </option>
-	<option value=lastname> User Name </option>
-	<option value=phonenumber> Phone Number </option>
-	<option value=email> Email </option>
-	<option value=address> Address</option>
-	<option value=state> State</option>
-	<option value=zip>Zip</option>
-	<option value=businesslicense>Business License</option>
-	</select>
+<div>
+<a href="">Home</a>
+<a
+href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
+</div>
+<form:form action="${pageContext.servletContext.contextPath}/reqchangeaccount/?${_csrf.parameterName}=${_csrf.token}" method='POST'>
 	
-	<label> New Value </label>
-	<input type= text name = newvalue>
+	<label> Your Account Type is :</label>
+	<label><c:out value="${account}"/></label>
+	<label> Your Account Number is :</label>
+	<label><c:out value="${accountnumber}"/></label>
+	<input type=hidden value="${accountnumber}" name="accountnumber">
+	<c:if test="${account != null && account=='checkings'}">:
+	<input type= submit name =accountchange value='Change to Saving Account'>
+	</c:if>
+	<c:if test="${account != null && account=='savings'}">:
+	<input type= submit name = accountchange value='Change to Checking Account'>
+	</c:if>
 	<label> Select Manager </label>
+	<select name=managername>
+	<c:if test="${managers!= null && managers.size() != 0}">:
+	<c:forEach items="${managers}" var="manager">
+	<option value="${manager}"><c:out value="${manager}" /></option>
+	</c:forEach>
+
+	</c:if>
+	</select>
     <input type= submit name=submit value="Request Permission"> 
     <br>
  
@@ -81,10 +102,3 @@ type="text/javascript" charset="utf-8"></script>
 
 </body>
 </html>
-<%
-	int timeout = session.getMaxInactiveInterval();
-	String url = request.getRequestURL().toString();
-	url = url.replace("/WEB-INF/pages/requestpermissionmodify.jsp",
-			"/logoutusers");
-	response.setHeader("Refresh", "300; URL =" + url);
-%>

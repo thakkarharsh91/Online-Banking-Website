@@ -56,7 +56,6 @@
 </html>
 <%
 	int timeout = session.getMaxInactiveInterval();
-	//timeout/=60;
 	String url = request.getRequestURL().toString();
 	url = url.replace("/WEB-INF/pages/accessRequests.jsp",
 			"/logoutusers");

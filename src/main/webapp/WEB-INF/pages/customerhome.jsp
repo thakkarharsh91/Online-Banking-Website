@@ -23,6 +23,9 @@
 					<td><a href="${pageContext.servletContext.contextPath}/debitAndCredit">Debit and Credit Funds</a></td>
 				</tr>
 				<tr>
+					<td><a href="${pageContext.servletContext.contextPath}/changeaccount">Change Account Type</a></td>
+				</tr>
+				<tr>
 					<td><a href="${pageContext.servletContext.contextPath}/addRecepient">Add A Recipient</a></td>
 				</tr>
 				<tr>
@@ -62,8 +65,8 @@
 </html>
 <%
 	int timeout = session.getMaxInactiveInterval();
-	//timeout/=60;
 	String url = request.getRequestURL().toString();
-	url = url.replace("/WEB-INF/pages/customerhome.jsp", "/login");
-	response.setHeader("Refresh", timeout + "; URL =" + url);
+	url = url.replace("/WEB-INF/pages/customerhome.jsp",
+			"/logoutusers");
+	response.setHeader("Refresh", "300; URL =" + url);
 %>

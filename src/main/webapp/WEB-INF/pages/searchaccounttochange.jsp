@@ -53,26 +53,27 @@ type="text/javascript" charset="utf-8"></script>
        
    }
 </script>
+<script type = "text/javascript" >
+    history.pushState(null, null, 'reqModify');
+    window.addEventListener('popstate', function(event) {
+    history.pushState(null, null, 'reqModify');
+    });
+    document.addEventListener("contextmenu", function(e){
+        e.preventDefault();
+    }, false);
+    </script>
 
 </head>
 <body>
-<form:form action="${pageContext.servletContext.contextPath}/reqModify/?${_csrf.parameterName}=${_csrf.token}" method='POST'>
-	<select name=searchcat>
-	<option value=firstname> First Name </option>
-	<option value=lastname> User Name </option>
-	<option value=phonenumber> Phone Number </option>
-	<option value=email> Email </option>
-	<option value=address> Address</option>
-	<option value=state> State</option>
-	<option value=zip>Zip</option>
-	<option value=businesslicense>Business License</option>
-	</select>
+<div>
+<a href="">Home</a>
+<a
+href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
+</div>
+<form:form action="${pageContext.servletContext.contextPath}/changeaccount/?${_csrf.parameterName}=${_csrf.token}" method='POST'>
 	
-	<label> New Value </label>
-	<input type= text name = newvalue>
-	<label> Select Manager </label>
-    <input type= submit name=submit value="Request Permission"> 
-    <br>
+	<input type=number name="accountnumber">
+	<input type= submit name="search" value="search by account number">
  
 	</form:form>
 	
@@ -81,10 +82,3 @@ type="text/javascript" charset="utf-8"></script>
 
 </body>
 </html>
-<%
-	int timeout = session.getMaxInactiveInterval();
-	String url = request.getRequestURL().toString();
-	url = url.replace("/WEB-INF/pages/requestpermissionmodify.jsp",
-			"/logoutusers");
-	response.setHeader("Refresh", "300; URL =" + url);
-%>

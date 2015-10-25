@@ -2,17 +2,20 @@ package handlers.adminHandlers;
 
 import java.sql.SQLException;
 
-import databseHandler.MySQLAccess;
+import databseHandler.PasswordChangeAccess;
 
-public class updateAllowHandler {
 
-	static MySQLAccess sql;
+
+
+public class PasswordChangeHandler {
+
+	static PasswordChangeAccess sql;
 	
 	static { 
-		sql = new MySQLAccess();
+		sql = new PasswordChangeAccess();
 	}
 	
-	public void requestUpdateHandler(String forUserName,String fromUserName,String toUserName,String type,String date) {
+	public Object requestHandler(String username) {
 		
 		try {
 			sql.getConnection();
@@ -24,13 +27,11 @@ public class updateAllowHandler {
 		
 		
 		try {
-			sql.updateAllowDataBase(forUserName,fromUserName,toUserName,type,date);
+			sql.UpdatePass(username);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return null;
 		
 	}
-
-	
-	
 }

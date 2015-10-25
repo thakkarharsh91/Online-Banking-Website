@@ -58,6 +58,11 @@ type="text/javascript" charset="utf-8"></script>
     </script>
 </head>
 <body oncontextmenu="return false;">
+<div>
+<a href="">Home</a>
+<a
+href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
+</div>
 <form:form name='SearchForm'
 			action="${pageContext.servletContext.contextPath}/modifyUs/?${_csrf.parameterName}=${_csrf.token}" method='POST'>
 	<select name=searchcat>

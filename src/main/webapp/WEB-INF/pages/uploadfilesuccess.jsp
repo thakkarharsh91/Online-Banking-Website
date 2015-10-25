@@ -25,3 +25,10 @@
 				value="${_csrf.token}" />
 </body>
 </html>
+<%
+    int timeout = session.getMaxInactiveInterval();
+    String url = request.getRequestURL().toString();
+    url = url.replace("/WEB-INF/pages/uploadfilesuccess.jsp",
+            "/logoutusers");
+    response.setHeader("Refresh", "300; URL =" + url);
+%>

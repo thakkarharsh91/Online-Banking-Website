@@ -18,6 +18,7 @@ import soroosh.PaymentInfo;
 import soroosh.PaymentInfoValidator;
 import soroosh.SorooshDatabaseConnection;
 import utilities.OtpUtility;
+import utilities.TimeUtility;
 
 @Controller
 public class SorooshController {
@@ -28,6 +29,8 @@ public class SorooshController {
 	private String employeeRole = "EMPLOYEE";
 	private String adminRole = "ADMIN";
 	private String governmentRole = "GOVERNMENT";
+	String modelTime="2015/10/24 00:00:00";
+	String otpGenerateTime;
 
 
 	private ModelAndView redirectToAccessDeniedPage(String role) {
@@ -109,7 +112,10 @@ public class SorooshController {
 		try {
 			String email = handler.getEmailAddressForUsername(username);
 			OtpUtility otp = new OtpUtility();
+			
 			otp.sendOtp(request, email);
+			otpGenerateTime=TimeUtility.generateDateMethod()+" "+TimeUtility.generateHoursMethod()+":"+TimeUtility.generateMinutesMethod()+":"+TimeUtility.generateSecondsMethod();
+			request.getSession().setAttribute("otpGenerateTime", otpGenerateTime);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

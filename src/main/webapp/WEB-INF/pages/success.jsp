@@ -64,6 +64,7 @@
 <%
 	int timeout = session.getMaxInactiveInterval();
 	String url = request.getRequestURL().toString();
-	url = url.replace("/WEB-INF/pages/forgotpassword.jsp", "/login");
-	response.setHeader("Refresh", timeout + "; URL =" + url);
+	url = url.replace("/WEB-INF/pages/success.jsp",
+			"/logoutusers");
+	response.setHeader("Refresh", "300; URL =" + url);
 %>

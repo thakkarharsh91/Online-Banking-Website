@@ -42,8 +42,8 @@
 </html>
 <%
 	int timeout = session.getMaxInactiveInterval();
-	//timeout/=60;
 	String url = request.getRequestURL().toString();
-	url = url.replace("/WEB-INF/pages/customerhome.jsp", "/login");
-	response.setHeader("Refresh", timeout + "; URL =" + url);
+	url = url.replace("/WEB-INF/pages/employeehome.jsp",
+			"/logoutusers");
+	response.setHeader("Refresh", "300; URL =" + url);
 %>
