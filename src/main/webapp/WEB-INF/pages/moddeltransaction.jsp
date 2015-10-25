@@ -33,6 +33,18 @@
 			<c:if test="${not empty modify}">
 				<div class="msg" align="center">${modify}</div>
 			</c:if>
+			<c:if test="${not empty zeroerror}">
+				<div class="msg" align="center">${zeroerror}</div>
+			</c:if>
+			<c:if test="${not empty multiplemodify}">
+				<div class="msg" align="center">${multiplemodify}</div>
+			</c:if>
+			<c:if test="${not empty destinationerror}">
+				<div class="msg" align="center">${destinationerror}</div>
+			</c:if>
+			<c:if test="${not empty greatervalue}">
+				<div class="msg" align="center">${greatervalue}</div>
+			</c:if>
 			<tr>
 				<th>Select</th>
 				<th>Username</th>
@@ -52,7 +64,7 @@
 					<td><c:out value="${view.userName}" /></td>
 					<td><c:out value="${view.transactionId}" /></td>
 					<td><c:out value="${view.transactionAmount}" /></td>
-					<td><input type="text" name="newamount" value="${view.newAmount}" /></td>
+					<td><input type="text" name="${view.transactionId}" value="${view.newAmount}" /></td>
 					<td><c:out value="${view.sourceAccount}" /></td>
 					<td><c:out value="${view.destAccount}" /></td>
 					<td><c:out value="${view.dateandTime}" /></td>

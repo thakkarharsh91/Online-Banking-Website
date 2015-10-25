@@ -62,6 +62,13 @@ public class TopController {
 		model.setViewName("findallproducts");
 		return model;
 	}
+	
+	@RequestMapping(value = {"/accountopening" }, method = RequestMethod.GET)
+	public ModelAndView startForm(HttpServletRequest request,HttpServletResponse response) throws IOException {
+		ModelAndView model = new ModelAndView();
+		model.setViewName("Account.Opening.Form");
+		return model;
+	}
 
 	@RequestMapping(value = {"/aboutus" }, method = RequestMethod.GET)
 	public ModelAndView aboutus(HttpServletRequest request,HttpServletResponse response) throws IOException {
@@ -97,7 +104,7 @@ public class TopController {
 		model.setViewName("startbanking");
 		return model;
 	}
-	
+
 	@RequestMapping(value = {"/employeehomenavigate" }, method = RequestMethod.GET)
 	public ModelAndView empployeeHome(HttpServletRequest request,HttpServletResponse response) throws IOException {
 		ModelAndView model = new ModelAndView();
@@ -130,62 +137,62 @@ public class TopController {
 	public ModelAndView transactPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException {
 		String role = (String)session.getAttribute("Role");		
 		if(role!=null && role.equals("EMPLOYEE"))
-	{
-		ModelAndView model = new ModelAndView();
-		CreateTransactionHandler handler = new CreateTransactionHandler();
-		String userName = "";
-		String transamount = "";
-		String sourceacc = "";
-		String destacc = "";
-		String type = "";
-		
-		if(request.getParameter("submit")!=null){
-			userName = request.getParameter("username");
-			transamount = request.getParameter("transamount");
-			sourceacc = request.getParameter("sourceacc");
-			destacc = request.getParameter("destacc");
-			
-			
-			if(userName.isEmpty() || transamount.isEmpty() || sourceacc.isEmpty() || destacc.isEmpty())
-			{
-				model.addObject("success_msg", "Error: There are empty fields. Please rectify");
+		{
+			ModelAndView model = new ModelAndView();
+			CreateTransactionHandler handler = new CreateTransactionHandler();
+			String userName = "";
+			String transamount = "";
+			String sourceacc = "";
+			String destacc = "";
+			String type = "";
+
+			if(request.getParameter("submit")!=null){
+				userName = request.getParameter("username");
+				transamount = request.getParameter("transamount");
+				sourceacc = request.getParameter("sourceacc");
+				destacc = request.getParameter("destacc");
+
+
+				if(userName.isEmpty() || transamount.isEmpty() || sourceacc.isEmpty() || destacc.isEmpty())
+				{
+					model.addObject("success_msg", "Error: There are empty fields. Please rectify");
+				}
+
+				else
+				{
+					CheckSourceAccountNumberHandler accounthandler = new CheckSourceAccountNumberHandler(); 
+					String account_match_msg=(String) accounthandler.requestHandler(userName,sourceacc,transamount);
+					if(account_match_msg.equals("done"))
+						model.addObject("success_msg", handler.transactionHandler(userName,transamount,sourceacc,destacc,type));
+					else if(account_match_msg.equals("incorrect"))
+						model.addObject("success_msg","Incorrect username or source account no.");
+					else if(account_match_msg.equals("negative"))
+						model.addObject("success_msg","Enter postive transaction amount");
+					else if(account_match_msg.equals("NFE"))
+						model.addObject("success_msg","Number format is wrong");
+					else
+						model.addObject("success_msg","Insufficient balance for the transaction");	
+				}
+
 			}
-			
+
 			else
 			{
-				CheckSourceAccountNumberHandler accounthandler = new CheckSourceAccountNumberHandler(); 
-				String account_match_msg=(String) accounthandler.requestHandler(userName,sourceacc,transamount);
-				if(account_match_msg.equals("done"))
-					model.addObject("success_msg", handler.transactionHandler(userName,transamount,sourceacc,destacc,type));
-				else if(account_match_msg.equals("incorrect"))
-					model.addObject("success_msg","Incorrect username or source account no.");
-				else if(account_match_msg.equals("negative"))
-					model.addObject("success_msg","Enter postive transaction amount");
-				else if(account_match_msg.equals("NFE"))
-					model.addObject("success_msg","Number format is wrong");
-				else
-					model.addObject("success_msg","Insufficient balance for the transaction");	
-			}
-			
-		}
-		
-		else
-		{
-			model.addObject("success_msg","");
-		}	
-	
-		model.addObject("title", " Create Transaction");
-		model.setViewName("create_transactions");
-		return model;
+				model.addObject("success_msg","");
+			}	
 
-	}
+			model.addObject("title", " Create Transaction");
+			model.setViewName("create_transactions");
+			return model;
+
+		}
 		else
 		{
 			ModelAndView model = new ModelAndView();
 			model.setViewName("login");
 			return model;
 		}
-  }
+	}
 
 	@RequestMapping(value = "/admin**", method = RequestMethod.GET)
 	public ModelAndView adminPage() {
@@ -216,7 +223,7 @@ public class TopController {
 	public ModelAndView modifyUsersPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException  {
 		ModelAndView model = null;
 		try{
-			
+
 			String searchParameter = "";
 			String deleteParameter="";
 			String searchParameterType = "";
@@ -238,7 +245,7 @@ public class TopController {
 				else if (role.equalsIgnoreCase("MANAGER")){
 					model.setViewName("modifyUsers");
 				}
-			
+
 			}
 
 			else if (request.getParameter("delete")!= null){
@@ -254,7 +261,7 @@ public class TopController {
 				model.setViewName("modifyUsers");
 
 			}
-			
+
 			else if (role.equalsIgnoreCase("EMPLOYEE")){
 				model.setViewName("modifyUsersemployee");
 			}
@@ -313,7 +320,7 @@ public class TopController {
 		ModelAndView model = null;
 		try{
 			String updateParameter = "";
-            String ManagerName = "";
+			String ManagerName = "";
 			String updateParameterType = "";
 			int count = 0;
 			model = new ModelAndView();	
@@ -325,11 +332,11 @@ public class TopController {
 				try {
 					while(rs.next())
 					{
-					  ManagerName = rs.getString("username");
-					  count = rs.getInt("requestcount");
-					  count = count+1;
-					  handler.updateCountHandler(count, ManagerName);
-					  break;
+						ManagerName = rs.getString("username");
+						count = rs.getInt("requestcount");
+						count = count+1;
+						handler.updateCountHandler(count, ManagerName);
+						break;
 					}
 				} 
 				catch (SQLException e) {
@@ -338,7 +345,7 @@ public class TopController {
 				}
 				handler.requestModifyHandler((String) request.getSession().getAttribute("USERNAME"),updateParameter,updateParameterType,ManagerName);
 				String role=(String) request.getSession().getAttribute("Role");
-				
+
 				if(role.equalsIgnoreCase("USER")){
 					model.setViewName("customerhome");
 				}
@@ -383,131 +390,122 @@ public class TopController {
 			String system_time = "";
 			int web_sec = 0;
 			int sys_sec = 0;
-	        correct_time = TimeUtility.generateDateMethod();
-	        system_time = TimeUtility.generateSysDateMethod();
-	        System.out.println(correct_time);
-	        System.out.println(system_time);
-	        web_sec = TimeUtility.generateSecondsMethod();
-	        sys_sec = TimeUtility.generateSysSecondsMethod();
-	        if(correct_time.equals(system_time) && Math.abs(web_sec-sys_sec)<1800)
-	        {
-			model= new ModelAndView();
-			String userName = "";
-			String password = "";
-			String captchaData = "";
-			String captchaString = "";
-			if(request.getParameter("submit")!=null){
-				userName = request.getParameter("username");
-				password = request.getParameter("password");
-				captchaData = request.getParameter("captcha");
-				captchaString=(String)session.getAttribute("CAPTCHA");
+			correct_time = TimeUtility.generateDateMethod();
+			system_time = TimeUtility.generateSysDateMethod();
+			web_sec = TimeUtility.generateSecondsMethod();
+			sys_sec = TimeUtility.generateSysSecondsMethod();
+			if(correct_time.equals(system_time) && Math.abs(web_sec-sys_sec)<1800)
+			{
+				model= new ModelAndView();
+				String userName = "";
+				String password = "";
+				String captchaData = "";
+				String captchaString = "";
+				if(request.getParameter("submit")!=null){
+					userName = request.getParameter("username");
+					password = request.getParameter("password");
+					captchaData = request.getParameter("captcha");
+					captchaString=(String)session.getAttribute("CAPTCHA");
 
-				if(userName.equals("") || password.equals("") ||
-						captchaData.equals("")){
-					model.addObject("emptyFields", "All fields are mandatory");
-					model.setViewName("login");
-				}
-				else if(!captchaData.equals(captchaString)){
-					model.addObject("wrongCaptcha", "Please re-enter captcha");
-					model.setViewName("login");
-				}
+					if(userName.equals("") || password.equals("") ||
+							captchaData.equals("")){
+						model.addObject("emptyFields", "All fields are mandatory");
+						model.setViewName("login");
+					}
+					else if(!captchaData.equals(captchaString)){
+						model.addObject("wrongCaptcha", "Please re-enter captcha");
+						model.setViewName("login");
+					}
 
-				else{
-					LoginHandler handler = new LoginHandler(); 
-					ResultSet rs = handler.requestLoginHandler(userName);
-					if(rs.next()){
-						String uName = rs.getString("username");
-						String fName = rs.getString("firstname");
-						String pass = rs.getString("usercurrentpassword");
-						String role = rs.getString("usertype");
-						int loggedIn = rs.getInt("isloggedin");
-						int lock = rs.getInt("islocked");
-						session.setAttribute("USERNAME", userName);
-						if(lock == 0){
-							if(uName.equals(userName) && pass.equals(password)){
-								if(loggedIn == 0){
-									handler.updateLoggedInFlag(userName,1);
-									if(role.equals("MANAGER")){
-										request.getSession().setAttribute("Manager", fName);
-										request.getSession().setAttribute("isUserLoggedIn",true);
+					else{
+						LoginHandler handler = new LoginHandler(); 
+						ResultSet rs = handler.requestLoginHandler(userName);
+						if(rs.next()){
+							String uName = rs.getString("username");
+							String fName = rs.getString("firstname");
+							String pass = rs.getString("usercurrentpassword");
+							String role = rs.getString("usertype");
+							int loggedIn = rs.getInt("isloggedin");
+							int lock = rs.getInt("islocked");
+							session.setAttribute("USERNAME", userName);
+							if(lock == 0){
+								if(uName.equals(userName) && pass.equals(password)){
+									if(loggedIn == 0){
+										handler.updateLoggedInFlag(userName,1);
 										request.getSession().setAttribute("Role", role);
-										model.setViewName("managerhome");
+										if(role.equals("MANAGER")){
+											request.getSession().setAttribute("Manager", fName);
+											model.setViewName("managerhome");
+										}
+										else if(role.equals("EMPLOYEE")){
+											request.getSession().setAttribute("Employee", fName);	
+											model.setViewName("employeehome");
+										}
+										else if(role.equals("ADMIN")){
+											request.getSession().setAttribute("Admin", fName);	
+											model.setViewName("admin");
+										}
+										else if(role.equals("MERCHANT")){
+											request.getSession().setAttribute("Merchant", fName);	
+											model.setViewName("merchanthome");
+										}
+										else if(role.equals("USER")){
+											request.getSession().setAttribute("User", fName);	
+											model.setViewName("customerhome");
+										}
+										else if(role.equals("GOVERNMENT")){
+											request.getSession().setAttribute("Government", fName);	
+											model.setViewName("governmenthome");
+										}
 									}
-									else if(role.equals("EMPLOYEE")){
-										request.getSession().setAttribute("Role",role);
-										request.getSession().setAttribute("Employee", fName);	
-										model.setViewName("employeehome");
-									}
-									else if(role.equals("ADMIN")){
-										request.getSession().setAttribute("Admin", fName);	
-										request.getSession().setAttribute("Role", role);
-										model.setViewName("admin");
-									}
-									else if(role.equals("MERCHANT")){
-										request.getSession().setAttribute("Merchant", fName);	
-										request.getSession().setAttribute("Role",role);
-										model.setViewName("merchanthome");
-									}
-									else if(role.equals("USER")){
-										request.getSession().setAttribute("isUserLoggedIn","Set");
-										request.getSession().setAttribute("User", fName);	
-										request.getSession().setAttribute("Role", role);
-										model.setViewName("customerhome");
-									}
-									else if(role.equals("GOVERNMENT")){
-										request.getSession().setAttribute("Role",role);
-										request.getSession().setAttribute("Government", fName);	
-										model.setViewName("governmenthome");
+									else{
+										model.addObject("loggedIn", "User is already logged in to the other system");
+										model.setViewName("login");
 									}
 								}
 								else{
-									model.addObject("loggedIn", "User is already logged in to the other system");
-									model.setViewName("login");
+									count++;
+									if(count>2){
+										handler.updateLockedFlag(userName,1);
+										model.setViewName("unlockaccount");
+									}
+									else{
+										model.addObject("wrongCredentials", "Username and Password do not match");
+										model.setViewName("login");
+									}
 								}
 							}
 							else{
-								count++;
-								if(count>2){
-									handler.updateLockedFlag(userName,1);
-									model.setViewName("unlockaccount");
-								}
-								else{
-									model.addObject("wrongCredentials", "Username and Password do not match");
-									model.setViewName("login");
-								}
+								model.addObject("lock", "Your account has been locked. Please fill in the below details to make a request for unlock account.");
+								model.setViewName("unlockaccount");
 							}
 						}
 						else{
-							model.addObject("lock", "Your account has been locked. Please fill in the below details to make a request for unlock account.");
-							model.setViewName("unlockaccount");
+							model.addObject("wrongCredentials", "Username does not exist. Please enter correct username");
+							model.setViewName("login");
 						}
 					}
-					else{
-						model.addObject("wrongCredentials", "Username does not exist. Please enter correct username");
-						model.setViewName("login");
-					}
+				}
+				else if(request.getParameter("imgCaptcha")!=null){
+					CaptchaUtility captcha = new CaptchaUtility();
+					captcha.generateCaptcha(request,response);
+					model.setViewName("login");
+				}
+				else{
+					LoginHandler handler;
+					handler = new LoginHandler();
+					String userSessionName = (String) session.getAttribute("USERNAME");
+					handler.updateLoggedInFlag(userSessionName,0);
+					model.setViewName("login");
 				}
 			}
-			else if(request.getParameter("imgCaptcha")!=null){
-				CaptchaUtility captcha = new CaptchaUtility();
-				captcha.generateCaptcha(request,response);
+			else
+			{
+				model = new ModelAndView();
+				model.addObject("Timetampering","System time is not updated");
 				model.setViewName("login");
 			}
-			else{
-				LoginHandler handler;
-				handler = new LoginHandler();
-				String userSessionName = (String) session.getAttribute("USERNAME");
-				handler.updateLoggedInFlag(userSessionName,0);
-				model.setViewName("login");
-			}
-	        }
-	        else
-	        {
-	        	model = new ModelAndView();
-	        	model.addObject("Timetampering","System time is not updated");
-	        	model.setViewName("login");
-	        }
-	        }
+		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
@@ -541,6 +539,7 @@ public class TopController {
 		handler = new LoginHandler();
 		userName=(String)session.getAttribute("USERNAME");
 		handler.updateLoggedInFlag(userName,0);
+		session.invalidate();
 		model.setViewName("logout"); 
 		return model;
 	}
@@ -804,7 +803,7 @@ public class TopController {
 		}
 
 	}
-	
+
 	/* For regular employee to view account*/
 	@RequestMapping(value = "/viewaccount", method = {RequestMethod.POST,RequestMethod.GET})
 	public ModelAndView viewAccount(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException  {
@@ -820,98 +819,98 @@ public class TopController {
 		}
 		else if(role.equals("EMPLOYEE"))
 		{
-		try{
+			try{
 
-			model = new ModelAndView();	
-			ViewAccounts handler = new ViewAccounts();
-			List<AccountDetails> accountReqstdetails=new ArrayList<AccountDetails>();
-			ResultSet rs = handler.requestAccountHandler();
-			try {
-				while(rs.next())
-				{
-					AccountDetails view = new AccountDetails();
-					view.setUserName(rs.getString("requestfrom"));
-					accountReqstdetails.add(view);
+				model = new ModelAndView();	
+				ViewAccounts handler = new ViewAccounts();
+				List<AccountDetails> accountReqstdetails=new ArrayList<AccountDetails>();
+				ResultSet rs = handler.requestAccountHandler();
+				try {
+					while(rs.next())
+					{
+						AccountDetails view = new AccountDetails();
+						view.setUserName(rs.getString("requestfrom"));
+						accountReqstdetails.add(view);
+					}
+
+					model.addObject("accountView",accountReqstdetails);
+					//request.setAttribute(", o);
+				} 
+				catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-
-				model.addObject("accountView",accountReqstdetails);
-				//request.setAttribute(", o);
-			} 
-			catch (SQLException e) {
-				// TODO Auto-generated catch block
+				if(request.getParameter("submit")!=null)
+				{
+					ViewDetails = request.getParameter("Type");
+					ViewUserSelect = request.getParameter("radio");
+					List<AccountDetails> accountDetailsView=new ArrayList<AccountDetails>();
+					if(ViewDetails.equals("Account"))
+					{
+						ResultSet rs_details = handler.requestAccountDetailsHandler(ViewUserSelect);
+						try {
+							while(rs_details.next())
+							{
+								AccountDetails view = new AccountDetails();
+								view.setUserNameAccount(rs_details.getString("username"));
+								view.setAccountNumber(rs_details.getString("accountnumber"));
+								view.setAccountType(rs_details.getString("accounttype"));
+								view.setBalance(rs_details.getDouble("balance"));
+								accountDetailsView.add(view);
+							}
+							model.addObject("AccountDetails","1");
+							model.addObject("accountDetailsView",accountDetailsView);
+							//request.setAttribute(", o);
+						} 
+						catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					if(ViewDetails.equals("Personal"))
+					{
+						ResultSet rs_details_personal = handler.requestPersonalDetailsHandler(ViewUserSelect);
+						List<PersonalDetails> personalDetailsView=new ArrayList<PersonalDetails>();
+						try {
+							while(rs_details_personal.next())
+							{
+								PersonalDetails view = new PersonalDetails();
+								view.setFirstName(rs_details_personal.getString("firstname"));
+								view.setLastName(rs_details_personal.getString("lastname"));
+								view.setAddress(rs_details_personal.getString("address"));
+								view.setGender(rs_details_personal.getString("gender"));
+								view.setState(rs_details_personal.getString("state"));
+								view.setZip(rs_details_personal.getString("zip"));
+								view.setPhonenumber(rs_details_personal.getString("phonenumber"));
+								view.setDob(rs_details_personal.getString("dateofbirth"));
+								view.setEmail(rs_details_personal.getString("email"));
+								personalDetailsView.add(view);
+							}
+							model.addObject("PersonalDetails","1");
+							model.addObject("personalDetailsView",personalDetailsView);
+							//request.setAttribute(", o);
+						} 
+						catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+			catch(Exception e)
+			{
 				e.printStackTrace();
 			}
-			if(request.getParameter("submit")!=null)
-			{
-				ViewDetails = request.getParameter("Type");
-				ViewUserSelect = request.getParameter("radio");
-				List<AccountDetails> accountDetailsView=new ArrayList<AccountDetails>();
-				if(ViewDetails.equals("Account"))
-				{
-					ResultSet rs_details = handler.requestAccountDetailsHandler(ViewUserSelect);
-					try {
-						while(rs_details.next())
-						{
-							AccountDetails view = new AccountDetails();
-							view.setUserNameAccount(rs_details.getString("username"));
-							view.setAccountNumber(rs_details.getString("accountnumber"));
-							view.setAccountType(rs_details.getString("accounttype"));
-							view.setBalance(rs_details.getDouble("balance"));
-							accountDetailsView.add(view);
-						}
-                        model.addObject("AccountDetails","1");
-						model.addObject("accountDetailsView",accountDetailsView);
-						//request.setAttribute(", o);
-					} 
-					catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-				if(ViewDetails.equals("Personal"))
-				{
-					ResultSet rs_details_personal = handler.requestPersonalDetailsHandler(ViewUserSelect);
-					List<PersonalDetails> personalDetailsView=new ArrayList<PersonalDetails>();
-					try {
-						while(rs_details_personal.next())
-						{
-							PersonalDetails view = new PersonalDetails();
-							view.setFirstName(rs_details_personal.getString("firstname"));
-							view.setLastName(rs_details_personal.getString("lastname"));
-							view.setAddress(rs_details_personal.getString("address"));
-							view.setGender(rs_details_personal.getString("gender"));
-							view.setState(rs_details_personal.getString("state"));
-							view.setZip(rs_details_personal.getString("zip"));
-							view.setPhonenumber(rs_details_personal.getString("phonenumber"));
-							view.setDob(rs_details_personal.getString("dateofbirth"));
-							view.setEmail(rs_details_personal.getString("email"));
-							personalDetailsView.add(view);
-						}
-						 model.addObject("PersonalDetails","1");
-						model.addObject("personalDetailsView",personalDetailsView);
-						//request.setAttribute(", o);
-					} 
-					catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
 
-		model.setViewName("AccountDetails");
+			model.setViewName("AccountDetails");
 
-		return model;
+			return model;
 		}
 		else
 		{
-	     model = new ModelAndView();
-		 model.setViewName("login");
-		 return model;
+			model = new ModelAndView();
+			model.setViewName("login");
+			return model;
 		}
 	}
 
@@ -1165,6 +1164,7 @@ public class TopController {
 		String destinationAccountNumber = "";
 		double sourceAmount = 0.0;
 		String sourceAccountNumber = "";
+		Boolean status = false;
 		if(role.equals("MANAGER"))
 		{
 			ModelAndView model = new ModelAndView();
@@ -1184,8 +1184,14 @@ public class TopController {
 							destinationFlag  = authorize.checkSameDestination(authRequests);
 						if(destinationFlag){
 							destinationAccountNumber = authorize.getDestinationAccount(authRequests[0]); 
-							destinationAmount = authorize.getDestinationBalance(destinationAccountNumber);
-							authorize.approveTransaction(requestType,balance + destinationAmount, authRequests);
+							status = authorize.checkAccountNumber(destinationAccountNumber);
+							if(status){
+								destinationAmount = authorize.getDestinationBalance(destinationAccountNumber);
+								authorize.approveTransaction(requestType,balance + destinationAmount, authRequests);
+							}
+							else{
+								model.addObject("destinationerror","Destination account does not exist. Please delete the transaction");
+							}
 						}
 						else{
 							model.addObject("duplicateaccount","Transactions belonging to the same destination account should be done at a time while approving.");
@@ -1196,8 +1202,14 @@ public class TopController {
 							sourceFlag  = authorize.checkSameSource(authRequests);
 						if(sourceFlag){
 							sourceAccountNumber = authorize.getSourceAccount(authRequests[0]);
-							sourceAmount = authorize.getSourceBalance(sourceAccountNumber);
-							authorize.rejectTransaction(requestType,balance + sourceAmount, authRequests);
+							status = authorize.checkAccountNumber(sourceAccountNumber);
+							if(status){
+								sourceAmount = authorize.getSourceBalance(sourceAccountNumber);
+								authorize.rejectTransaction(requestType,balance + sourceAmount, authRequests);
+							}
+							else{
+								model.addObject("destinationerror","Destination account does not exist. Please delete the transaction");
+							}
 						}
 						else{
 							model.addObject("duplicatesourceaccount","Transactions belonging to the same source account should be done at a time while rejecting.");
@@ -1255,6 +1267,7 @@ public class TopController {
 		String destinationAccountNumber = "";
 		double sourceAmount = 0.0;
 		String sourceAccountNumber = "";
+		Boolean status = false;
 		if(role.equals("EMPLOYEE"))
 		{
 			ModelAndView model = new ModelAndView();
@@ -1274,8 +1287,14 @@ public class TopController {
 							destinationFlag  = authorize.checkSameDestination(authRequests);
 						if(destinationFlag){
 							destinationAccountNumber = authorize.getDestinationAccount(authRequests[0]); 
-							destinationAmount = authorize.getDestinationBalance(destinationAccountNumber);
-							authorize.approveTransaction(requestType,balance + destinationAmount, authRequests);
+							status = authorize.checkAccountNumber(destinationAccountNumber);
+							if(status){
+								destinationAmount = authorize.getDestinationBalance(destinationAccountNumber);
+								authorize.approveTransaction(requestType,balance + destinationAmount, authRequests);
+							}
+							else{
+								model.addObject("destinationerror","Destination account does not exist. Please delete the transaction");
+							}
 						}
 						else{
 							model.addObject("duplicateaccount","Transactions belonging to the same destination account should be done at a time while approving.");
@@ -1286,8 +1305,15 @@ public class TopController {
 							sourceFlag  = authorize.checkSameSource(authRequests);
 						if(sourceFlag){
 							sourceAccountNumber = authorize.getSourceAccount(authRequests[0]);
-							sourceAmount = authorize.getSourceBalance(sourceAccountNumber);
-							authorize.rejectTransaction(requestType,balance + sourceAmount, authRequests);
+							status = authorize.checkAccountNumber(sourceAccountNumber);
+							if(status){
+								sourceAmount = authorize.getSourceBalance(sourceAccountNumber);
+								authorize.rejectTransaction(requestType,balance + sourceAmount, authRequests);
+							}
+							else{
+								model.addObject("destinationerror","Destination account does not exist. Please delete the transaction");
+							}
+
 						}
 						else{
 							model.addObject("duplicatesourceaccount","Transactions belonging to the same source account should be done at a time while rejecting.");
@@ -1299,7 +1325,7 @@ public class TopController {
 				}
 			}
 
-			ResultSet rs = authorize.getTransactionHandler("pendingapproval",10000,"PAYMENT");
+			ResultSet rs = authorize.getModDelHandler("pendingapproval","PAYMENT",10000);
 			try {
 				while(rs.next())
 				{
@@ -1337,14 +1363,15 @@ public class TopController {
 		String role = "";
 		String requestType = "";
 		String[] authRequests = null;
+		String newAmount = "";
 		role = (String)session.getAttribute("Role");
 		double amount = 0.0;
 		double balance = 0.0;
 		String accountNumber = "";
 		double sourceAmount = 0.0;
 		String sourceAccountNumber = "";
-		boolean destinationFlag = true;
 		boolean sourceFlag = true;
+		Boolean status = true;
 		if(role.equals("EMPLOYEE"))
 		{
 			ModelAndView model = new ModelAndView();
@@ -1358,33 +1385,46 @@ public class TopController {
 				requestType = request.getParameter("Type");
 				if(authRequests!=null){
 					balance = authorize.getBalance(authRequests);
-					ArrayList<String> status = authorize.checkStatusOfId(authRequests);
 					if(requestType.equals("Modify")){
-						if(status.contains("pendingdelete")){
-							model.addObject("modify","Please select modifiable transactions only,");
-						}
+
+						if(authRequests.length > 1)
+							model.addObject("multiplemodify","Please check only one transaction while modifying.");
 						else{
-							if(authRequests.length > 1)
-								destinationFlag  = authorize.checkSameDestination(authRequests);
-							if(destinationFlag){
+							newAmount = request.getParameter(authRequests[0]);
+							if(Double.parseDouble(newAmount) > 0){
 								accountNumber = authorize.getDestinationAccount(authRequests[0]); 
-								amount = authorize.getDestinationBalance(accountNumber);
-								authorize.approveTransaction("approvedmodify",balance + amount,authRequests);
+								status = authorize.checkAccountNumber(accountNumber);
+								if(status){
+									amount = authorize.getDestinationBalance(accountNumber);
+									if(Double.parseDouble(newAmount) > amount){
+										model.addObject("greatervalue","Please enter amount less than" +amount);
+									}
+									else{
+										authorize.approveTransaction("approvedmodify",balance + amount,authRequests);
+									}
+								}
+								else{
+									model.addObject("destinationerror","Destination account does not exist. Please delete the transaction");
+								}
+							}
+							else{
+								model.addObject("zeroerror", "Amounts should be positive");
 							}
 						}
 					}
 					else if(requestType.equals("Delete")){
-						if(status.contains("pendingmodify")){
-							model.addObject("delete","Please select transactions to be deleted only.");
-						}
-						else{
-							if(authRequests.length > 1)
-								sourceFlag  = authorize.checkSameSource(authRequests);
-							if(sourceFlag){
-								sourceAccountNumber = authorize.getSourceAccount(authRequests[0]);
+						if(authRequests.length > 1)
+							sourceFlag  = authorize.checkSameSource(authRequests);
+						if(sourceFlag){
+							sourceAccountNumber = authorize.getSourceAccount(authRequests[0]);
+							status = authorize.checkAccountNumber(sourceAccountNumber);
+							if(status){
 								sourceAmount = authorize.getSourceBalance(sourceAccountNumber);
 								authorize.rejectTransaction("approveddelete",balance + sourceAmount, authRequests);
 								authorize.deleteTransaction(authRequests);
+							}
+							else{
+								model.addObject("destinationerror","Destination account does not exist. Please delete the transaction");
 							}
 						}
 					}
@@ -1394,7 +1434,7 @@ public class TopController {
 				}
 			}
 
-			ResultSet rs = authorize.getTransactionHandler("pendingapproval",10000,"PAYMENT");
+			ResultSet rs = authorize.getModDelHandler("pendingapproval","PAYMENT",10000);
 			try {
 				while(rs.next())
 				{

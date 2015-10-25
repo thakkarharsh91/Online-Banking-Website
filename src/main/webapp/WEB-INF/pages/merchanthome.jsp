@@ -14,22 +14,22 @@
 					<th scope="col">&nbsp;</th>
 				</tr>
 				<tr>
-					<td><a href="./viewBal">View Balance</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/viewBal">View Balance</a></td>
 				</tr>
 				<tr>
-					<td><a href="./editPersonalInfo">Edit PII</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/editPersonalInfo">Edit PII</a></td>
 				</tr>
 				<tr>
-					<td><a href="./debitAndCredit">Debit and Credit Funds</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/debitAndCredit">Debit and Credit Funds</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">Add A Recipient</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/addRecepient">Add A Recipient</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">Internal Funds Transfer</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/internalTransfer">Internal Funds Transfer</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">External Funds Transfer</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/externalTransfer">External Funds Transfer</a></td>
 				</tr>
 				<tr>
 					<td><a href="${pageContext.servletContext.contextPath}/merchantstartpayment">Make a Payment Request</a></td>
@@ -44,16 +44,10 @@
 					<td><a href="#">Submit Payment to Bank</a></td>
 				</tr>
 				<tr>
-					<td><a href="./reqModify">Permission to Modify Personal Information</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/reqModify">Permission to Modify Personal Information</a></td>
 				</tr>
 				<tr>
-					<td><a href="#">Reset Password</a></td>
-				</tr>
-				<tr>
-					<td><a href="#">Allow View Access</a></td>
-				</tr>
-				<tr>
-					<td><a href="#">Authorize Transaction for Approval</a></td>
+					<td><a href="${pageContext.request.contextPath}/authRequest?${_csrf.parameterName}=${_csrf.token}">Allow View Access</a></td>
 				</tr>
 				<tr>
 					<td><a href="${pageContext.servletContext.contextPath}/reset">Change

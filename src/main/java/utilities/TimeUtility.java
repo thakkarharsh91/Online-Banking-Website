@@ -66,7 +66,6 @@ public class TimeUtility {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 		Date date = new Date();
 		system_time = dateFormat.format(date).toString();
-		System.out.println(system_time);
 		return system_time;
 	}
 
@@ -143,7 +142,6 @@ public class TimeUtility {
 		Date date = new Date();
 		system_month = dateFormat_sec.format(date).toString();
 		int_sys_month =  Integer.parseInt(system_month);
-		//System.out.println(int_sys_month);
 		return int_sys_month;
 	}
 
@@ -171,7 +169,6 @@ public class TimeUtility {
 		returnTime = timeInfo.getMessage().getTransmitTimeStamp().getTime();
 		Date time = new Date(returnTime);
 		web_sec = Integer.parseInt(dateFormat_sec.format(time));
-		System.out.println(web_sec);
 		return web_sec;
 	}
 	public static int generateSysSecondsMethod()
@@ -182,7 +179,6 @@ public class TimeUtility {
 		Date date = new Date();
 		system_time = dateFormat_sec.format(date).toString();
 		int_sys_time =  Integer.parseInt(system_time);
-		System.out.println(int_sys_time);
 		return int_sys_time;
 	}
 

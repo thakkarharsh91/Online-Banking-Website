@@ -114,7 +114,6 @@
 </html>
 </html>
 <%
-	request.getSession().setAttribute("isUserLoggedIn", "Not Set");
 	request.getSession().setAttribute("Role", "NULL");
 	request.getSession().setAttribute("Username", "username");
 %>

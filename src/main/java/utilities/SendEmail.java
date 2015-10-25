@@ -1,5 +1,6 @@
 package utilities;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 
 import com.sun.jersey.api.client.Client;

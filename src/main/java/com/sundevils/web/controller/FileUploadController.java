@@ -33,7 +33,12 @@ public class FileUploadController {
 		String ssnvalue = (String)session.getAttribute("SSN_Value");
 		String saveDirectory = "C:/AccountOpeningDocuments/" + ssnvalue + "/";
 		File directory = new File(saveDirectory); 
-		directory.mkdirs(); 
+		 
+		if(!directory.exists()) 
+		{ 
+			directory.mkdirs(); 
+		}
+
 		List<MultipartFile> crunchifyFiles = uploadForm.getFiles();
 
 		List<String> fileNames = new ArrayList<String>();

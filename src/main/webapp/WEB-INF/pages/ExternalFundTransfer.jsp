@@ -49,7 +49,7 @@
 								</option>
 							</c:forEach>
 					</select></td>
-					<td><a href="#">Add a New Recipient</a></td>
+					<td><a href="./addRecepient">Add a New Recipient</a></td>
 				</tr>
 				<tr>
 					<td>Select the Account:</td>
@@ -65,17 +65,7 @@
 					<td>Enter the Amount:</td>
 					<td><input name="amount" type="text"></td>
 				</tr>
-				<!-- <tr>
-      <td><label>
-            <input type="radio" name="OTPOption" value="Mobile" id="OTPOption_0">
-            OTP on Mobile</label></td>
-        </td>  
-      <td><label>
-            <input type="radio" name="OTPOption" value="Email" id="OTPOption_1">
-            OTP on Registered Email</label></td>
-       <td><button type="button">Send OTP</button></td>
-       
-      <td>&nbsp;</td>-->
+				
 				<tr>
 					<td><img id="otp_id" name="otpCaptcha123" src="captcha.jpg"
 						hidden="true"> <a href="javascript:;"

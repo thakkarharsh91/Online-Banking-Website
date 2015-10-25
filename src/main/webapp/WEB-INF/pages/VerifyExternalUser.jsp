@@ -9,57 +9,72 @@
 <title>Insert title here</title>
 </head>
 <body>
- <div>
- <c:if test="${not empty norequests}">
+	<div>
+		<c:if test="${not empty norequests}">
 			<div class="msg">${norequests}</div>
 		</c:if>
-</div>
-<div>
-<c:if test="${requests != null && requests.size() != 0}">
-	<form name="form"
-		action="${pageContext.servletContext.contextPath}/VerifyExternalUser"
-		method='POST'>
-		<div>
-			<table border="1">
-				<th>RequestID</th>
-				<th>RequestType</th>
-				<th>ModifiedColumn</th>
-				<th>SSN/OldValue</th>
-				<th>AccountType/NewValue</th>
-				<th>Decision</th>
+	</div>
+	<div>
+		<c:if test="${requests != null && requests.size() != 0}">
+			<div>
+				<table border="1">
+					<th>RequestID</th>
+					<th>RequestType</th>
+					<th>ModifiedColumn</th>
+					<th>SSN/OldValue</th>
+					<th>AccountType/NewValue</th>
+					<th>Decision</th>
 
 
-				<c:forEach items="${requests}" var="request" varStatus="myIndex">
-					<input type="hidden" name="${_csrf.parameterName}"
-						value="${_csrf.token}" />
-
-					<tr>
-						<td><c:out value="${request.requestid}" />
-						<td><c:out value="${request.requesttype}" />
-						<td><c:out value="${request.modifiedcolumn}"/>
-						<td><c:out value="${request.oldvalue}"/>
-						<td><c:out value="${request.newvalue}"/>
-						<td>
-							<div>
-								<button name="approve" type="submit" value="${request.requestid}"
-									style="margin-left: 50px; float: left;">approve</button>
-								<button name="decline" type="submit"  value="${request.requestid}"
-									style="margin-left: 50px; float: left;">decline</button>
-								<button name="review" type="submit"  value="${request.requestid}"
-									style="margin-left: 50px; float: left;">review</button>
-							</div>
-						</td>
-					</tr>
-                 
-				</c:forEach>
+					<c:forEach items="${requests}" var="request" varStatus="myIndex">
 
 
-			</table>
-		</div>
-	</form>
+						<tr>
+							<td><c:out value="${request.requestid}" />
+							<td><c:out value="${request.requesttype}" />
+							<td><c:out value="${request.modifiedcolumn}" />
+							<td><c:out value="${request.oldvalue}" />
+							<td><c:out value="${request.newvalue}" />
+							<td><c:out value="${request.newaccountnumber}"/>
+							<td><c:if
+									test="${request.requesttype == 'modify' || request.requesttype == 'REQUEST_CARD' }">
+									<form name="form"
+										action="${pageContext.servletContext.contextPath}/VerifyExternalUser"
+										method='POST'>
+										<input type="hidden" name="${_csrf.parameterName}"
+											value="${_csrf.token}" />
+										<div>
+											<button name="approve" type="submit"
+												value="${request.requestid}"
+												style="margin-left: 50px; float: left;">approve</button>
+											<button name="decline" type="submit"
+												value="${request.requestid}"
+												style="margin-left: 50px; float: left;">decline</button>
+										</div>
+									</form>
+								</c:if> <c:if test="${request.requesttype == 'ADD_ACCOUNT'}">
+									<div>
+										<form name="form"
+											action="${pageContext.servletContext.contextPath}/verifyExternalUser"
+											method='POST'>
+											<input type="hidden" name="${_csrf.parameterName}"
+												value="${_csrf.token}" />
+											<button name="review" type="submit"
+												value="${request.oldvalue}?${request.newvalue}?${request.requestid}"
+												style="margin-left: 50px; float: left;">review</button>
+										</form>
+									</div>
+								</c:if>	</td>
+						</tr>
+
+					</c:forEach>
+
+
+				</table>
+			</div>
 		</c:if>
-	
-	<!--<div style="text-align:center">
+
+		<!--<div style="text-align:center">
 	<h3 style="color:red">Verify Request</h3>
 </div>
 <div style="width:300px;margin-left:auto;margin-right:auto" >

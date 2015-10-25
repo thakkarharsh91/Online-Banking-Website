@@ -52,7 +52,7 @@ public class RequestAuthorize {
 		return null;
 	}
 
-	public ResultSet getModDelHandler(String modifyStatus,String deleteStatus,String payment,int critical) {
+	public ResultSet getModDelHandler(String modifyStatus,String payment,int critical) {
 
 		try {
 			sql.getConnection();
@@ -64,7 +64,7 @@ public class RequestAuthorize {
 
 
 		try {
-			return (ResultSet)sql.modifyDeleteTransaction(modifyStatus,deleteStatus,payment,critical);
+			return (ResultSet)sql.modifyDeleteTransaction(modifyStatus,payment,critical);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -221,6 +221,26 @@ public class RequestAuthorize {
 
 		try {
 			result = sql.getDestinationAccountNumber(rID);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public Boolean checkAccountNumber(String accountNumber) {
+		Boolean result = true;
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+			result = sql.checkValidAccount(accountNumber);
 
 		} catch (Exception e) {
 			e.printStackTrace();

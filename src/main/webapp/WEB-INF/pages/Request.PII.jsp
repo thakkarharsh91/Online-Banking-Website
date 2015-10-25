@@ -1,5 +1,9 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-	pageEncoding="ISO-8859-1"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@page session="true"%>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -19,7 +23,7 @@
 		</c:if>
 	</div>
 	<h2 align="justify">Request for PII</h2>
-	<form mothod='POST'">
+	<form action="${pageContext.servletContext.contextPath}/requestPII/?${_csrf.parameterName}=${_csrf.token}"		method="POST">
 		<table width="400" border="0">
 			<tbody>
 				<tr>
@@ -29,9 +33,9 @@
 				<tr>
 					<td>Please request type:</td>
 					<td><select id="requesttype" name="requesttype">
-							<option value="SSN">SSN</option>
-							<option value="PassportNo">PassportNo</option>
-							<option value="AccountNo">AccountNo</option>
+							<option value="ssn">SSN</option>
+							<option value="passportnumber">Passport Number</option>
+							<option value="accountnumber">Account Number</option>
 					</select></td>
 				</tr>
 				<tr>
@@ -41,12 +45,19 @@
 				</tr>
 				<tr>
 					<td>Provide Authorization to:</td>
-					<td><input id="authorizeto" name="authorizeto"
-						type="text"></td>
+					<td><select name="sysadminsList">
+						<c:forEach items="${sysadmins}" var="sysAdmin">
+							<option value="${sysAdmin.getusername()}">
+								${sysAdmin.getusername()} - 
+								${sysAdmin.getfirstname()}.   
+								${sysAdmin.getlastname()}</option>
+						</c:forEach>
+				</select></td>
 				</tr>
 				<tr>
 					<td>&nbsp;</td>
-					<td><font size='4' color="white"></font><input type="submit" name="submit" value="Submit" class="submit_btn"></td>
+					<td><font size='4' color="white"></font><input type="submit"
+						name="submit" value="Submit" class="submit_btn"></td>
 				</tr>
 			</tbody>
 		</table>

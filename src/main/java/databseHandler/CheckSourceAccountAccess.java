@@ -45,8 +45,7 @@ public class CheckSourceAccountAccess {
 			newbalance=newbal.toString();
 			preparedStatement.setString(1, newbalance);
 			preparedStatement.setString(2,username);
-			int count=preparedStatement.executeUpdate();
-			System.out.println(count);
+			preparedStatement.executeUpdate();
 			return "done";
 			}
 			else
@@ -69,7 +68,6 @@ public class CheckSourceAccountAccess {
 		while (resultSet.next()) {			
 
 			byte[] username = resultSet.getBytes("username");
-			System.out.println(username.toString());
 			byte[] accountnumber = resultSet.getBytes("accountnumber");
 			byte[] accounttype = resultSet.getBytes("accounttype");
 			byte[] balance = resultSet.getBytes("balance");				

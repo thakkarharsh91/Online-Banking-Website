@@ -56,6 +56,9 @@
 					<p>
 						<strong>The activation of account will normally require two business days to go through all the activation process. So please bear with us.</strong>
 					</p>
+					<p>
+						<strong>You can open your account now by clicking <a href = "./accountopening">here</a></strong>
+					</p>
 				</div>
 
 			</div>

@@ -1,10 +1,10 @@
 package com.sundevils.web.controller;
 
 import handlers.adminHandlers.LoginHandler;
+import handlers.externaluserHandlers.requestCardHandler;
 import handlers.individualuserHandlers.AddRecepientHandler;
 import handlers.individualuserHandlers.UserAccounts;
 import handlers.individualuserHandlers.UserRecepients;
-import handlers.systemmanagerHandlers.authorizeExtUserHandler;
 
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -12,8 +12,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,30 +38,47 @@ public class AnishaController {
 	String userEmail = "";
 
 	@RequestMapping(value="/VerifyExternalUser",method=RequestMethod.GET)
-	public ModelAndView ViewRequests(){
+	public ModelAndView ViewRequests(HttpSession session){
+		String role = (String) session.getAttribute("Role");
+		if(role == null){
+			ModelAndView model = new ModelAndView();
+			model.setViewName("login");
+			return model;
+		}
+		else if(role.equals("MANAGER")){
 		ModelAndView model = new ModelAndView("VerifyExternalUser");
-		requests = handler.getRequests("SYSTEM_MANAGER");
+		requests = handler.getRequests("MANAGER");
 		if(!requests.isEmpty())
 			model.addObject("requests", requests);
 		else
 			model.addObject("norequests", "You currently do not have any requests");
 		return model;
+		
 	}
+	else{
+		ModelAndView model = new ModelAndView();
+		String username = (String) session.getAttribute("USERNAME");
+		lhandler.updateLoggedInFlag(username, 0);
+		session.invalidate();
+		model.setViewName("login");
+		return model;
+	}
+}
 
 	@RequestMapping(value="/VerifyExternalUser",method=RequestMethod.POST)
-	public ModelAndView Requests(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws SQLException{
+	public ModelAndView Requests(HttpServletRequest request,HttpServletResponse response,HttpSession session){
+		String role = (String) session.getAttribute("Role");
+		if(role == null){
+			ModelAndView model = new ModelAndView();
+			model.setViewName("login");
+			return model;
+		}
+		else if(role.equals("MANAGER")){
 		ModelAndView model = new ModelAndView("VerifyExternalUser");
 		String id = request.getParameter("approve");
 		String id1 = request.getParameter("decline");
-		String id2 = request.getParameter("review");
 		Requests request1 = new Requests();
 		String Requesttype="";
-		String ssn="";
-		String accounttype="";
-		String email="";
-		String firstname="";
-		String lastname="";
-		String regex = "^(?!000|666)[0-8][0-9]{2}-(?!00)[0-9]{2}-(?!0000)[0-9]{4}$";
 		if(id!=null){
 			for(Iterator<Requests> it=requests.iterator();it.hasNext();){
 				request1= it.next();
@@ -72,107 +87,72 @@ public class AnishaController {
 					break;
 				}
 			}
-			if(Requesttype.equals("CHANGE_OF_PERSONAL_INFORMATION")){
+			if(Requesttype.equals("modify")){
 				handler.updatePI(request1.getUsername(), request1.getModifiedcolumn(), request1.getOldvalue(), request1.getNewvalue());
-				//request should be removed from db?
 				handler.updateRequest(id,"APPROVE");
 				requests.remove(request1);
+				ModelAndView newmodel = new ModelAndView("VerifyExternalUser");
+				model = newmodel;
 			}
-			else if(Requesttype.equals("ADD_ACCOUNT")){
-
-				//sayatan
-				accounttype=request.getParameter("accounttype");
-				ssn=request.getParameter("ssn");
-				Pattern pattern = Pattern.compile(regex);
-				Matcher matcher = pattern.matcher(ssn);
-				//Check for validation
-				if (!matcher.matches())
-				{
-					model.addObject("emptyFields", "SSN should be of format XXX-XXX-XXXX.\n The first three digits called the area number. \nThe area number cannot be 000, 666, or between 900 and 999.Digits four and five are called the group number and range from 01 to 99.\nThe last four digits are serial numbers from 0001 to 9999.");
-					model.setViewName("System.Manager.Add.External.User");
-				}
-				else if(accounttype.equals("") || ssn.equals(""))
-				{
-					model.addObject("emptyFields", "Account type and SSN are mandatory fields");
-					model.setViewName("System.Manager.Add.External.User");
-				}
-				else 
-				{
-					authorizeExtUserHandler handler = new authorizeExtUserHandler();
-					ResultSet rs =  handler.getExsistingAccount(ssn,accounttype);
-					ResultSet rs1 =  handler.getExsistingApprovedAccount(ssn,accounttype);
-					if(!rs.next())
-					{
-						model.addObject("ExsistingUser", " Recepient with entered SSN and Account Type does not exists");
-						model.setViewName("System.Manager.Add.External.User");
-					}
-					else if (rs1.next())
-					{
-
-						model.addObject("ExsistingUser", " The application has been already approved");
-						model.setViewName("System.Manager.Add.External.User");
-					}
-					else {
-						handler.approveUser(request.getParameter("ssn"),request.getParameter("accounttype"));
-						model.addObject("Successful", "Application has been appoved");
-						model.setViewName("System.Manager.Add.External.User");
-					}
-				}
+			else if(Requesttype.equals("REQUEST_CARD")){
+				requestCardHandler handler = new requestCardHandler();
+                handler.approveCardChange(request1.getOldvalue(),"APPROVE");
+				model.addObject("Successful", "Card Replacement has been appoved");	
+				requests.remove(request1);
+				ModelAndView newmodel = new ModelAndView("VerifyExternalUser");
+				model = newmodel;
 			}
-			handler.updateRequest(id,"APPROVE");
-			requests.remove(request1);
 		}
 		else if(id1!=null) {
-			//request update in db
-			accounttype=request.getParameter("accounttype");
-			ssn=request.getParameter("ssn");
-			Pattern pattern = Pattern.compile(regex);
-			Matcher matcher = pattern.matcher(ssn);
-			//Check for validation
-			if (!matcher.matches())
-			{
-				model.addObject("emptyFields", "SSN should be of format XXX-XXX-XXXX.\n The first three digits called the area number. \nThe area number cannot be 000, 666, or between 900 and 999.Digits four and five are called the group number and range from 01 to 99.\nThe last four digits are serial numbers from 0001 to 9999.");
-				model.setViewName("System.Manager.Add.External.User");
-			}
-			else if(accounttype.equals("") || ssn.equals(""))
-			{
-
-
-				model.addObject("emptyFields", "Account type and SSN are mandatory fields");
-				model.setViewName("System.Manager.Add.External.User");
-			}
-			else 
-			{
-				authorizeExtUserHandler handler = new authorizeExtUserHandler();
-				ResultSet rs =  handler.getExsistingAccount(ssn,accounttype);
-				if(!rs.next())
-				{
-					model.addObject("ExsistingUser", " Recepient with entered SSN and Account Type does not exsists");
-					model.setViewName("System.Manager.Add.External.User");
+			for(Iterator<Requests> it=requests.iterator();it.hasNext();){
+				request1= it.next();
+				if(request1.getRequestid().equals(id1)){
+					Requesttype=request1.getRequesttype();
+					break;
 				}
-				else 
-				{
-					handler.rejectUser(request.getParameter("ssn"),request.getParameter("accounttype"));
-					model.addObject("Successful", "Application has been rejected");
-					model.setViewName("System.Manager.Add.External.User");
-				}
-
 			}
-			handler.updateRequest(id,"REJECTED");
+			if(Requesttype.equals("modify")){
+			handler.updateRequest(id1,"REJECT");
 			requests.remove(request1);
+			ModelAndView newmodel = new ModelAndView("VerifyExternalUser");
+			model = newmodel;
 		}
-		else if(id2!=null){
-
+			else if(Requesttype.equals("REQUEST_CARD")){
+				requestCardHandler handler = new requestCardHandler();
+                handler.approveCardChange(request1.getOldvalue(),"REJECT");
+				model.addObject("Successful", "Card Replacement has been rejected");
+				requests.remove(request1);
+				ModelAndView newmodel = new ModelAndView("VerifyExternalUser");
+				model = newmodel;
+			}
 		}
+		
 		if(!requests.isEmpty())
 			model.addObject("requests", requests);
 		else
 			model.addObject("norequests", "You currently do not have any requests");
 		return model;
 	}
+		else{
+			ModelAndView model = new ModelAndView();
+			String username = (String) session.getAttribute("USERNAME");
+			lhandler.updateLoggedInFlag(username, 0);
+			session.invalidate();
+			model.setViewName("login");
+			return model;
+		}
+	}
 
-	@RequestMapping(value="/**/internalTransfer" ,method=RequestMethod.GET)
+
+	@RequestMapping(value="/internalTransfer" ,method=RequestMethod.GET)
 	public ModelAndView internalTransfer(HttpSession session){
+		String role = (String) session.getAttribute("Role");
+		if(role == null){
+			ModelAndView model = new ModelAndView();
+			model.setViewName("login");
+			return model;
+		}
+		else if(role.equals("MERCHANT") || role.equals("USER")){
 		ModelAndView model = new ModelAndView("InternalFundTransfer");
 		String userName="";
 		userName = (String)session.getAttribute("USERNAME");
@@ -180,6 +160,15 @@ public class AnishaController {
 		useraccounts = handler.getaccountdetails(userName);
 		model.addObject("useraccounts", useraccounts);
 		return model;
+	}
+		else{
+			ModelAndView model = new ModelAndView();
+			String username = (String) session.getAttribute("USERNAME");
+			lhandler.updateLoggedInFlag(username, 0);
+			session.invalidate();
+			model.setViewName("login");
+			return model;
+		}
 	}
 	@RequestMapping(value = "/login/captcha" , method = RequestMethod.GET)
 	public ModelAndView generateCaptcha(HttpServletRequest request,HttpServletResponse response) throws IOException{
@@ -189,8 +178,15 @@ public class AnishaController {
 		model.setViewName("login");
 		return model;
 	}
-	@RequestMapping(value="/**/internalTransfer" ,method=RequestMethod.POST)
+	@RequestMapping(value="/internalTransfer" ,method=RequestMethod.POST)
 	public ModelAndView makeInternalTransfer(HttpServletRequest request,HttpServletResponse response,HttpSession session){
+		String role = (String) session.getAttribute("Role");
+		if(role == null){
+			ModelAndView model = new ModelAndView();
+			model.setViewName("login");
+			return model;
+		}
+		else if(role.equals("MERCHANT") || role.equals("USER")){
 		ModelAndView model = new ModelAndView("InternalFundTransfer");
 		model.addObject("useraccounts", useraccounts);
 		String SourceAccount = "";
@@ -229,7 +225,8 @@ public class AnishaController {
 						boolean success = false;
 						String dateandtime = "";
 						String transferType = "T";
-						String Status = "WAITING_BANK";
+						//changed
+						String Status = "pending";
 						Date date=new Date();
 						dateandtime=date.toString();
 						success = handler.submitTrasferRequest(userName,TransactionID,Amount,SourceAccountNumber,DestinationAccountNumber,dateandtime,transferType,Status,success);
@@ -249,8 +246,24 @@ public class AnishaController {
 		}
 		return model;
 	}
-	@RequestMapping(value = "/**/externalTransfer" , method = RequestMethod.GET)
+	else{
+		ModelAndView model = new ModelAndView();
+		String username = (String) session.getAttribute("USERNAME");
+		lhandler.updateLoggedInFlag(username, 0);
+		session.invalidate();
+		model.setViewName("login");
+		return model;
+	}
+}
+	@RequestMapping(value = "/externalTransfer" , method = RequestMethod.GET)
 	public ModelAndView externalTransfer(HttpServletRequest request,HttpSession session) throws SQLException{
+		String role = (String) session.getAttribute("Role");
+		if(role == null){
+			ModelAndView model = new ModelAndView();
+			model.setViewName("login");
+			return model;
+		}
+		else if(role.equals("MERCHANT") || role.equals("USER")){
 		ModelAndView model = new ModelAndView("ExternalFundTransfer");
 		String userName="";
 		userName = (String)session.getAttribute("USERNAME");
@@ -274,9 +287,24 @@ public class AnishaController {
 		}
 		return model;
 	}
-
-	@RequestMapping(value = "/**/externalTransfer/**" , method =RequestMethod.POST)
+		else{
+			ModelAndView model = new ModelAndView();
+			String username = (String) session.getAttribute("USERNAME");
+			lhandler.updateLoggedInFlag(username, 0);
+			session.invalidate();
+			model.setViewName("login");
+			return model;
+		}
+	}
+	@RequestMapping(value = "/externalTransfer" , method =RequestMethod.POST)
 	public ModelAndView makeExternalTransfer(HttpServletRequest request,HttpSession session){
+		String role = (String) session.getAttribute("Role");
+		if(role == null){
+			ModelAndView model = new ModelAndView();
+			model.setViewName("login");
+			return model;
+		}
+		else if(role.equals("MERCHANT") || role.equals("USER")){
 		ModelAndView model = new ModelAndView("ExternalFundTransfer");
 		model.addObject("useraccounts", useraccounts);
 		model.addObject("recepients", userrecepients);
@@ -328,7 +356,6 @@ public class AnishaController {
 				}
 				for(UserRecepients re : userrecepients)
 					if(re.getAccountnumber().equals(DestinationAccount)){
-						//DestinationAccountNumber = re.getAccountnumber();
 						if(Integer.parseInt(SourceBalance) < amount ){
 							model.addObject("balanceInsuficientError", "Transfer cant take place due to insufficient balance");
 						}	
@@ -337,7 +364,7 @@ public class AnishaController {
 							boolean success = false;
 							String dateandtime = "";
 							String transferType = "T";
-							String Status = "WAITING_BANK";
+							String Status = "pending";
 							Date date=new Date();
 							dateandtime=date.toString();
 							success = handler.submitTrasferRequest(userName,TransactionID,Amount,SourceAccountNumber,DestinationAccount,dateandtime,transferType,Status,success);
@@ -354,9 +381,24 @@ public class AnishaController {
 		}
 		return model;
 	}
-
-	@RequestMapping(value="**/addRecepient",method={RequestMethod.POST, RequestMethod.GET})
+		else{
+			ModelAndView model = new ModelAndView();
+			String username = (String) session.getAttribute("USERNAME");
+			lhandler.updateLoggedInFlag(username, 0);
+			session.invalidate();
+			model.setViewName("login");
+			return model;
+		}
+	}
+	@RequestMapping(value="/addRecepient",method={RequestMethod.POST, RequestMethod.GET})
 	public ModelAndView registerRecepient(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws SQLException{
+		String role = (String) session.getAttribute("Role");
+		if(role == null){
+			ModelAndView model = new ModelAndView();
+			model.setViewName("login");
+			return model;
+		}
+		else if(role.equals("MERCHANT") || role.equals("USER")){
 		ModelAndView model = new ModelAndView("AddARecepient");
 		try{
 
@@ -445,7 +487,15 @@ public class AnishaController {
 			e.printStackTrace();
 		}
 		return model;
-
+		}
+		else{
+			ModelAndView model = new ModelAndView();
+			String username = (String) session.getAttribute("USERNAME");
+			lhandler.updateLoggedInFlag(username, 0);
+			session.invalidate();
+			model.setViewName("login");
+			return model;
+		}
 
 	}
 

@@ -5,7 +5,13 @@ public class Requests {
 	private String requestid;
 	private String requesttype;
 	private String requestfrom;
-
+	private String newaccountnumber;
+	public String getNewaccountnumber() {
+		return newaccountnumber;
+	}
+	public void setNewaccountnumber(String newaccountnumber) {
+		this.newaccountnumber = newaccountnumber;
+	}
 	private String requestto;
 
 	private String modifiedcolumn;

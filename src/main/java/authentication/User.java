@@ -23,7 +23,7 @@ public class User implements UserDetails {
 	private String usertype;
 	private String firstname;
 	private String lastname;
-
+    private String address;
 	private String email1;
 	private String phonenumber;
 
@@ -38,28 +38,30 @@ public class User implements UserDetails {
 
 	public User(){}
 
-	public User(String username, String password, String email, String firstname, String lastname){
+	public User(String username, String password, String email1, String firstname, String lastname){
 		this.username = username;
 		this.password = password;
-		this.email = email;
+		this.email1 = email1;
 		this.firstName = firstname;
 		this.lastName = lastname;
 	}
-
-	//Sayantan Guha: Constructor override for generating of the external user review
-	public User(String ssn, String accounttype, String usertype,String firstname,String lastname,String email1,String phonenumber ){
+   //Sayantan Guha: Constructor override for generating of the external user review
+	public User(String ssn, String accounttype, String usertype,String firstname,String lastname,String email1,String phonenumber ,String address){
 		this.ssn=ssn;
 		this.accounttype=accounttype;
 		this.usertype=usertype;
 		this.firstname=firstname;
 		this.lastname=lastname;
-
+        this.address = address;
 		this.email1=email1;
 		this.phonenumber=phonenumber;
 
 	}
 	public String getssn() {
 		return ssn;
+	}
+	public String getaddress(){
+		return address;
 	}
 	public String getaccounttype() {
 		return accounttype;
@@ -78,6 +80,30 @@ public class User implements UserDetails {
 	}
 	public String getphonenumber() {
 		return phonenumber;
+	}
+	public void setfirstname(String firstname) {
+		this.firstname = firstname;
+	}
+	public void setlastname(String lastname) {
+		this.lastname = lastname;
+	}
+	public void setusertype(String usertype){
+		this.usertype = usertype;
+	}
+	public void setaccounttype(String accounttype){
+		this.accounttype = accounttype;
+	}
+	public void setssn(String ssn){
+		this.ssn=ssn;
+	}
+	public void setaddress(String address){
+		this.address = address;
+	}
+	public void setemail1(String email){
+		this.email1 = email;
+	}
+	public void setphonenumber(String phonenumber){
+		this.phonenumber = phonenumber;
 	}
 	//Sayantan: Copy upto this
 

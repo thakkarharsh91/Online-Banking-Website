@@ -1,5 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
+	pageEncoding="ISO-8859-1"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ page trimDirectiveWhitespaces="true"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -19,7 +22,9 @@
 			<div class="msg">${Successful}</div>
 		</c:if>
 	</div>
-	<form method='POST'> 
+	<form name='openform'
+			action="${pageContext.servletContext.contextPath}/openAccountForm/?${_csrf.parameterName}=${_csrf.token}"
+			method='POST'> 
 	<h2 align="justify">Bank Account Opening Form</h2>
     <table width="700" border="0">
   <tbody>
@@ -60,7 +65,7 @@
       <td><input id ="lastname" name="lastname" type="text"></td>
     </tr>
     <tr>
-      <td>Type of Account: </td>
+      <td>Gender: </td>
       <td>
       	<select id="gender" name="gender">	
       		<option value="None"></option>
@@ -75,8 +80,7 @@
       	<select id="accounttype" name="accounttype">	
       		<option value="Saving Account">Saving Account</option>  	
       		<option value="Checking Account">Checking Account</option>  	
-      		<option value="Loan Account">Loan Account</option>  	
-      		<option value="Credit Card">Credit Card</option>
+      		
       	</select>
       </td>
     </tr>

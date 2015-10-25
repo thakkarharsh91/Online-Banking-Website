@@ -33,6 +33,9 @@
 			<c:if test="${not empty check}">
 				<div class="msg" align="center">${check}</div>
 			</c:if>
+			<c:if test="${not empty destinationerror}">
+				<div class="msg" align="center">${destinationerror}</div>
+			</c:if>
 			<tr>
 				<th>Select</th>
 				<th>Username</th>
