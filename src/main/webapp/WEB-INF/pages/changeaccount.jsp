@@ -65,11 +65,13 @@ type="text/javascript" charset="utf-8"></script>
 
 </head>
 <body>
-<div>
-<a href="">Home</a>
-<a
-href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
-</div>
+<table align = "center">
+			<tr>
+				<td><a href="${pageContext.servletContext.contextPath}/home">Home</a></td>
+				<td><a
+					href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></td>
+			</tr>
+		</table>
 <form:form action="${pageContext.servletContext.contextPath}/reqchangeaccount/?${_csrf.parameterName}=${_csrf.token}" method='POST'>
 	
 	<label> Your Account Type is :</label>
@@ -77,10 +79,10 @@ href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 	<label> Your Account Number is :</label>
 	<label><c:out value="${accountnumber}"/></label>
 	<input type=hidden value="${accountnumber}" name="accountnumber">
-	<c:if test="${account != null && account=='checkings'}">:
+	<c:if test="${account != null && account=='Checking Account'}">:
 	<input type= submit name =accountchange value='Change to Saving Account'>
 	</c:if>
-	<c:if test="${account != null && account=='savings'}">:
+	<c:if test="${account != null && account=='Saving Account'}">:
 	<input type= submit name = accountchange value='Change to Checking Account'>
 	</c:if>
 	<label> Select Manager </label>

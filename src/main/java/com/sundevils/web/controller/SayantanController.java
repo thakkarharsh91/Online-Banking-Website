@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import soroosh.PaymentFormDataLoader;
-import utilities.SendEmail;
 import authentication.User;
 
 
@@ -69,52 +68,38 @@ public class SayantanController
 			String regex3= "^B[A-Z]{2}-[0-9]{3}$";
 			String usertype= "";
 			String accounttype="";
-			String prefix="";
 			String firstname="";
-			String middlename="";
 			String lastname="";
-			String gender="";
-			String address="";
-			String state="";
 			String zip="";
 			String passportnumber="";
 			String ssn="";
 			String email="";
 			String phonenumber="";
-			String dateofbirth="";
-			String documents="";
 			String businesslicence="";
-			String status="";
 			String checkagreement="";
-			System.out.println("here in try");
 			if(request.getParameter("submit")!=null)
 
 			{
-				System.out.println("Inside If Statement");
 				usertype=request.getParameter("usertype");
 				accounttype=request.getParameter("accounttype");
-				//accounttype=(String) session.getAttribute("ACCOUNTTYPE");
-				prefix=request.getParameter("prefix");
 				firstname=request.getParameter("firstname");
-				middlename=request.getParameter("middlename");
 				lastname=request.getParameter("lastname");
-				gender=request.getParameter("gender");
-				address=request.getParameter("address");
-				state=request.getParameter("state");
 				zip=request.getParameter("zip");
 				passportnumber=request.getParameter("passportnumber");
 				ssn=request.getParameter("ssn");
-				//ssn=(String) session.getAttribute("SSN");
 
 				email=request.getParameter("email");
 				phonenumber=request.getParameter("phonenumber");
-				dateofbirth=request.getParameter("dateofbirth");
-				documents=request.getParameter("documents");
 				businesslicence=request.getParameter("businesslicence");	
 				checkagreement=request.getParameter("checkagreement");
 
 				//store the session of SSN
 				session.setAttribute("SSN_Value", ssn);
+				session.setAttribute("CUSTOMER_NAME", firstname + " " + lastname );
+				session.setAttribute("CUSTOMER_EMAIL", email);
+				session.setAttribute("ACCOUNT_TYPE", accounttype);
+				
+				
 				Pattern pattern = Pattern.compile(regex);
 				Matcher matcher = pattern.matcher(ssn);
 
@@ -151,7 +136,7 @@ public class SayantanController
 					model.addObject("emptyFields", "First Name, Last Name, Passport Number, Email, SSN, Mobile Number, and agreement are mandatory fields");
 					model.setViewName("Account.Opening.Form");
 				}
-				else if (usertype.equals("Merchant/Organization") && !matcher3.matches())
+				else if (usertype.equals("MERCHANT") && !matcher3.matches())
 				{
 					model.addObject("emptyFields", "Business Licence is mandatory for the Merchant/Organization. Business Licence should be 7 characters, should start with letter B, first three characters must be in alphabet, fourth character must be dash (-),fifth to seventh character must be numbers");
 					model.setViewName("Account.Opening.Form");
@@ -159,36 +144,23 @@ public class SayantanController
 				else 
 				{
 					openAccountHandler handler = new openAccountHandler();
-					System.out.println(ssn);
-					System.out.println(accounttype);
 					ResultSet rs =  handler.getExsistingAccount(ssn,accounttype);
 					if(rs.next())
 					{
 
 						String temp_ssn = rs.getString("ssn");
 						String temp_accounttype = rs.getString("accounttype");
-						System.out.println(temp_ssn);
-						System.out.println(temp_accounttype);
 						if(temp_ssn.equals(ssn) && temp_accounttype.equals(accounttype))
 						{
 							model.addObject("ExsistingUser", " Recepient with entered SSN and Account Type already exsists");
 							model.setViewName("Account.Opening.Form");
 						}
-
-
-
 					}
 					else {
-
-
 						handler.openAccount(request.getParameter("usertype"),request.getParameter("accounttype"),request.getParameter("prefix"),request.getParameter("firstname"),request.getParameter("middlename"),request.getParameter("lastname"),request.getParameter("gender"),request.getParameter("address"),request.getParameter("state"),request.getParameter("zip"),request.getParameter("passportnumber"),request.getParameter("ssn"),request.getParameter("email"),request.getParameter("phonenumber"),request.getParameter("dateofbirth"),request.getParameter("documents"),request.getParameter("businesslicence"),"Applied");
 						model.addObject("Successful", "Account Opening Application has been submitted sucessfully");
 						model.setViewName("uploadfile");
-						SendEmail sendemail=new SendEmail();
-						sendemail.sendEmailApplication(firstname, lastname, accounttype, email);
-
 					}
-
 				}
 			}
 			else

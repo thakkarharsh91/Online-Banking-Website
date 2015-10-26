@@ -1,6 +1,8 @@
 package com.sundevils.web.controller;
 
 import java.io.IOException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -8,11 +10,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.sun.jersey.core.util.Base64;
+
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import handlers.adminHandlers.LoginHandler;
+import pkiEncDecModule.EncryptDecryptModule;
+import pkiEncDecModule.EncryptionKeyPair;
+import pkiEncDecModule.SerialDeserializerModule;
+import pkiEncDecModule.pkiDatabaseHandler;
 import soroosh.PaymentFormDataLoader;
 import soroosh.PaymentInfo;
 import soroosh.PaymentInfoValidator;
@@ -25,49 +35,22 @@ public class SorooshController {
 
 	private String userRole = "USER";
 	private String merchantRole = "MERCHANT";
-	private String managerRole = "SYSTEM_MANAGER";
-	private String employeeRole = "EMPLOYEE";
-	private String adminRole = "ADMIN";
-	private String governmentRole = "GOVERNMENT";
 	String modelTime="2015/10/24 00:00:00";
 	String otpGenerateTime;
 
+	private static final Logger LOGGER = Logger.getLogger(SorooshController.class.getName());
 
-	private ModelAndView redirectToAccessDeniedPage(String role) {
+	private ModelAndView redirectToAccessDeniedPage(HttpSession session) {
 		ModelAndView model = new ModelAndView();
-		if(role == null){
-			model.setViewName("login");
-		}
-		else if(role.equalsIgnoreCase(managerRole)){
-			model.addObject("homeaddress", "managerhome");
-			model.setViewName("Access.Denied");
-		}
-		else if(role.equalsIgnoreCase(employeeRole)){
-			model.addObject("homeaddress", "employeehome");
-			model.setViewName("Access.Denied");
-		}
-		else if(role.equalsIgnoreCase(adminRole)){
-			model.addObject("homeaddress", "admin");
-			model.setViewName("Access.Denied");
-		}
-		else if(role.equalsIgnoreCase(merchantRole)){
-			model.addObject("homeaddress", "merchanthome");
-			model.setViewName("Access.Denied");
-		}
-		else if(role.equalsIgnoreCase(userRole)){
-			model.addObject("homeaddress", "customerhome");
-			model.setViewName("Access.Denied");
-		}
-		else if(role.equalsIgnoreCase(governmentRole)){
-			model.addObject("homeaddress", "governmenthome");
-			model.setViewName("Access.Denied");
-		}
-		else{
-			model.setViewName("login");
-		}
+		LoginHandler handler = new LoginHandler();
+		String userName = (String)session.getAttribute("USERNAME");
+		if(userName != null)
+			handler.updateLoggedInFlag(userName, 0);
+		session.invalidate();
+		model.setViewName("index");
 		return model;
 	}
-	
+
 	//returns false if the user has the required permission
 	private boolean checkAccessCondition(HttpSession session, String role){
 		if(session == null){
@@ -84,7 +67,7 @@ public class SorooshController {
 	@RequestMapping(value = {"/customerhome"}, method = RequestMethod.GET)
 	public ModelAndView customerHomePage(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		if(checkAccessCondition(request.getSession(), userRole)){
-			return redirectToAccessDeniedPage((String)request.getSession().getAttribute("Role"));
+			return redirectToAccessDeniedPage(request.getSession());
 		}
 		ModelAndView model = new ModelAndView();
 		model.setViewName("customerhome");
@@ -94,7 +77,7 @@ public class SorooshController {
 	@RequestMapping(value = {"/merchanthome"}, method = RequestMethod.GET)
 	public ModelAndView merchantHomePage(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		if(checkAccessCondition(request.getSession(), merchantRole)){
-			return redirectToAccessDeniedPage((String)request.getSession().getAttribute("Role"));
+			return redirectToAccessDeniedPage(request.getSession());
 		}
 		ModelAndView model = new ModelAndView();
 		model.setViewName("merchanthome");
@@ -112,9 +95,8 @@ public class SorooshController {
 		try {
 			String email = handler.getEmailAddressForUsername(username);
 			OtpUtility otp = new OtpUtility();
-			
 			otp.sendOtp(request, email);
-			otpGenerateTime=TimeUtility.generateDateMethod()+" "+TimeUtility.generateHoursMethod()+":"+TimeUtility.generateMinutesMethod()+":"+TimeUtility.generateSecondsMethod();
+			otpGenerateTime = TimeUtility.generateDateMethod()+" "+TimeUtility.generateHoursMethod()+":"+TimeUtility.generateMinutesMethod()+":"+TimeUtility.generateSecondsMethod();
 			request.getSession().setAttribute("otpGenerateTime", otpGenerateTime);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -125,11 +107,11 @@ public class SorooshController {
 	@RequestMapping(value = {"/merchantstartpayment"}, method = RequestMethod.GET)
 	public ModelAndView merchantRequestPaymentPage(HttpServletRequest request, HttpServletResponse response, 
 			HttpSession session) throws IOException {
-		
+
 		if(checkAccessCondition(session, merchantRole)){
-			return redirectToAccessDeniedPage((String)session.getAttribute("Role"));
+			return redirectToAccessDeniedPage(session);
 		}
-		
+
 		ModelAndView model = new ModelAndView();
 		PaymentFormDataLoader handler = new PaymentFormDataLoader();
 
@@ -140,17 +122,19 @@ public class SorooshController {
 			model.addObject("users", handler.getAllUsersForMerchantPayment());
 		} catch (Exception e) {
 			ArrayList<String> errors = new ArrayList<String>();
+			LOGGER.error("Internal error - Database Unavailable");
 			errors.add("Internal error - please try again later");
 			model.addObject("errors", errors);
 			model.setViewName("Merchant.Organization/Payment.Error");
 			e.printStackTrace();
 			return model;
 		}
-		
+
 		try {
 			model.addObject("bankaccounts", handler.getAllAccountsForUserPayment((String)session.getAttribute("USERNAME")));
 		} catch (Exception e) {
 			ArrayList<String> errors = new ArrayList<String>();
+			LOGGER.error("Internal error - Database Unavailable");
 			errors.add("Internal error - please try again later");
 			model.addObject("errors", errors);
 			model.setViewName("Individual.Customers/Payment.Error");
@@ -166,15 +150,16 @@ public class SorooshController {
 	public ModelAndView userPaymentPage(HttpServletRequest request, HttpServletResponse response, 
 			HttpSession session) throws IOException {
 		if(checkAccessCondition(session, userRole)){
-			return redirectToAccessDeniedPage((String)session.getAttribute("Role"));
+			return redirectToAccessDeniedPage(session);
 		}
-		
+
 		ModelAndView model = new ModelAndView();
 		PaymentFormDataLoader handler = new PaymentFormDataLoader();
 		try {
 			model.addObject("merchants", handler.getAllMerchantsForUserPayment());
 		} catch (Exception e) {
 			ArrayList<String> errors = new ArrayList<String>();
+			LOGGER.error("Internal error - Database Unavailable");
 			errors.add("Internal error - please try again later");
 			model.addObject("errors", errors);
 			model.setViewName("Individual.Customers/Payment.Error");
@@ -186,6 +171,7 @@ public class SorooshController {
 			model.addObject("bankaccounts", handler.getAllAccountsForUserPayment((String)session.getAttribute("USERNAME")));
 		} catch (Exception e) {
 			ArrayList<String> errors = new ArrayList<String>();
+			LOGGER.error("Internal error - Database Unavailable");
 			errors.add("Internal error - please try again later");
 			model.addObject("errors", errors);
 			model.setViewName("Individual.Customers/Payment.Error");
@@ -202,31 +188,71 @@ public class SorooshController {
 			HttpSession session) { 
 		ModelAndView model = new ModelAndView(); 
 		if(checkAccessCondition(session, merchantRole)){
-			return redirectToAccessDeniedPage((String)session.getAttribute("Role"));
+			return redirectToAccessDeniedPage(session);
 		}
-		
-		String payer = request.getParameter("payer");  
-		String amount = request.getParameter("amount"); 
-		String accountNumber = request.getParameter("accountNumber"); 
-		String signature = request.getParameter("signature");
-
-		ArrayList<String> errors = null;
 		String username = (String)session.getAttribute("USERNAME");
-		
+		ArrayList<String> errors = null;
+
+		String payer = null;  
+		String amount = null; 
+		String accountNumber = null; 
+
+		String payerE = request.getParameter("payerE");  
+		String amountE = request.getParameter("amountE"); 
+		String accountNumberE = request.getParameter("accountNumberE"); 
+		String signature = request.getParameter("signatureE");
+
+		byte[] encodedpayer = Base64.decode(payerE);
+		byte[] encodedamount = Base64.decode(amountE);
+		byte[] encodedaccountNumber = Base64.decode(accountNumberE);
+
+		EncryptDecryptModule encDecModule = new EncryptDecryptModule();
+		SerialDeserializerModule module = new SerialDeserializerModule();
+		pkiDatabaseHandler databaseHandler = new pkiDatabaseHandler();
+		EncryptionKeyPair pair = null;
+		try {
+			pair = databaseHandler.getKeysFromDatabase(username);
+		} catch (Exception e) {
+			e.printStackTrace();
+			errors = new ArrayList<String>();
+			LOGGER.error("Internal error occured - data decryption error");
+			errors.add("Internal error occured - try again later");
+			model.setViewName("Merchant.Organization/Payment.Error");
+			return model;		
+		}
+
+		PrivateKey priv;
+
+		try {
+			priv = module.stringToPrivateKey(pair.getPriveKeyStr());
+			payer = new String(encDecModule.decrypt(encodedpayer, priv));
+			amount = new String(encDecModule.decrypt(encodedamount, priv));
+			accountNumber = new String(encDecModule.decrypt(encodedaccountNumber, priv));
+		} catch (Exception e) {
+			errors = new ArrayList<String>();
+			LOGGER.error("Internal error occured - data decryption error");
+			errors.add("Internal error occured - try again later");
+			model.setViewName("Merchant.Organization/Payment.Error");
+			return model;
+		}
+
+
 		if(payer.equalsIgnoreCase(username)){
 			errors = new ArrayList<String>();
 			errors.add("Cannot request payment from self");
+			LOGGER.error("Cannot request payment from self");
 			model.addObject("errors", errors);
 			model.setViewName("Merchant.Organization/Payment.Error");
 			return model;
 		}
-		
+
 		PaymentInfoValidator formValidator = new PaymentInfoValidator();
 		try {
 			errors = formValidator.merchantPaymentRequestValidateData(username, payer, amount, accountNumber, signature);
 		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
 			errors = new ArrayList<String>();
+			LOGGER.error("Internal error occured");
 			errors.add("Internal error occured - try again later");
 		}
 		if(errors.size() != 0){
@@ -234,7 +260,7 @@ public class SorooshController {
 			model.setViewName("Merchant.Organization/Payment.Error");
 			return model;
 		}
-		
+
 		SorooshDatabaseConnection databaseConnection = new SorooshDatabaseConnection();
 		try {
 			databaseConnection.putMerchantPaymentRequestInDatabase(payer, amount, accountNumber, 
@@ -249,6 +275,7 @@ public class SorooshController {
 		}
 		model.addObject("message", "Payment successfully submitted");
 		model.setViewName("Merchant.Organization/Confirm.Payment.Action");
+		LOGGER.info(username + "'s payment request successfully submitted");
 
 		return model;
 	}
@@ -256,28 +283,75 @@ public class SorooshController {
 	@RequestMapping(value = {"/readuserpaymentform"}, method = {RequestMethod.POST}) 
 	public ModelAndView userPaymentFormReader(HttpServletRequest request, HttpServletResponse response,
 			HttpSession session) { 
-		
+
 		if(checkAccessCondition(session, userRole)){
-			return redirectToAccessDeniedPage((String)session.getAttribute("Role"));
+			return redirectToAccessDeniedPage(session);
 		}
-		
+
+		ArrayList<String> errors = null;
 		ModelAndView model = new ModelAndView(); 
 
-		String merchantName = request.getParameter("merchantName");  
-		String accountNumber = request.getParameter("accountNumber"); 
-		String amount = request.getParameter("amount"); 
-		String OTPMethod = request.getParameter("OTP"); 
-		String OTPText = request.getParameter("otpText"); 
-		String signature = request.getParameter("signature");
+		String username = (String)session.getAttribute("USERNAME");
+
+		String merchantName = null;  
+		String accountNumber = null; 
+		String amount = null; 
+		String OTPMethod = null; 
+		String OTPText = null; 
+		String signature = null;
+
+		String merchantNameE = (String)request.getParameter("merchantNameE");  
+		String accountNumberE = request.getParameter("accountNumberE"); 
+		String amountE = request.getParameter("amountE"); 
+		String OTPTextE = request.getParameter("otpTextE"); 
+		signature = request.getParameter("signatureE");
+
+		byte[] encodedmerchantName = Base64.decode(merchantNameE);
+		byte[] encodedaccountNumber = Base64.decode(accountNumberE);
+		byte[] encodedamount = Base64.decode(amountE);
+		byte[] encodedOTPText = Base64.decode(OTPTextE);
+
+		EncryptDecryptModule encDecModule = new EncryptDecryptModule();
+		SerialDeserializerModule module = new SerialDeserializerModule();
+		pkiDatabaseHandler databaseHandler = new pkiDatabaseHandler();
+		EncryptionKeyPair pair = null;
+		try {
+			pair = databaseHandler.getKeysFromDatabase(username);
+		} catch (Exception e) { 
+			e.printStackTrace();
+			errors = new ArrayList<String>();
+			LOGGER.error("Internal error occured");
+			errors.add("Internal error occured - data decryption error");
+			model.setViewName("Individual.Customers/Payment.Error");
+			return model;
+		}
+
+		PrivateKey priv;
+
+		try {
+			priv = module.stringToPrivateKey(pair.getPriveKeyStr());
+			merchantName = new String(encDecModule.decrypt(encodedmerchantName, priv));
+			accountNumber = new String(encDecModule.decrypt(encodedaccountNumber, priv));
+			amount = new String(encDecModule.decrypt(encodedamount, priv));
+			OTPText = new String(encDecModule.decrypt(encodedOTPText, priv));
+		} catch (Exception e) {
+			e.printStackTrace();
+			errors = new ArrayList<String>();
+			LOGGER.error("Internal error occured");
+			errors.add("Internal error occured - try again later");
+			model.setViewName("Individual.Customers/Payment.Error");
+			return model;
+		}
 
 		PaymentInfoValidator formValidator = new PaymentInfoValidator();
-		ArrayList<String> errors = null;
 		try {
 			errors = formValidator.userPaymentValidateData(merchantName, accountNumber, amount,  OTPMethod, 
-					OTPText, signature, session, (String)session.getAttribute("USERNAME"));
+					OTPText, signature, session, (String)session.getAttribute("USERNAME"), 
+					(String)session.getAttribute("otpGenerateTime"));
 		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
 			errors = new ArrayList<String>();
+			LOGGER.error("Internal error - input validation");
 			errors.add("Internal error occured - try again later");
 		}
 		if(errors.size() == 0){
@@ -302,11 +376,13 @@ public class SorooshController {
 	@RequestMapping(value = {"/submituserpayment"}, method = {RequestMethod.POST}) 
 	public ModelAndView userPaymentSubmit(HttpServletRequest request, HttpServletResponse response, 
 			HttpSession session) { 
-		
+
 		if(checkAccessCondition(session, userRole)){
-			return redirectToAccessDeniedPage((String)session.getAttribute("Role"));
+			return redirectToAccessDeniedPage(session);
 		}
-		
+
+		String username = (String)session.getAttribute("USERNAME");
+
 		ModelAndView model = new ModelAndView(); 
 		ArrayList<String> errors = new ArrayList<String>();
 
@@ -316,6 +392,7 @@ public class SorooshController {
 				errors = databaseConnection.putCustomerPaymentInDatabase((PaymentInfo)session.getAttribute("payment"));
 			} catch (SQLException | ClassNotFoundException e) {
 				e.printStackTrace();
+				LOGGER.error("Internal error - Database Unavailable");
 				errors.add("Internal error - please try again later");
 				session.removeAttribute("payment");
 				model.addObject("errors", errors);
@@ -327,6 +404,7 @@ public class SorooshController {
 				session.removeAttribute("payment");
 				model.addObject("message", "Payment successfully submitted");
 				model.setViewName("Individual.Customers/Confirm.Payment.Action");
+				LOGGER.info(username + "'s payment successfully submitted");
 			}
 			else{
 				model.addObject("errors", errors);
@@ -338,11 +416,14 @@ public class SorooshController {
 			session.removeAttribute("payment");
 			model.addObject("message", "Payment successfully cancelled");
 			model.setViewName("Individual.Customers/Confirm.Payment.Action");
+			LOGGER.info(username + "'s payment request successfully cancelled");
+
 		}
 		else{
 			errors.add("Unknown input - payment cancelled");
 			session.removeAttribute("payment");
 			model.setViewName("Individual.Customers/Confirm.Payment.Action");
+			LOGGER.info(username + "'s payment request successfully cancelled");
 		}
 
 		return model; 
@@ -351,11 +432,11 @@ public class SorooshController {
 	@RequestMapping(value = {"/merchantshowpayments"}, method = {RequestMethod.GET}) 
 	public ModelAndView merchantShowAllPayments(HttpServletRequest request, HttpServletResponse response, 
 			HttpSession session) { 
-		
+
 		if(checkAccessCondition(session, merchantRole)){
-			return redirectToAccessDeniedPage((String)session.getAttribute("Role"));
+			return redirectToAccessDeniedPage(session);
 		}
-		
+
 		ModelAndView model = new ModelAndView(); 
 		Object allPaymentsTo = null;
 		Object allPaymentsFrom = null;
@@ -366,6 +447,7 @@ public class SorooshController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			ArrayList<String> errors = new ArrayList<String>();
+			LOGGER.error("Internal error - Database Unavailable");
 			errors.add("Internal error - please try again later");
 			model.addObject("errors", errors);
 			model.setViewName("Merchant.Organization/Payment.Error");
@@ -377,6 +459,7 @@ public class SorooshController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			ArrayList<String> errors = new ArrayList<String>();
+			LOGGER.error("Internal error - Database Unavailable");
 			errors.add("Internal error - please try again later");
 			model.addObject("errors", errors);
 			model.setViewName("Merchant.Organization/Payment.Error");
@@ -395,11 +478,11 @@ public class SorooshController {
 	@RequestMapping(value = {"/usershowpayments"}, method = {RequestMethod.GET}) 
 	public ModelAndView userShowAllPayments(HttpServletRequest request, HttpServletResponse response, 
 			HttpSession session) { 
-		
+
 		if(checkAccessCondition(session, userRole)){
-			return redirectToAccessDeniedPage((String)session.getAttribute("Role"));
+			return redirectToAccessDeniedPage(session);
 		}
-		
+
 		ModelAndView model = new ModelAndView(); 
 		Object allPayments = null;
 
@@ -409,6 +492,7 @@ public class SorooshController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			ArrayList<String> errors = new ArrayList<String>();
+			LOGGER.error("Internal error - Database Unavailable");
 			errors.add("Internal error - please try again later");
 			model.addObject("errors", errors);
 			model.setViewName("Individual.Customer/Payment.Error");
@@ -431,11 +515,12 @@ public class SorooshController {
 		if(request.getParameter("iteration") == null){
 			return goToMerchantErrorPage("Internal error - please try again later");
 		}
-		
+
 		try{
 			iteration = Integer.parseInt(request.getParameter("iteration"));
 		} catch(NumberFormatException e){
 			e.printStackTrace();
+			LOGGER.error("Internal error in Merchant payment");
 			return goToMerchantErrorPage("Internal error - please try again later");
 		}
 		ArrayList<PaymentInfo> payments = (ArrayList<PaymentInfo>)session.getAttribute("submittedPayments");
@@ -459,6 +544,7 @@ public class SorooshController {
 					model.addObject("bankaccounts", accounts);
 				} catch (Exception e) {
 					ArrayList<String> errors = new ArrayList<String>();
+					LOGGER.error("Internal error - database unavailable");
 					errors.add("Internal error - please try again later");
 					model.addObject("errors", errors);
 					model.setViewName("Merchant.Organization/Payment.Error");
@@ -476,6 +562,7 @@ public class SorooshController {
 			}
 		} catch(ClassNotFoundException | SQLException e){
 			e.printStackTrace();
+			LOGGER.error("Internal error in payment authorization");
 			return goToMerchantErrorPage("Internal error in payment authorization - try again later");
 		}
 
@@ -487,19 +574,20 @@ public class SorooshController {
 			HttpSession session) { 
 
 		if(checkAccessCondition(session, merchantRole)){
-			return redirectToAccessDeniedPage((String)session.getAttribute("Role"));
+			return redirectToAccessDeniedPage(session);
 		}
-		
+
 		ModelAndView model = new ModelAndView(); 
 		int iteration = -1;
 
 		if(request.getParameter("iteration") == null)
 			return goToMerchantErrorPage("Internal error - please try again later");
-		
+
 		try{
 			iteration = Integer.parseInt(request.getParameter("iteration"));
 		} catch(NumberFormatException e){
 			e.printStackTrace();
+			LOGGER.error("Internal error - bad input");
 			return goToMerchantErrorPage("Internal error - please try again later");
 		}
 		ArrayList<PaymentInfo> payments = (ArrayList<PaymentInfo>)session.getAttribute("requestedPayments");
@@ -523,6 +611,7 @@ public class SorooshController {
 					model.addObject("bankaccounts", accounts);
 				} catch (Exception e) {
 					ArrayList<String> errors = new ArrayList<String>();
+					LOGGER.error("Internal error - database unavailable");
 					errors.add("Internal error - please try again later");
 					model.addObject("errors", errors);
 					model.setViewName("Merchant.Organization/Payment.Error");
@@ -541,6 +630,7 @@ public class SorooshController {
 			}
 		} catch(ClassNotFoundException | SQLException e){
 			e.printStackTrace();
+			LOGGER.error("Internal error in payment authorization");
 			return goToMerchantErrorPage("Internal error in payment authorization - try again later");
 		}
 
@@ -553,20 +643,21 @@ public class SorooshController {
 			HttpSession session) { 
 
 		if(checkAccessCondition(session, userRole)){
-			return redirectToAccessDeniedPage((String)session.getAttribute("Role"));
+			return redirectToAccessDeniedPage(session);
 		}
-		
+
 		ModelAndView model = new ModelAndView(); 
 		int iteration = -1;
 
 		if(request.getParameter("iteration") == null){
 			return goToMerchantErrorPage("Internal error - please try again later");
 		}
-		
+
 		try{
 			iteration = Integer.parseInt(request.getParameter("iteration"));
 		} catch(NumberFormatException e){
 			e.printStackTrace();
+			LOGGER.error("Internal error - bad input");
 			return goToMerchantErrorPage("Internal error - please try again later");
 		}
 		ArrayList<PaymentInfo> payments = (ArrayList<PaymentInfo>)session.getAttribute("submittedPayments");
@@ -589,6 +680,7 @@ public class SorooshController {
 					model.addObject("bankaccounts", accounts);
 				} catch (Exception e) {
 					ArrayList<String> errors = new ArrayList<String>();
+					LOGGER.error("Internal error - database unavailable");
 					errors.add("Internal error - please try again later");
 					model.addObject("errors", errors);
 					model.setViewName("Individual.Customers/Payment.Error");
@@ -607,6 +699,7 @@ public class SorooshController {
 			}
 		} catch(ClassNotFoundException | SQLException e){
 			e.printStackTrace();
+			LOGGER.error("Internal error in payment authorization");
 			return goToMerchantErrorPage("Internal error in payment authorization - try again later");
 		}
 
@@ -628,6 +721,7 @@ public class SorooshController {
 			errors = formValidator.payerPaymentAcceptValidation(accountNumber, username, payment);
 		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
+			LOGGER.error("Internal error - input validation error");
 			errors.add("Internal error occured - try again later");
 		}
 
@@ -642,13 +736,15 @@ public class SorooshController {
 				databaseConnection.receivePaymentDatabaseUpdate(payment.getPaymentId(), accountNumber);
 			} catch (ClassNotFoundException | SQLException e) {
 				e.printStackTrace();
+				LOGGER.error("Internal error - database unavailable");
 				errors.add("Internal error occured - try again later");
 			}
 
 			if(errors.size() == 0){
 				model.setViewName("Merchant.Organization/Confirm.Payment.Action");
-				model.addObject("message", "You received " + payment.getAmount() + " into your account " + 
-						accountNumber);
+				model.addObject("message", "You will receive " + payment.getAmount() + " into your account " + 
+						accountNumber + "(upon bank approval)");
+				LOGGER.info(username + "'s payment decision submitted to bank for approval");
 			}
 			else{
 				model.addObject("errors", errors);
@@ -665,21 +761,21 @@ public class SorooshController {
 			HttpSession session) { 
 
 		if(checkAccessCondition(session, merchantRole)){
-			return redirectToAccessDeniedPage((String)session.getAttribute("Role"));
+			return redirectToAccessDeniedPage(session);
 		}
-		
+
 		ArrayList<String> errors = new ArrayList<String>();
 		ModelAndView model = new ModelAndView(); 
 		PaymentInfo payment = (PaymentInfo)session.getAttribute("acceptedPayment");
 		String accountNumber = request.getParameter("accountNumber"); 
-		String signature = request.getParameter("signature"); 
 		String username = (String)session.getAttribute("USERNAME");
 
 		PaymentInfoValidator formValidator = new PaymentInfoValidator();
 		try {
-			errors = formValidator.payerPaymentAcceptValidation(accountNumber, username, payment, signature);
+			errors = formValidator.payerPaymentAcceptValidation(accountNumber, username, payment);
 		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
+			LOGGER.error("Internal error - input validation");
 			errors.add("Internal error occured - try again later");
 		}
 
@@ -694,6 +790,7 @@ public class SorooshController {
 				databaseConnection.acceptPaymentDatabaseUpdate(payment, accountNumber, username);
 			} catch (ClassNotFoundException | SQLException e) {
 				e.printStackTrace();
+				LOGGER.error("Internal error - database unavailable");
 				errors.add("Internal error occured - try again later");
 			}
 
@@ -701,6 +798,7 @@ public class SorooshController {
 				model.setViewName("Merchant.Organization/Confirm.Payment.Action");
 				model.addObject("message", "You accepted to pay " + payment.getAmount() + " to " + 
 						payment.getUsername());
+				LOGGER.info(username + "'s payment decision was submitted to bank for approval");
 			}
 			else{
 				model.addObject("errors", errors);
@@ -717,9 +815,9 @@ public class SorooshController {
 			HttpSession session) { 
 
 		if(checkAccessCondition(session, userRole)){
-			return redirectToAccessDeniedPage((String)session.getAttribute("Role"));
+			return redirectToAccessDeniedPage(session);
 		}		
-		
+
 		ArrayList<String> errors = new ArrayList<String>();
 		ModelAndView model = new ModelAndView(); 
 		PaymentInfo payment = (PaymentInfo)session.getAttribute("acceptedPayment");
@@ -731,6 +829,7 @@ public class SorooshController {
 			errors = formValidator.payerPaymentAcceptValidation(accountNumber, username, payment);
 		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
+			LOGGER.error("Internal error - validation error");
 			errors.add("Internal error occured - try again later");
 		}
 
@@ -745,6 +844,7 @@ public class SorooshController {
 				databaseConnection.acceptPaymentDatabaseUpdate(payment, accountNumber, username);
 			} catch (ClassNotFoundException | SQLException e) {
 				e.printStackTrace();
+				LOGGER.error("Internal error - database unavailable");
 				errors.add("Internal error occured - try again later");
 			}
 
@@ -752,6 +852,7 @@ public class SorooshController {
 				model.setViewName("Individual.Customers/Confirm.Payment.Action");
 				model.addObject("message", "You accepted to pay " + payment.getAmount() + " to " + 
 						payment.getDestinationAccountNumber());
+				LOGGER.info(username + "'s payment decision is submitted to bank for approval");
 			}
 			else{
 				model.addObject("errors", errors);
@@ -770,5 +871,51 @@ public class SorooshController {
 		model.addObject("errors", errors);
 		model.setViewName("Merchant.Organization/Payment.Error");
 		return model;
+	}
+
+	@RequestMapping(value = {"/getallpaymentfields"}, method = RequestMethod.GET)
+	public void getallpaymentfields(HttpServletRequest request, HttpServletResponse response,
+			HttpSession session) throws IOException{
+		byte[] encrypted = null;
+		String value = request.getParameter("value");
+		String username = (String)session.getAttribute("USERNAME");
+
+		if(value != null && value.length() != 0){
+			EncryptDecryptModule encDecModule = new EncryptDecryptModule();
+			SerialDeserializerModule module = new SerialDeserializerModule();
+			pkiDatabaseHandler databaseHandler = new pkiDatabaseHandler();
+
+			EncryptionKeyPair pair;
+			try {
+				pair = databaseHandler.getKeysFromDatabase(username);
+			} catch (Exception e1) {
+				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+				return;
+			}
+
+			PublicKey pubkey = null;
+			try {
+				pubkey = module.stringToPublicKey(pair.getPubKeyStr());
+			} catch (ClassNotFoundException e) {
+				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+				return;
+			}
+
+			try {
+				encrypted = encDecModule.encrypt(value, pubkey);
+			} catch (Exception e) {
+				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+				return;
+			}
+		}
+		else{
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+
+		byte[] encoded = Base64.encode(encrypted);
+		response.setContentType("text/plain");  
+		response.setCharacterEncoding("UTF-8"); 
+		response.getWriter().write(new String(encoded));
 	}
 }

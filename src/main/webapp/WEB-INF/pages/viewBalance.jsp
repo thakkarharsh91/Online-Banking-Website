@@ -23,16 +23,16 @@
     </script>
 </head>
 <body>
-<table>
+<table align = "center">
 	<tr>
 		<td><a href="./home">Home</a></td>
 		<td><a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></td>
 	</tr>
 </table>
 <br/>
-<br/>
-<br/>
-<table border="1">
+
+<h3 align = "center">View Balance</h3>
+<table border="1" align = "center">
 	<tr>
 		<th>Account Number</th>
 		<th>Account Type</th>

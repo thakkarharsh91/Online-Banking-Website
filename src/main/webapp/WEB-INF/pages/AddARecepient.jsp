@@ -23,7 +23,16 @@
     </script>
 </head>
 <body>
-	<div>
+<div style="text-align: center">
+		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
+	<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
+	</div>
+	
+	<form name="form"
+		action="${pageContext.servletContext.contextPath}/addRecepient"
+		method='POST'>
+		<h2 align="center">Add a Recipient</h2>
+		<div style="text-align: center">
 		<c:if test="${not empty emptyFields}">
 			<div class="msg">${emptyFields}</div>
 		</c:if>
@@ -51,11 +60,7 @@
 		</c:if>
 		
 	</div>
-	<form name="form"
-		action="${pageContext.servletContext.contextPath}/addRecepient"
-		method='POST'>
-		<h2 align="justify">Add a Recipient</h2>
-		<table width="500" border="0">
+		<table width="500" border="0" align = "center">
 			<tbody>
 				<tr>
 					<th scope="col">&nbsp;</th>

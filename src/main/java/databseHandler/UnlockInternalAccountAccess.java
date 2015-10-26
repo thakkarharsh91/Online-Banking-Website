@@ -9,13 +9,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
+
 import authentication.UnlockRequest;
 
 public class UnlockInternalAccountAccess {
 	private Connection connect = null;
 	private Statement statement = null;
 	private PreparedStatement preparedStatement = null;
-	
+	private static final Logger LOG = Logger.getLogger(UnlockInternalAccountAccess.class);
 	public void getConnection() throws ClassNotFoundException, SQLException{
 		// This will load the MySQL driver, each DB has its own driver
 		Class.forName("com.mysql.jdbc.Driver");
@@ -41,6 +43,7 @@ public class UnlockInternalAccountAccess {
 				return "error unlocking, username doesn't exist";
 			
 		} catch (Exception e) {
+			LOG.error("MYSQL exception has occured, failed to unlock user" +e.getMessage());
 			throw e;
 		}
 	}
@@ -58,9 +61,11 @@ public class UnlockInternalAccountAccess {
 			ResultSet resultSet2 = preparedStatement.executeQuery();
 			ArrayList<UnlockRequest> request_tbl = writeResultSetRequest(resultSet2);
 			resultSet2.close();
+			LOG.info("Reading unlock user account requests");
 			return request_tbl;
 			
 		} catch (Exception e) {
+			LOG.error("Error unlocking user account" +e.getMessage());
 			throw e;
 		}
 	}
@@ -104,11 +109,15 @@ public class UnlockInternalAccountAccess {
 			int count = preparedStatement.executeUpdate();
 			
 			if(count>0)
-			return true;
+			{
+				LOG.info("Updated unlock status in request table for user" +username);
+				return true;
+			}
 			else
 				return false;
 			
 		} catch (Exception e) {
+			LOG.error("Error updating lock status of user" +e.getMessage());
 			throw e;
 		}
 	}

@@ -8,13 +8,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.apache.log4j.Logger;
+
 import authentication.UserAccount;
 
 public class CheckSourceAccountAccess {
 	private Connection connect = null;
 	private Statement statement = null;
 	private PreparedStatement preparedStatement = null;
-
+	private static final Logger LOG = Logger.getLogger(CheckSourceAccountAccess.class);
 	public void getConnection() throws ClassNotFoundException, SQLException{
 		// This will load the MySQL driver, each DB has its own driver
 		Class.forName("com.mysql.jdbc.Driver");
@@ -54,10 +56,12 @@ public class CheckSourceAccountAccess {
 		} 
 
 		catch(NumberFormatException ne){
+			LOG.error("Number format exception" +ne.getMessage());
 			return "NFE";
 		}
 		catch (Exception e) {
-			throw e;
+			LOG.error("Exception updating balance on source account" +e.getMessage());
+			return "exception";
 		}
 	}
 

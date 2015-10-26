@@ -60,16 +60,25 @@ type="text/javascript" charset="utf-8"></script>
 
 </head>
 <body>
-<div>
-<a href="">Home</a>
+<h1>
+
+</h1>
+<div style="text-align: center">
+		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
+	
 <a
 href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 </div>
+<br/>
 <form:form action="${pageContext.servletContext.contextPath}/changeaccount/?${_csrf.parameterName}=${_csrf.token}" method='POST'>
 	
-	<input type=number name="accountnumber">
-	<input type= submit name="search" value="search by account number">
- 
+	<table align = "center">
+	<tr><td><c:if test="${not empty status}">
+			<div class="msg"><c:out value="${status}" /></div>
+</c:if></td></tr>
+	<tr><td><input type=number name="accountnumber" required></td></tr>
+	<tr><td><input type= submit name="search" value="search by account number"></td></tr>
+ </table>	
 	</form:form>
 	
 	<input type="hidden" name="${_csrf.parameterName}"

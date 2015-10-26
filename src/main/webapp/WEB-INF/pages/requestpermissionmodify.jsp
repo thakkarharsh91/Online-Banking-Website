@@ -65,6 +65,13 @@ type="text/javascript" charset="utf-8"></script>
 
 </head>
 <body>
+<div>
+<div style="text-align: center">
+		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
+	</div>
+<a
+href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
+</div>
 <form:form action="${pageContext.servletContext.contextPath}/reqModify/?${_csrf.parameterName}=${_csrf.token}" method='POST'>
 	<select name=searchcat>
 	<option value=firstname> First Name </option>

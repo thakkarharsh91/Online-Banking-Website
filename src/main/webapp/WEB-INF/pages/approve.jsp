@@ -8,7 +8,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Insert title here</title>
-<script type = "text/javascript" >
+<script type="text/javascript">
     history.pushState(null, null,window.location.href);
     window.addEventListener('popstate', function(event) {
     history.pushState(null, null, window.location.href);
@@ -17,10 +17,11 @@
         e.preventDefault();
     }, false);
     </script>
+
 </head>
 <body>
 	<div style="text-align: center">
-		<a href="${pageContext.servletContext.contextPath}/employeehomenavigate">Home</a>
+		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
 	</div>
 	<div style="text-align: center">
 		<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>

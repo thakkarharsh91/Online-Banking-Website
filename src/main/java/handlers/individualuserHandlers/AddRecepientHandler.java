@@ -110,6 +110,25 @@ public class AddRecepientHandler {
 		}
 		return;
 }
+	
+	public void updatePIAccount(String username,String modifiedcolumn,String oldvalue,String newvalue,String newaccountnumber) {
+
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+			sql.updateuserinfo1(username,modifiedcolumn,oldvalue,newvalue,newaccountnumber);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return;
+}
 	//new
 	public void updateRequest(String requestid,String action) {
 

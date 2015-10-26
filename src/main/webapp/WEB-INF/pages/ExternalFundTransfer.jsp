@@ -17,9 +17,13 @@
     </script>
 </head>
 <body>
-	<h2>External Funds Transfer</h2>
-
-	<div>
+<div style="text-align: center">
+		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
+	<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></div>
+	>
+	<form>
+	<h2 align = "center">External Funds Transfer</h2>
+	<div style="text-align: center">
 		<c:if test="${not empty destinationError}">
 			<div class="msg">${destinationError}</div>
 		</c:if>
@@ -42,8 +46,7 @@
 			<div class="msg">${failure}</div>
 		</c:if>
 	</div>
-	<form>
-		<table width="500" border="0">
+		<table width="500" border="0" align="center">
 			<tbody>
 				<tr>
 					<th scope="col">&nbsp;</th>

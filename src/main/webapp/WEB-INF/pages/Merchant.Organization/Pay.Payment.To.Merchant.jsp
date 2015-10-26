@@ -48,10 +48,6 @@
 						</c:forEach>
 				</select></td>
 			</tr>
-			<tr>
-				<td>Signature:</td>
-				<td><input type="text" name="signature" /></td>
-			</tr>
 		</table>
 		<input type="hidden" name="${_csrf.parameterName}"
 			value="${_csrf.token}" />
@@ -66,3 +62,10 @@
 		<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 </body>
 </html>
+<%
+	int timeout = session.getMaxInactiveInterval();
+	String url = request.getRequestURL().toString();
+	url = url.replace("/WEB-INF/pages/Merchant.Organization/Pay.Payment.To.Merchant.jsp",
+			"/logoutusers");
+	response.setHeader("Refresh", "300; URL =" + url);
+%>

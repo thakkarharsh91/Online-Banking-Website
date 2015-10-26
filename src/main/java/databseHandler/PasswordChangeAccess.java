@@ -7,11 +7,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.apache.log4j.Logger;
+
 public class PasswordChangeAccess {
 	private Connection connect = null;
 	private Statement statement = null;
 	private PreparedStatement preparedStatement = null;
-
+	private static final Logger LOG = Logger.getLogger(PasswordChangeAccess.class);
 	public void getConnection() throws ClassNotFoundException, SQLException{
 		// This will load the MySQL driver, each DB has its own driver
 		Class.forName("com.mysql.jdbc.Driver");
@@ -34,6 +36,7 @@ public class PasswordChangeAccess {
 		}
 		catch(SQLException e)
 		{
+			LOG.error("Error updating user password change"+e.getMessage() );
 			e.printStackTrace();
 		}
 

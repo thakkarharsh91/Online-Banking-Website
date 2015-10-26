@@ -8,13 +8,16 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Random;
 
+import org.apache.log4j.Logger;
+
 import utilities.TimeUtility;
 
 public class CreateTransactionAccess {
 	private Connection connect = null;
 	private Statement statement = null;
 	private PreparedStatement preparedStatement = null;
-	
+	private static final Logger LOG = Logger.getLogger(CreateTransactionAccess.class);
+
 	public void getConnection() throws ClassNotFoundException, SQLException{
 		// This will load the MySQL driver, each DB has its own driver
 		Class.forName("com.mysql.jdbc.Driver");
@@ -31,7 +34,6 @@ public class CreateTransactionAccess {
 		int count=0;
 		String dttime=TimeUtility.generateDateMethod();
 		byte[] dateandtime = dttime.getBytes();
-		
 		Random ran = new Random();
 		Integer transactionid=ran.nextInt(1000) + 5;
 		
@@ -60,13 +62,20 @@ public class CreateTransactionAccess {
 		}
 		catch(SQLException e)
 		{
+			LOG.error("Insertion exception" +e.getMessage());
 			e.printStackTrace();
 		}
 		
 		if(count>0)
+		{
+			LOG.info("Transaction successfully created for" +username.toString()+ "amount:"+transactionamount.toString());
 			return "Transaction successfully created";
+		}
 			else
+			{
+				LOG.error("Transaction could not be created");
 		    return "insertion error";
+			}
 	}
 	
 	

@@ -18,6 +18,12 @@
     </script>
 </head>
 <body>
+<div style="text-align: center">
+		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
+	</div>
+	<div style="text-align: center">
+	<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
+	</div>
 	<div>
 		<c:if test="${not empty norequests}">
 			<div class="msg">${norequests}</div>

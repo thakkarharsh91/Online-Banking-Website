@@ -58,21 +58,24 @@ type="text/javascript" charset="utf-8"></script>
     </script>
 </head>
 <body oncontextmenu="return false;">
-<div>
-<a href="">Home</a>
+<div style="text-align: center">
+		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
+	</div>
+<div style="text-align: center">
 <a
 href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 </div>
 <form:form name='SearchForm'
 			action="${pageContext.servletContext.contextPath}/modifyUs/?${_csrf.parameterName}=${_csrf.token}" method='POST'>
-	<select name=searchcat>
+	<table align="center">
+	<tr><td><label>Select parameter</label></td><td><select name=searchcat>
 	<option value=Name> Name </option>
 	<option value=UserName> User Name </option>
 	<option value=AccountNumber> Account Number </option>
 	
-	</select>
-	<input type= text name = username>
-    <input type= submit name=submit value=search> 
+	</select></td></tr>
+	<tr><td><label>Enter value</label></td><td><input type= text name = username><tr><td>
+    <tr><td></td><td><input type= submit name=submit value=search> </td></tr></table>
     <br>
     <br> 
 	<c:if test="${users != null && users.size() != 0}">:

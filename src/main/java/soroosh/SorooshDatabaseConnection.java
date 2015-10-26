@@ -10,7 +10,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 import utilities.TimeUtility;
-import authentication.User;
 
 public class SorooshDatabaseConnection {
 
@@ -393,9 +392,8 @@ public class SorooshDatabaseConnection {
 		return errors;
 	}
 
-	public User getUserDetailsForUsername(String username) throws Exception {
-		User user = null;
-
+	public String getUserDetailsForUsername(String username) throws Exception {
+		String email = null;
 		try {						
 			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_user_details "
 					+ "where tbl_user_details.Username = ?");    
@@ -403,19 +401,14 @@ public class SorooshDatabaseConnection {
 			ResultSet resultSet = preparedStatement.executeQuery();
 
 			while (resultSet.next()) {
-				String name = new String(resultSet.getBytes("Username"));
-				String firstname = new String(resultSet.getBytes("Firstname"));
-				String lastname = new String(resultSet.getBytes("Lastname"));
-				String email = new String(resultSet.getBytes("Email"));
-
-				user = new User(name, null, email, firstname, lastname);
+				email = new String(resultSet.getBytes("Email"));
 			}
 			resultSet.close();			
 		} catch (Exception e) {
 			throw e;
 		}
 
-		return user;
+		return email;
 	}
 
 	public boolean merchantExists(String merchantName) throws SQLException, ClassNotFoundException {
@@ -494,7 +487,7 @@ public class SorooshDatabaseConnection {
 		ResultSet resultSet = preparedStatement.executeQuery();
 
 		if(resultSet.next()){
-			String privateKey = new String(resultSet.getBytes("privateKey"));
+			String privateKey = new String(resultSet.getBytes("publicKey"));
 			if(privateKey.equalsIgnoreCase(signature)){
 				close();
 				return true;

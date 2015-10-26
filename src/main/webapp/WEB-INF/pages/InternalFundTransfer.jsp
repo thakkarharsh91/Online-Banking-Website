@@ -18,8 +18,17 @@
 </head>
 <body>
 
-<h2>Internal Funds Transfer</h2>
-<div>
+
+<div style="text-align: center">
+		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
+	
+	<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
+	</div>
+<form name="transferform"
+		action="${pageContext.servletContext.contextPath}/internalTransfer"
+		method='POST'>
+		<h2 align="center">Internal Funds Transfer</h2>
+			<div style="text-align: center">
 		<c:if test="${not empty destinationError}">
 			<div class="msg">${destinationError}</div>
 		</c:if>
@@ -36,10 +45,7 @@
 			<div class="msg">${failure}</div>
 		</c:if>
 	</div>
-<form name="transferform"
-		action="${pageContext.servletContext.contextPath}/internalTransfer"
-		method='POST'>
-	<table width="500" border="0">
+	<table width="500" border="0" align = "center">
   <tbody>
     <tr>
       <th scope="col">&nbsp;</th>

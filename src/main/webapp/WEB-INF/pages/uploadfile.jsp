@@ -1,4 +1,5 @@
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <html>
 <head>
 <title>Spring MVC Multiple File Upload</title>
@@ -17,17 +18,20 @@ $(document).ready(function() {
      
 });
 </script>
-<script type = "text/javascript" >
-    history.pushState(null, null,window.location.href);
-    window.addEventListener('popstate', function(event) {
-    history.pushState(null, null, window.location.href);
-    });
-    document.addEventListener("contextmenu", function(e){
-        e.preventDefault();
-    }, false);
-    </script>
 </head>
 <body>
+<div>
+		<c:if test="${not empty emptyFields}">
+			<div class="msg">${emptyFields}</div>
+		</c:if>
+		<c:if test="${not empty ExsistingUser}">
+			<div class="msg">${ExsistingUser}</div>
+		</c:if>
+		
+		<c:if test="${not empty Successful}">
+			<div class="msg">${Successful}</div>
+		</c:if>
+	</div>
 	<br>
 	<br>
 	<div align="center">
@@ -38,9 +42,9 @@ $(document).ready(function() {
 			License</h3>
 		<form:form method="POST" modelAttribute="uploadForm"
 			enctype="multipart/form-data"
-			action="${pageContext.servletContext.contextPath}/savefiles/?${_csrf.parameterName}=${_csrf.token}"
-			onsubmit="return Validate(this);">
-
+			action="${pageContext.servletContext.contextPath}/upload/?${_csrf.parameterName}=${_csrf.token}">
+<input type="hidden" name="${_csrf.parameterName}"
+				value="${_csrf.token}" />
 			<p>Select files to upload. inputs.</p>
 
 			<table id="fileTable">
@@ -51,48 +55,12 @@ $(document).ready(function() {
 			</table>
 			<br />
 			<input type="submit" value="Upload" />
-			<input type="hidden" name="${_csrf.parameterName}"
-				value="${_csrf.token}" />
+			
 
 		</form:form>
-		<script type="text/javascript">
-        var _validFileExtensions = [".jpg", ".jpeg", ".doc", , ".docx", ".pdf", ".png"];    
-function Validate(oForm) {
-    var arrInputs = oForm.getElementsByTagName("input");
-    for (var i = 0; i < arrInputs.length; i++) {
-        var oInput = arrInputs[i];
-        if (oInput.type == "file") {
-            var sFileName = oInput.value;
-            if (sFileName.length > 0) {
-                var blnValid = false;
-                for (var j = 0; j < _validFileExtensions.length; j++) {
-                    var sCurExtension = _validFileExtensions[j];
-                    if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
-                        blnValid = true;
-                        break;
-                    }
-                }
-                
-                if (!blnValid) {
-                    alert("Sorry, " + sFileName + " is invalid, allowed extensions are: " + _validFileExtensions.join(", "));
-                    return false;
-                }
-            }
-        }
-    }
-  
-    return true;
-}
-    </script>
+		
 		<br />
 	</div>
 
 </body>
 </html>
-<%
-    int timeout = session.getMaxInactiveInterval();
-    String url = request.getRequestURL().toString();
-    url = url.replace("/WEB-INF/pages/uploadfile.jsp",
-            "/logoutusers");
-    response.setHeader("Refresh", "300; URL =" + url);
-%>

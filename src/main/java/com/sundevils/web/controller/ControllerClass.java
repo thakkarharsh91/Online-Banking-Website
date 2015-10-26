@@ -1,9 +1,5 @@
 package com.sundevils.web.controller;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-
 import gunpreetPackage.BusinessLogic.CheckAuthentication;
 import gunpreetPackage.BusinessLogic.SendEmail;
 import gunpreetPackage.Dao.JdbcConnection_tbl_user_authentication;
@@ -11,7 +7,12 @@ import gunpreetPackage.Model.InternalUser;
 import gunpreetPackage.Model.PIIShow;
 import gunpreetPackage.Model.requestPII;
 import gunpreetPackage.Model.userDetails;
+import handlers.adminHandlers.LoginHandler;
 import handlers.adminHandlers.PasswordChangeHandler;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -62,6 +63,9 @@ public class ControllerClass {
 			else{
 				PasswordChangeHandler handler = new PasswordChangeHandler();
 				handler.requestHandler(userName);
+				LoginHandler loginHandler;
+				loginHandler = new LoginHandler();
+				loginHandler.updateLoggedInFlag(userName,0);
 				model.addObject("successpassword", "Your password has been successfully changed.  You will be automatically redirected to login page within few seconds.");
 				model.setViewName("success");
 			}

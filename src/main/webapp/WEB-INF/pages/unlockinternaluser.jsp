@@ -14,6 +14,8 @@
     </script>
 </head>
 <body>
+    <a style="float:right" href="${pageContext.servletContext.contextPath}/Home">Home</a>
+	<a style="float:right" href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 	<h1>${title}</h1>
 	<h1>${message}</h1>
 	<h2>Status: ${unlock_msg}</h2>

@@ -34,10 +34,10 @@
 		<div class="container">
 			<ul class="navlinks">
 				<li><a href="./">Home</a></li>
-				<li><a href="index.html">About Us</a></li>
-				<li><a href="index.html">Projects</a></li>
-				<li><a href="index.html">The Team</a></li>
-				<li><a href="index.html">Contact Us</a></li>
+				<li><a href="./aboutus">About Us</a></li>
+				<li><a href="./projects">Projects</a></li>
+				<li><a href="./team">The Team</a></li>
+				<li><a href="./contact">Contact Us</a></li>
 			</ul>
 		</div>
 	</nav>

@@ -2,9 +2,7 @@ package soroosh;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-
 import javax.servlet.http.HttpSession;
-
 import utilities.TimeUtility;
 
 public class PaymentInfoValidator {
@@ -32,12 +30,12 @@ public class PaymentInfoValidator {
 			if(Double.parseDouble(amount) <= 0){
 				errors.add("Invalid amount");
 			}
-			
+
 			if(!database.accountValid(bankAccount, username)){
 				errors.add("Source account is not valid");
 				return errors;
 			}
-			
+
 			if(!database.signatureValid(username, signature)){
 				errors.add("Invalid private key - make sure the signature is inputted correctly");
 			}
@@ -46,7 +44,8 @@ public class PaymentInfoValidator {
 	}
 
 	public ArrayList<String> userPaymentValidateData(String merchantName, String accountNumber, String amount, 
-			String oTPMethod, String oTPText, String signature, HttpSession session, String username) throws SQLException, ClassNotFoundException {
+			String oTPMethod, String oTPText, String signature, HttpSession session, String username,
+			String oTPGenerateTime) throws SQLException, ClassNotFoundException {
 
 		ArrayList<String> errors = new ArrayList<String>();
 
@@ -54,22 +53,23 @@ public class PaymentInfoValidator {
 				|| (signature == null)){
 			errors.add("all fields are mandatory");
 		}
-		String otpEnteredtime=TimeUtility.generateDateMethod()+" "+TimeUtility.generateHoursMethod()+":"+TimeUtility.generateMinutesMethod()+":"+TimeUtility.generateSecondsMethod();
-		//String otpGeneratedTime=request.getSession.getAttribute(otpGenerateTime)
-		String modelTime="2015/10/24 00:00:00";
-		/*
-		 * long genSec=TimeUtility.getDifferenceinSeconds(modelTime,otpGenerateTime);
-			long enterSec=TimeUtility.getDifferenceinSeconds(modelTime,otpEnterTime);
-			if((enterSec-genSec)>180){
-				otpString = "";
-			}
-		 */
+
 		if(session.getAttribute("OTP") == null){
-			errors.add("Please order OTP");
+			errors.add("Please request a new OTP");
 			return errors;
 		}
-		
+
 		else{
+			
+			String otpEnteredtime=TimeUtility.generateDateMethod()+" "+TimeUtility.generateHoursMethod()+":"+TimeUtility.generateMinutesMethod()+":"+TimeUtility.generateSecondsMethod();
+			String modelTime="2015/10/24 00:00:00";
+			long genSec = TimeUtility.getDifferenceinSeconds(modelTime, oTPGenerateTime);
+			long enterSec = TimeUtility.getDifferenceinSeconds(modelTime, otpEnteredtime);
+			if((enterSec-genSec)>180){
+				errors.add("OTP is expired, please request a new one");
+				return errors;
+			}
+			
 			if(!((String)session.getAttribute("OTP")).equals(oTPText)){
 				errors.add("Wrong OTP please try again");
 			}
@@ -115,7 +115,7 @@ public class PaymentInfoValidator {
 			errors.add("All fields are mandatory");
 			return errors;
 		}
-		
+
 		if(!database.accountValid(accountNumber, username)){
 			errors.add("Source account is not valid");
 			return errors;
@@ -142,7 +142,7 @@ public class PaymentInfoValidator {
 			errors.add("Source account is not valid");
 			return errors;
 		}
-		
+
 		if(!database.accountValid(accountNumber, username)){
 			errors.add("Source account is not valid");
 			return errors;

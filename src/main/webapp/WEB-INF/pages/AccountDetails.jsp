@@ -20,11 +20,12 @@
 </head>
 <body>
 <div style="text-align: center">
-<br></br>
-		<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
-		<br></br>
-		<br></br>
+		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
 	</div>
+<div style="text-align: center">
+<a
+href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
+</div>
 	<form:form name='loginForm'
 		action="${pageContext.servletContext.contextPath}/viewaccount/?${_csrf.parameterName}=${_csrf.token}"
 		method='POST'>

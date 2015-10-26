@@ -48,7 +48,7 @@ public class PaymentFormDataLoader {
 	
 	public String getEmailAddressForUsername(String username) throws Exception {
 		sql.getConnection();
-		String email = sql.getUserDetailsForUsername(username).getEmail();
+		String email = sql.getUserDetailsForUsername(username);
 		sql.close();
 		return email;
 	}

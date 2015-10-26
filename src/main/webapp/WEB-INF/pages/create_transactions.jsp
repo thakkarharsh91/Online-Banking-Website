@@ -16,29 +16,37 @@
 
 
 <body>
-	<h1>${title}</h1>
+	<div style="text-align: center">
+		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
+	</div>
+	<div style="text-align: center">
+		<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
+	</div>
 	
-	<h2>Status: ${success_msg}</h2>
-	<a style="float:right" href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
-	<body>
 		<form method="POST">
-			
-			<label>UserName</label>
-			<input type="text" name="username">
-			<br/>
-    		<label>Transaction Amount</label>
-    		<input type="text" name="transamount" />
-			<br/>			
-    		<label>Source Account</label>
-    		<input type="text" name="sourceacc"/>
-			<br/>			
-    		<label>Destination Account</label>
-    		<input type="text" name="destacc"/>
-			<br/><br/>
-			<input type="submit" value="Create" name="submit"/>
+		<h2 align="center">
+				<u>Transactions</u>
+			</h2>
+			<c:if test="${not empty success_msg}">
+				<div class="msg" align="center">${success_msg}</div>
+			</c:if><br/>
+		<table align="center">
+			<tr><td><label>UserName</label></td>
+			<td><input type="text" name="username"></td>
+			</tr>
+    		<tr><td><label>Transaction Amount</label></td>
+    		<td><input type="text" name="transamount" />
+			</td></tr>		
+    		<tr><td><label>Source Account</label></td>
+    		<td><input type="text" name="sourceacc"/>
+			</td></tr>	
+    		<tr><td><label>Destination Account</label></td>
+    		<td><input type="text" name="destacc"/>
+			</td></tr>
+			<tr><td></td><td><input type="submit" value="Create" name="submit"/>
 			<input type="hidden" name="${_csrf.parameterName}"
-			value="${_csrf.token}" />
-				
+			value="${_csrf.token}" /></td></tr>
+		</table>
 				
 		</form>
 	</body>

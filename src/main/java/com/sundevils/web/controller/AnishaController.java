@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,6 +30,8 @@ import authentication.Requests;
 @Controller
 
 public class AnishaController {
+	final static Logger logger = Logger.getLogger(AnishaController.class);
+
 	long startTime = 0;
 	ArrayList<UserAccounts> useraccounts = new ArrayList<UserAccounts>();
 	ArrayList<UserRecepients> userrecepients = new ArrayList<UserRecepients>();
@@ -88,8 +91,13 @@ public class AnishaController {
 					}
 				}
 				if(Requesttype.equals("modify")){
+					if(request1.getModifiedcolumn().equalsIgnoreCase("accounttype"))
 					handler.updatePI(request1.getUsername(), request1.getModifiedcolumn(), request1.getOldvalue(), request1.getNewvalue());
+					else
+					handler.updatePIAccount(request1.getUsername(), request1.getModifiedcolumn(), request1.getOldvalue(), request1.getNewvalue(),request1.getNewaccountnumber());
+
 					handler.updateRequest(id,"APPROVE");
+					logger.info("Request for user"+ request1.getUsername()+ " has been approved");
 					requests.remove(request1);
 					ModelAndView newmodel = new ModelAndView("VerifyExternalUser");
 					model = newmodel;
@@ -98,7 +106,8 @@ public class AnishaController {
 					requestCardHandler handler = new requestCardHandler();
 					handler.approveCardChange(request1.getOldvalue(),"APPROVE");
 					model.addObject("Successful", "Card Replacement has been appoved");	
-					requests.remove(request1);
+					logger.info("Request for user"+ request1.getUsername()+ " has been approved");
+                    requests.remove(request1);
 					ModelAndView newmodel = new ModelAndView("VerifyExternalUser");
 					model = newmodel;
 				}
@@ -114,6 +123,7 @@ public class AnishaController {
 				if(Requesttype.equals("modify")){
 					handler.updateRequest(id1,"REJECT");
 					requests.remove(request1);
+					logger.info("Request for user"+ request1.getUsername()+ " has been rejected");
 					ModelAndView newmodel = new ModelAndView("VerifyExternalUser");
 					model = newmodel;
 				}
@@ -121,6 +131,7 @@ public class AnishaController {
 					requestCardHandler handler = new requestCardHandler();
 					handler.approveCardChange(request1.getOldvalue(),"REJECT");
 					model.addObject("Successful", "Card Replacement has been rejected");
+					logger.info("Request for user"+ request1.getUsername()+ " has been rejected");
 					requests.remove(request1);
 					ModelAndView newmodel = new ModelAndView("VerifyExternalUser");
 					model = newmodel;
@@ -206,14 +217,20 @@ public class AnishaController {
 			Amount = request.getParameter("amount");
 			if(Amount.equals("")){
 				model.addObject("amountError", "Please enter a valid amount");
+				logger.info("Could not process transaction for " + userName +
+						"because : " + amount + " is not a valid amount" );
 			}
 			else
 				amount = Integer.parseInt(Amount);
 			if(SourceAccount.equals(DestinationAccount)){
 				model.addObject("destinationError", "Please select a different destination account for fund transfer");
+				logger.info("Could not process transaction for " + userName +
+						"because of invalid destination" );
 			}
 			else if(amount < 0){
 				model.addObject("amountError", "Please enter a valid amount");
+				logger.info("Could not process transaction for " + userName +
+						"because : " + amount + " is not a valid amount" );
 			}
 			else{
 				amount = Integer.parseInt(Amount);
@@ -223,6 +240,9 @@ public class AnishaController {
 						SourceBalance = Double.parseDouble(ac.getBalance());
 						if(SourceBalance < amount ){
 							model.addObject("balanceInsuficientError", "Transfer cant take place due to insufficient balance");
+							logger.info("Could not process transaction for " + userName +
+									"because of insufficient balance" );
+
 						}	
 						else{
 							int TransactionID = 0;
@@ -233,11 +253,15 @@ public class AnishaController {
 							String Status = "pendingapproval";
 							success = handler.submitTrasferRequest(userName,TransactionID,Amount,SourceAccountNumber,DestinationAccountNumber,TimeUtility.generateDateMethod(),transferType,Status,success);
 							if(success){
+								logger.info("Succesfully submitted the transaction for " + userName );
+
 								model.addObject("success","Successfully submited the transaction for approval");
 								model.setViewName("customerhome");
 							}
 							else{
 								model.addObject("failure", "Could not submit transaction");
+								logger.info("could not submit the transaction for " + userName );
+
 							}
 						}
 					}
@@ -340,12 +364,21 @@ public class AnishaController {
 				} catch(NumberFormatException ex)
 				{
 					model.addObject("amountError", "Please enter a valid amount");
+					logger.info("Could not process transaction for " + userName +
+							"because : " + amount + " is not a valid amount" );
+
 				}
 				if(amount < 0){
 					model.addObject("amountError", "Please enter a valid amount");
+					logger.info("Could not process transaction for " + userName +
+							"because : " + amount + " is not a valid amount" );
+
 				}
 				else if(!otpString.equals(Otpdata)){
 					model.addObject("wrongOtp", "Otp code does not match");
+					logger.info("Could not process transaction for " + userName +
+							"because otp entered by the user does not match" );
+
 				}
 				else{
 					for(UserAccounts ac :useraccounts){
@@ -359,6 +392,9 @@ public class AnishaController {
 						if(re.getAccountnumber().equals(DestinationAccount)){
 							if(SourceBalance < amount ){
 								model.addObject("balanceInsuficientError", "Transfer cant take place due to insufficient balance");
+								logger.info("Could not process transaction for " + userName +
+										"because of insufficient balance" );
+
 							}	
 							else{
 								int TransactionID = 0;
@@ -370,10 +406,14 @@ public class AnishaController {
 								success = handler.submitTrasferRequest(userName,TransactionID,Amount,SourceAccountNumber,DestinationAccount,TimeUtility.generateDateMethod(),transferType,Status,success);
 								if(success){
 									model.addObject("success","Successfully submited the transaction for approval");
+									logger.info("Succesfully submitted the transaction for " + userName );
+
 									model.setViewName("customerhome");
 								}
 								else{
 									model.addObject("failure", "Could not submit transaction");
+									logger.info("could not submit the transaction for " + userName );
+
 								}
 							}
 						}
@@ -400,11 +440,10 @@ public class AnishaController {
 		}
 		else if(role.equals("MERCHANT") || role.equals("USER")){
 			ModelAndView model = new ModelAndView("AddARecepient");
+			String userName = "";
+			String firstName = "";
+			String lastName = "";
 			try{
-
-				String userName = "";
-				String firstName = "";
-				String lastName = "";
 				String accountNumber = "";
 				String confirmedAccNumber = "";
 				String email = "";
@@ -478,11 +517,16 @@ public class AnishaController {
 
 								{
 									model.addObject("Successfull", "Recepient added successfully");
+									logger.info("Succesfully added the recepient: " + firstName + lastName +" for user: " + userName);
 									model.setViewName("customerhome");}
 								else
+									{
 									model.addObject("dulicateuser", "Reepient with above information(account number) already exsists");
+									logger.info("Could not add the recepient: " + firstName + lastName +" for user: " + userName +" as recepient already exsists");
+									}
 							}
 							else{
+								logger.info("Could not add the recepient: " + firstName + lastName +" for user: " + userName +" as recepient do not exsist in the bank");
 								model.addObject("invaliduser", "recepient does not exsist in the bank");
 
 							}
@@ -492,6 +536,13 @@ public class AnishaController {
 			}
 			catch( Exception e ){
 				e.printStackTrace();
+				logger.error("Caugth an exception:"+ e.getMessage());
+				//ModelAndView model = new ModelAndView();
+				String username = (String) session.getAttribute("USERNAME");
+				lhandler.updateLoggedInFlag(username, 0);
+				session.invalidate();
+				model.setViewName("index");
+				return model;
 			}
 			return model;
 		}

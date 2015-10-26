@@ -1,7 +1,7 @@
 package handlers.systemmanagerHandlers;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import databseHandler.MySQLAccess;
 
 

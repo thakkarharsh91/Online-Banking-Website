@@ -109,32 +109,117 @@ public class TopController {
 	}
 
 	@RequestMapping(value = {"**/changeaccount" }, method={RequestMethod.GET, RequestMethod.POST})
-	public ModelAndView changeaccount(HttpServletRequest request,HttpServletResponse response) throws IOException {
-		ModelAndView model = new ModelAndView();
+	public ModelAndView changeaccount(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException {
+		
+		
+		String role = (String)session.getAttribute("Role");
+		if(role == null)
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("index");
+			return model;
+		}
+		else if(role.equals("USER")||role.equals("MERCHANT")){
+			ModelAndView model = new ModelAndView();
 		if(request.getParameter("search")!=null){
 			ModifyUsersHandler handler = new ModifyUsersHandler();
+		    String test = (String)handler.getaccounttypeHandler((String) request.getSession().getAttribute("USERNAME"),request.getParameter("accountnumber"));
+		    if (!(test.equals("Saving Account")||test.equals("Checking Account"))){
+		    	model.addObject("status", "Invalid account");	
+		    	model.setViewName("searchaccounttochange");
+		    }
+		    else{
 			model.addObject("account",handler.getaccounttypeHandler((String) request.getSession().getAttribute("USERNAME"),request.getParameter("accountnumber")));
 			model.addObject("managers", handler.requestManagers());
 			model.addObject("accountnumber",request.getParameter("accountnumber"));
 			model.setViewName("changeaccount");}
+			}
 		else{
 			model.setViewName("searchaccounttochange");
 		}
 
 		return model;
+		}
+		else
+		{
+			ModelAndView model = new ModelAndView();
+			LoginHandler handler = new LoginHandler();
+			String userName = (String)session.getAttribute("USERNAME");
+			handler.updateLoggedInFlag(userName,0);
+			session.invalidate();
+			model.setViewName("index");
+			return model;
+		}
 
 	}
+
+
+	@RequestMapping(value = "/Home", method = {RequestMethod.POST,RequestMethod.GET})
+	public ModelAndView getHome(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException  {
+		String role = (String)session.getAttribute("Role");
+		ModelAndView model = new ModelAndView();
+		if(role.equals("MANAGER")){
+			model.setViewName("managerhome");
+		}
+		else if(role.equals("EMPLOYEE")){
+			model.setViewName("employeehome");
+		}
+		else if(role.equals("ADMIN")){
+			model.setViewName("admin");
+		}
+		else if(role.equals("MERCHANT")){
+			//request.getSession().setAttribute("Merchant", fName);	
+			model.setViewName("merchanthome");
+		}
+		else if(role.equals("USER")){
+			//request.getSession().setAttribute("User", fName);	
+			model.setViewName("customerhome");
+		}
+		else if(role.equals("GOVERNMENT")){
+			//request.getSession().setAttribute("Government", fName);	
+			model.setViewName("governmenthome");
+		}
+		else{
+			model.addObject("loggedIn", "User is already logged in to the other system");
+			model.setViewName("login");
+		}
+
+		return model;
+	}
+
 	@RequestMapping(value = {"**/reqchangeaccount" }, method={RequestMethod.GET, RequestMethod.POST})
-	public ModelAndView reqchangeaccount(HttpServletRequest request,HttpServletResponse response) throws IOException {
+	public ModelAndView reqchangeaccount(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException {
+		String role = (String)session.getAttribute("Role");
+		if(role == null)
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("index");
+			return model;
+		}
+		
+		else if(role.equals("USER")||role.equals("MERCHANT")){
 		ModelAndView model = new ModelAndView();
 		ModifyUsersHandler handler = new ModifyUsersHandler();
 		if (request.getParameter("accountchange")!=null){
+			
 			handler.updateaccountrequest((String) request.getSession().getAttribute("USERNAME"),request.getParameter("managername"),request.getParameter("accountnumber"));
 			model.setViewName("searchaccounttochange");
 
 		}
 		return model;
 	}
+		else
+		{
+			ModelAndView model = new ModelAndView();
+			LoginHandler handler = new LoginHandler();
+			String userName = (String)session.getAttribute("USERNAME");
+			handler.updateLoggedInFlag(userName,0);
+			session.invalidate();
+			model.setViewName("index");
+			return model;
+		}
+	}
+
 
 
 	@RequestMapping(value = {"/employeehomenavigate" }, method = RequestMethod.GET)
@@ -167,8 +252,14 @@ public class TopController {
 
 	@RequestMapping(value = {"/transact" }, method = {RequestMethod.GET, RequestMethod.POST})
 	public ModelAndView transactPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException {
-		String role = (String)session.getAttribute("Role");		
-		if(role!=null && role.equals("EMPLOYEE"))
+		String role = (String)session.getAttribute("Role");	
+		if(role == null)
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("index");
+			return model;
+		}
+		else if(role.equals("EMPLOYEE"))
 		{
 			ModelAndView model = new ModelAndView();
 			CreateTransactionHandler handler = new CreateTransactionHandler();
@@ -189,7 +280,8 @@ public class TopController {
 				{
 					model.addObject("success_msg", "Error: There are empty fields. Please rectify");
 				}
-
+				else if(!destacc.matches("[0-9]+$"))
+					model.addObject("success_msg","Enter account number in proper format proper format");
 				else
 				{
 					CheckSourceAccountNumberHandler accounthandler = new CheckSourceAccountNumberHandler(); 
@@ -257,6 +349,14 @@ public class TopController {
 
 	@RequestMapping(value = "**/modifyUs", method = {RequestMethod.POST,RequestMethod.GET})
 	public ModelAndView modifyUsersPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException  {
+		String role = (String)session.getAttribute("Role");
+		if(role == null)
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("index");
+			return model;
+		}
+		else if (role.equals("EMPLOYEE")||role.equals("MANAGER")){
 		ModelAndView model = null;
 		try{
 			
@@ -264,11 +364,16 @@ public class TopController {
 			String deleteParameter="";
 			String accountnumber="";
 			String searchParameterType = "";
-			String role=(String) request.getSession().getAttribute("Role");
+			
 			model = new ModelAndView();	
 			model.setViewName("modifyUsers");
 			if (request.getParameter("submit")!=null){
-
+				if(request.getParameter("username").isEmpty()){
+					model.addObject("status", "Invalid account");	
+			    	model.setViewName("modifyUsers");
+					
+				}
+				else{
 				searchParameter = request.getParameter("username");
 				searchParameterType = request.getParameter("searchcat");
 				ModifyUsersHandler handler = new ModifyUsersHandler(); 
@@ -281,7 +386,8 @@ public class TopController {
 
 				else if (role.equalsIgnoreCase("MANAGER")){
 					model.setViewName("modifyUsers");
-				}
+				}}
+				
 			
 			}
 
@@ -295,7 +401,7 @@ public class TopController {
 
 				model.addObject("users", handler.requestHandler(searchParameter,searchParameterType));
 				model.addObject("title", "All users in the database");
-				model.addObject("message", "This is protected page!");
+				model.addObject("status", "User deleted Successfully");
 				model.setViewName("modifyUsers");
 
 			}
@@ -315,32 +421,55 @@ public class TopController {
 			e.printStackTrace();
 		}
 
-		return model;
+		return model;}
+		else
+		{
+			ModelAndView model = new ModelAndView();
+			LoginHandler handler = new LoginHandler();
+			String userName = (String)session.getAttribute("USERNAME");
+			handler.updateLoggedInFlag(userName,0);
+			session.invalidate();
+			model.setViewName("index");
+			return model;
+		}
 
 	}
 
-@RequestMapping(value = "**/reqModify", method = {RequestMethod.POST,RequestMethod.GET})
+	@RequestMapping(value = "**/reqModify", method = {RequestMethod.POST,RequestMethod.GET})
 	public ModelAndView reqPermissionPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException  {
-		ModelAndView model = null;
+	String role = (String)session.getAttribute("Role");
+	if(role == null)
+	{
+		ModelAndView model = new ModelAndView();
+		model.setViewName("index");
+		return model;
+	}
+	else if (role.equals("USER")||role.equals("MERCHANT"))	{
+	ModelAndView model = null;
 		try{
 			String updateParameter = "";
-            String ManagerName = "";
+			String ManagerName = "";
 			String updateParameterType = "";
 			int count = 0;
 			model = new ModelAndView();	
 			if (request.getParameter("submit")!=null){
 				updateParameter = request.getParameter("newvalue");
 				updateParameterType = request.getParameter("searchcat");
+				if (request.getParameter("newvalue").isEmpty()){
+					model.addObject("status", "Field is Empty");	
+			    	model.setViewName("requestpermissionmodify");
+				}
+				else{
 				ModifyUsersHandler handler = new ModifyUsersHandler();
 				ResultSet rs = handler.requestCountHandler();
 				try {
 					while(rs.next())
 					{
-					  ManagerName = rs.getString("username");
-					  count = rs.getInt("requestcount");
-					  count = count+1;
-					  handler.updateCountHandler(count, ManagerName);
-					  break;
+						ManagerName = rs.getString("username");
+						count = rs.getInt("requestcount");
+						count = count+1;
+						handler.updateCountHandler(count, ManagerName);
+						break;
 					}
 				} 
 				catch (SQLException e) {
@@ -348,29 +477,37 @@ public class TopController {
 					e.printStackTrace();
 				}
 				handler.requestModifyHandler((String) request.getSession().getAttribute("USERNAME"),updateParameter,updateParameterType,ManagerName);
-				String role=(String) request.getSession().getAttribute("Role");
-				
+
 				if(role.equalsIgnoreCase("USER")){
 					model.setViewName("customerhome");
 				}
 				else if(role.equalsIgnoreCase("MERCHANT")){
 					model.setViewName("merchanthome");
-				}
+				}}
 			}
 			else {
 				ModifyUsersHandler handler = new ModifyUsersHandler();
 				model.addObject("managers", handler.requestManagers());
-	        	model.setViewName("requestpermissionmodify");
+				model.setViewName("requestpermissionmodify");
 			}
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
+		return model;}
+	else
+	{
+		ModelAndView model = new ModelAndView();
+		LoginHandler handler = new LoginHandler();
+		String userName = (String)session.getAttribute("USERNAME");
+		handler.updateLoggedInFlag(userName,0);
+		session.invalidate();
+		model.setViewName("index");
 		return model;
 	}
+	}
 
-	
 	@RequestMapping(value = "**/viewReq", method = {RequestMethod.POST,RequestMethod.GET})
 	public ModelAndView viewPermissionPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException  {
 		ModelAndView model = null;
@@ -415,7 +552,7 @@ public class TopController {
 		return model;
 	}
 
-	@RequestMapping(value = {"/login**"}, method = {RequestMethod.POST, RequestMethod.GET})
+	@RequestMapping(value = {"**/login**"}, method = {RequestMethod.POST, RequestMethod.GET})
 	public ModelAndView login(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException {
 		ModelAndView model = null;
 		try{
@@ -572,7 +709,7 @@ public class TopController {
 		model.setViewName("form"); return model; 
 	}
 
-	@RequestMapping(value = "/logoutusers", method = {RequestMethod.POST, RequestMethod.GET}) 
+	@RequestMapping(value = "**/logoutusers", method = {RequestMethod.POST, RequestMethod.GET}) 
 	public ModelAndView logoutUser(HttpServletRequest request,HttpSession session) { 
 		ModelAndView model = new ModelAndView();	
 		LoginHandler handler;
@@ -585,6 +722,11 @@ public class TopController {
 		return model;
 	}
 
+	/*else{
+    	var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", "logoutusers", true);
+        xhttp.send();
+    }*/
 	@RequestMapping(value = "/forgotusername", method = {RequestMethod.POST, RequestMethod.GET}) 
 	public ModelAndView forgotUserName(HttpServletRequest request,HttpSession session) { 
 		ModelAndView model = new ModelAndView();	
@@ -1017,8 +1159,14 @@ public class TopController {
 	@RequestMapping(value = "/unlockinternal**", method = {RequestMethod.GET,RequestMethod.POST})
 	public ModelAndView unlockinternalPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) {
 
-		String role = (String)session.getAttribute("Role");		
-		if(role!=null && role.equals("ADMIN"))
+		String role = (String)session.getAttribute("Role");	
+		if(role == null)
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("index");
+			return model;
+		}
+		else if(role.equals("ADMIN"))
 		{
 			ModelAndView model = new ModelAndView();
 			UnlockInternalAccountHandler handler = new UnlockInternalAccountHandler();
@@ -1461,60 +1609,66 @@ public class TopController {
 			List<TransactionDetails> transDetails=new ArrayList<TransactionDetails>();
 			RequestAuthorize authorize = new RequestAuthorize();
 
-			if(request.getParameter("submit")!=null)
-			{
-				authRequests = request.getParameterValues("check");
-				requestType = request.getParameter("Type");
-				if(authRequests!=null){
-					balance = authorize.getBalance(authRequests);
-					if(requestType.equals("Modify")){
+			try{
+				if(request.getParameter("submit")!=null)
+				{
+					authRequests = request.getParameterValues("check");
+					requestType = request.getParameter("Type");
+					if(authRequests!=null){
+						balance = authorize.getBalance(authRequests);
+						if(requestType.equals("Modify")){
 
-						if(authRequests.length > 1)
-							model.addObject("multiplemodify","Please check only one transaction while modifying.");
-						else{
-							newAmount = request.getParameter(authRequests[0]);
-							if(Double.parseDouble(newAmount) > 0){
-								accountNumber = authorize.getDestinationAccount(authRequests[0]); 
-								status = authorize.checkAccountNumber(accountNumber);
-								if(status){
-									amount = authorize.getDestinationBalance(accountNumber);
-									if(Double.parseDouble(newAmount) > amount){
-										model.addObject("greatervalue","Please enter amount less than" +amount);
+							if(authRequests.length > 1)
+								model.addObject("multiplemodify","Please check only one transaction while modifying.");
+							else{
+								newAmount = request.getParameter(authRequests[0]);
+								if(Double.parseDouble(newAmount) > 0 || !newAmount.matches("[0-9]+$")){
+									accountNumber = authorize.getDestinationAccount(authRequests[0]); 
+									status = authorize.checkAccountNumber(accountNumber);
+									if(status){
+										amount = authorize.getDestinationBalance(accountNumber);
+										if(Double.parseDouble(newAmount) > amount){
+											model.addObject("greatervalue","Please enter amount less than" +amount);
+										}
+										else{
+											authorize.approveTransaction("approvedmodify",balance + amount,authRequests);
+										}
 									}
 									else{
-										authorize.approveTransaction("approvedmodify",balance + amount,authRequests);
+										model.addObject("destinationerror","Destination account does not exist. Please delete the transaction");
 									}
+								}
+								else{
+									model.addObject("zeroerror", "Amounts should be positive");
+								}
+							}
+						}
+						else if(requestType.equals("Delete")){
+							if(authRequests.length > 1)
+								sourceFlag  = authorize.checkSameSource(authRequests);
+							if(sourceFlag){
+								sourceAccountNumber = authorize.getSourceAccount(authRequests[0]);
+								status = authorize.checkAccountNumber(sourceAccountNumber);
+								if(status){
+									sourceAmount = authorize.getSourceBalance(sourceAccountNumber);
+									authorize.rejectTransaction("approveddelete",balance + sourceAmount, authRequests);
+									authorize.deleteTransaction(authRequests);
 								}
 								else{
 									model.addObject("destinationerror","Destination account does not exist. Please delete the transaction");
 								}
 							}
-							else{
-								model.addObject("zeroerror", "Amounts should be positive");
-							}
 						}
 					}
-					else if(requestType.equals("Delete")){
-						if(authRequests.length > 1)
-							sourceFlag  = authorize.checkSameSource(authRequests);
-						if(sourceFlag){
-							sourceAccountNumber = authorize.getSourceAccount(authRequests[0]);
-							status = authorize.checkAccountNumber(sourceAccountNumber);
-							if(status){
-								sourceAmount = authorize.getSourceBalance(sourceAccountNumber);
-								authorize.rejectTransaction("approveddelete",balance + sourceAmount, authRequests);
-								authorize.deleteTransaction(authRequests);
-							}
-							else{
-								model.addObject("destinationerror","Destination account does not exist. Please delete the transaction");
-							}
-						}
+					else{
+						model.addObject("select","Please select atleast one line item to continue");
 					}
-				}
-				else{
-					model.addObject("select","Please select atleast one line item to continue");
 				}
 			}
+			catch(Exception e){
+				model.addObject("zeroerror", "Amounts should include numbers only");
+			}
+			
 
 			ResultSet rs = authorize.getModDelHandler("pendingapproval","PAYMENT",10000);
 			try {

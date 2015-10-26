@@ -30,3 +30,10 @@
 		<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 </body>
 </html>
+<%
+	int timeout = session.getMaxInactiveInterval();
+	String url = request.getRequestURL().toString();
+	url = url.replace("/WEB-INF/pages/Merchant.Organization/Payment.Error.jsp",
+			"/logoutusers");
+	response.setHeader("Refresh", "300; URL =" + url);
+%>

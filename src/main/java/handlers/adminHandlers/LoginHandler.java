@@ -2,7 +2,6 @@ package handlers.adminHandlers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 
 import databseHandler.MySQLAccess;
 

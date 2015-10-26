@@ -37,14 +37,16 @@ label {
 </head>
 
 <body>
+<div style="text-align: center"><a href="${pageContext.servletContext.contextPath}/Home">Home</a>&nbsp;&nbsp;&nbsp;
+	<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></div>
 	<c:choose>
 		<c:when test="${payments != null && payments.size() != 0}">
 			<c:set var="count" value="0" scope="page" />
-			<h2>Payment Requests:</h2>
+			<h2 align="center">Payment Requests:</h2>
 			<br>
 			<br>
 
-			<table>
+			<table align = "center">
 				<th>Requested by</th>
 				<th>amount</th>
 				<th>date</th>
@@ -58,11 +60,10 @@ label {
 							<form
 								action="${pageContext.servletContext.contextPath}/payerpaymentdecision/"
 								method="POST">
-								<input type="submit" name="accept" value="Accept Payment" /> <input
-									type="submit" name="reject" value="Reject Payment" /> <input
-									type="hidden" name="iteration" value="${count}" /> <input
-									type="hidden" name="${_csrf.parameterName}"
-									value="${_csrf.token}" />
+								<div style="text-align: center"><input type="submit" name="accept" value="Accept Payment" /> 
+								<input type="submit" name="reject" value="Reject Payment" /> 
+								<input type="hidden" name="iteration" value="${count}" /> 
+								<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" /></div>
 							</form>
 						</td>
 					</tr>
@@ -71,14 +72,19 @@ label {
 			</table>
 		</c:when>
 		<c:otherwise>
-			<h2>There are no payments submitted to you.</h2>
+			<h2 align = "center">There are no payments submitted to you.</h2>
 		</c:otherwise>
 	</c:choose>
 
 	<br/>
 	<br/>
 	<br/>
-	<a href="${pageContext.servletContext.contextPath}/customerhome">Home</a>&nbsp;&nbsp;&nbsp;
-		<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 </body>
 </html>
+<%
+	int timeout = session.getMaxInactiveInterval();
+	String url = request.getRequestURL().toString();
+	url = url.replace("/WEB-INF/pages/Individual.Customers/Customer.Authorize.Payments.jsp",
+			"/logoutusers");
+	response.setHeader("Refresh", "300; URL =" + url);
+%>

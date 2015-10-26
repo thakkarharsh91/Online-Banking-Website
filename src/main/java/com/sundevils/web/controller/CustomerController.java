@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -33,7 +34,8 @@ public class CustomerController {
 	String modelTime="2015/10/24 00:00:00";
 	String otpGenerateTime;
 	String otpEnterTime;
-	@RequestMapping(value = "/login/**/debitAndCredit", method = {RequestMethod.POST, RequestMethod.GET})
+	final static Logger logger = Logger.getLogger(CustomerController.class);
+	@RequestMapping(value = "/debitAndCredit", method = {RequestMethod.POST, RequestMethod.GET})
 	public ModelAndView creditAndDebit (HttpServletRequest request,HttpSession session){
 		ModelAndView model = new ModelAndView();
 		String userName="";
@@ -42,7 +44,7 @@ public class CustomerController {
 		String role=(String)session.getAttribute("Role");
 		try{
 			if(role!=null && !role.isEmpty()&&(role.equalsIgnoreCase("USER")||role.equalsIgnoreCase("MERCHANT"))){
-				getAccountNumbers(model,userName);
+				getAccountNumbers(model,userName, session);
 				model.setViewName("creditAndDebit");
 			}
 			else{
@@ -60,7 +62,7 @@ public class CustomerController {
 		return model;
 	}
 
-	@RequestMapping(value = "/login/**/viewBal", method = {RequestMethod.POST, RequestMethod.GET}) 
+	@RequestMapping(value = "/viewBal", method = {RequestMethod.POST, RequestMethod.GET}) 
 	public ModelAndView viewBalance(HttpServletRequest request,HttpSession session){
 		ModelAndView model = new ModelAndView();
 		LoginHandler handler = new LoginHandler(); 
@@ -85,6 +87,17 @@ public class CustomerController {
 		
 				} catch (SQLException e) {
 					model.addObject("accountDetails","");
+					try{
+						if(!userName.isEmpty() || !userName.equalsIgnoreCase(null)){
+							handler.updateLoggedInFlag(userName,0);
+						}
+					}
+					catch(Exception e1){
+						session.invalidate();
+						model.setViewName("index");
+					}
+					session.invalidate();
+					model.setViewName("index");
 					e.printStackTrace();
 				}
 		
@@ -107,7 +120,7 @@ public class CustomerController {
 
 	}
 
-	@RequestMapping(value = "/login/**/creditAndDebitFull**", method = {RequestMethod.POST, RequestMethod.GET}) 
+	@RequestMapping(value = "**/creditAndDebitFull**", method = {RequestMethod.POST, RequestMethod.GET}) 
 	public ModelAndView editCreditAndDebit(HttpServletRequest request,HttpSession session){
 
 		ModelAndView model=null;
@@ -120,65 +133,90 @@ public class CustomerController {
 			String amount=request.getParameter("amount");
 			try{
 				double am=Double.parseDouble(amount); 
-				LoginHandler handler = new LoginHandler(); 
-				ResultSet rs = handler.requestBalance(userName);
-				double balance=0;
-				try {
-					while(rs.next()){
-						if(rs.getString("accountNumber").equals(accountNum)){
-							balance=rs.getDouble("balance");
+				if(am>0)
+				{
+					LoginHandler handler = new LoginHandler(); 
+					ResultSet rs = handler.requestBalance(userName);
+					double balance=0;
+					try {
+						while(rs.next()){
+							if(rs.getString("accountNumber").equals(accountNum)){
+								balance=rs.getDouble("balance");
+							}
 						}
-					}
-					ResultSet rs1=handler.requestPendingTransaction(userName);
-					double tempBalance=0;
-					while(rs1.next()){
-						if((rs.getString("transfertype").equalsIgnoreCase("D") ||rs.getString("transfertype").equalsIgnoreCase("T"))){
-							tempBalance=tempBalance+rs1.getDouble("transactionamount");
+						ResultSet rs1=handler.requestPendingTransaction(userName);
+						double tempBalance=0;
+						while(rs1.next()){
+							if((rs.getString("transfertype").equalsIgnoreCase("D") ||rs.getString("transfertype").equalsIgnoreCase("T"))){
+								tempBalance=tempBalance+rs1.getDouble("transactionamount");
+							}
+							else if(rs.getString("transfertype").equalsIgnoreCase("C")){
+								tempBalance=tempBalance-rs1.getDouble("transactionamount");
+							}
 						}
-						else if(rs.getString("transfertype").equalsIgnoreCase("C")){
-							tempBalance=tempBalance-rs1.getDouble("transactionamount");
-						}
-					}
-					double finalBalance=balance-tempBalance;
-					if(option.equalsIgnoreCase("debit") && (Double.parseDouble(amount)>finalBalance)){
-						model.addObject("insuffFunds", "The Account has insufficient funds");
-						getAccountNumbers(model,userName);
-						model.setViewName("creditAndDebit");
-					}
-					else{
-						int random = (new Random()).nextInt(900000) + 100000;
-						//Date date=new Date();
-						boolean flag1 = false;
-						boolean flag2 = false;
-						if(option.equalsIgnoreCase("debit")){
-							flag1=handler.insertTransactionDetails(userName,random,amount,accountNum,"",TimeUtility.generateDateMethod(),option,"pendingapproval");
-							balance=balance-Double.parseDouble(amount);
-							flag2=handler.updateBalance(userName,balance);
-							
-						}
-						else if(option.equalsIgnoreCase("credit")){
-							flag1=handler.insertTransactionDetails(userName,random,amount,"",accountNum,TimeUtility.generateDateMethod(),option,"pendingapproval");
-							balance=balance+Double.parseDouble(amount);
-							flag2=handler.updateBalance(userName,balance);
-						}
-
-						if(flag1 && flag2){
-							model.addObject("sucess", "Transaction is Sucess");
-							model.setViewName("customerhome");
+						double finalBalance=balance-tempBalance;
+						if(option.equalsIgnoreCase("debit") && (Double.parseDouble(amount)>finalBalance)){
+							model.addObject("insuffFunds", "The Account has insufficient funds");
+							getAccountNumbers(model,userName, session);
+							model.setViewName("creditAndDebit");
 						}
 						else{
-							model.addObject("failue", "Transaction is failed");
-							model.setViewName("customerhome");
+							int random = (new Random()).nextInt(900000) + 100000;
+							//Date date=new Date();
+							boolean flag1 = false;
+							boolean flag2 = false;
+							if(option.equalsIgnoreCase("debit")){
+								logger.info("Insereting the requested debit transacation for the user "+userName+" for amount:"+amount);
+								flag1=handler.insertTransactionDetails(userName,random,amount,accountNum,"",TimeUtility.generateDateMethod(),option,"pendingapproval");
+								logger.info("Succesfully inserted the requested debit transacation for the user "+userName+" for amount:"+amount);
+								balance=balance-Double.parseDouble(amount);
+								flag2=handler.updateBalance(userName,balance);
+								logger.info("Successfully updated the balance of the user:"+userName);
+								
+							}
+							else if(option.equalsIgnoreCase("credit")){
+								logger.info("Insereting the requested debit transacation for the user "+userName+" for amount:"+amount);
+								flag1=handler.insertTransactionDetails(userName,random,amount,"",accountNum,TimeUtility.generateDateMethod(),option,"pendingapproval");
+								logger.info("Succesfully inserted the requested debit transacation for the user "+userName+" for amount:"+amount);
+								balance=balance+Double.parseDouble(amount);
+								flag2=handler.updateBalance(userName,balance);
+								logger.info("Successfully updated the balance of the user:"+userName);
+							}
+	
+							if(flag1 && flag2){
+								logger.info("Transaction is Sucess");
+								model.setViewName("customerhome");
+							}
+							else{
+								logger.info("Transaction is failed");
+								model.setViewName("customerhome");
+							}
 						}
+						rs.close();
+					} catch (SQLException e) {
+						try{
+							if(!userName.isEmpty() || !userName.equalsIgnoreCase(null)){
+								handler.updateLoggedInFlag(userName,0);
+							}
+						}
+						catch(Exception e1){
+							session.invalidate();
+							model.setViewName("index");
+						}
+						session.invalidate();
+						model.setViewName("index");
+						e.printStackTrace();
 					}
-					rs.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
+				}
+				else{
+					model.addObject("emptyFields", "Amount Field has invalid input");
+					getAccountNumbers(model,userName, session);
+					model.setViewName("creditAndDebit");
 				}
 			}
 			catch(NumberFormatException nfe){
 				model.addObject("emptyFields", "Amount Field has invalid input");
-				getAccountNumbers(model,userName);
+				getAccountNumbers(model,userName, session);
 				model.setViewName("creditAndDebit");
 			}
 		}
@@ -186,7 +224,7 @@ public class CustomerController {
 
 	}
 
-	private void getAccountNumbers(ModelAndView model, String userName) {
+	private void getAccountNumbers(ModelAndView model, String userName,HttpSession session) {
 		LoginHandler handler=new LoginHandler();
 		ResultSet rs=handler.requestBalance(userName);
 		List<String> accountNumbers=new ArrayList<String>();
@@ -197,7 +235,17 @@ public class CustomerController {
 			model.addObject("accountNumbers",accountNumbers);
 			rs.close();
 		} catch (SQLException e) {
-
+			try{
+				if(!userName.isEmpty() || !userName.equalsIgnoreCase(null)){
+					handler.updateLoggedInFlag(userName,0);
+				}
+			}
+			catch(Exception e1){
+				session.invalidate();
+				model.setViewName("index");
+			}
+			session.invalidate();
+			model.setViewName("index");
 			e.printStackTrace();
 		}
 	}
