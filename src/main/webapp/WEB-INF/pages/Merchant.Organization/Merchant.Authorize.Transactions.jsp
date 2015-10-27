@@ -37,14 +37,16 @@ label {
 </head>
 
 <body>
+<div style="text-align: center;"><a href="${pageContext.servletContext.contextPath}/merchanthome">Home</a>&nbsp;&nbsp;&nbsp;
+		<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></div>
 	<c:choose>
 		<c:when test="${payments != null && payments.size() != 0}">
 			<c:set var="count" value="0" scope="page" />
-			<h2>Payment Requests to you:</h2>
+			<h2 align="center">Payment Requests to you:</h2>
 			<br>
 			<br>
 
-			<table>
+			<table align="center">
 				<th>Requested by</th>
 				<th>amount</th>
 				<th>date</th>
@@ -71,18 +73,18 @@ label {
 			</table>
 		</c:when>
 		<c:otherwise>
-			<h2>There are no payments submitted to you.</h2>
+			<h2 align="center">There are no payments submitted to you.</h2>
 		</c:otherwise>
 	</c:choose>
 
 	<c:choose>
 		<c:when test="${paymentsRequests != null && paymentsRequests.size() != 0}">
 			<c:set var="counter" value="0" scope="page" />
-			<h2>Payment Requests from you:</h2>
+			<h2 align="center">Payment Requests from you:</h2>
 			<br>
 			<br>
 
-			<table>
+			<table align="center">
 				<th>Requested by</th>
 				<th>amount</th>
 				<th>date</th>
@@ -109,14 +111,12 @@ label {
 			</table>
 		</c:when>
 		<c:otherwise>
-			<h2>There are no payments requests from you.</h2>
+			<h2 align="center">There are no payments requests from you.</h2>
 		</c:otherwise>
 	</c:choose>
 	
 	
 		<br /> <br /> <br /> 
-		<a href="${pageContext.servletContext.contextPath}/merchanthome">Home</a>&nbsp;&nbsp;&nbsp;
-		<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 </body>
 </html>
 <%

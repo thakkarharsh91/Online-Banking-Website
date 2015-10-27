@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
+	<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -17,6 +18,7 @@
 </head>
 <body>
 	<form>
+	<h2 align="justify">Hello <c:out value="${sessionScope.Merchant}"/></h2>
 		<table width="500" border="0">
 			<tbody>
 				<tr>
@@ -24,9 +26,6 @@
 				</tr>
 				<tr>
 					<td><a href="${pageContext.servletContext.contextPath}/viewBal">View Balance</a></td>
-				</tr>
-				<tr>
-					<td><a href="${pageContext.servletContext.contextPath}/editPersonalInfo">Edit PII</a></td>
 				</tr>
 				<tr>
 					<td><a href="${pageContext.servletContext.contextPath}/debitAndCredit">Debit and Credit Funds</a></td>
@@ -56,11 +55,11 @@
 					<td><a href="${pageContext.request.contextPath}/authRequest?${_csrf.parameterName}=${_csrf.token}">Allow View Access</a></td>
 				</tr>
 				<tr>
-					<td><a href="${pageContext.servletContext.contextPath}/reset">Change
-							Password</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/downloadStatement" target="_blank">View Statement</a></td>
 				</tr>
 				<tr>
-					<td><a href="${pageContext.servletContext.contextPath}/downloadStatement" target="_blank">View Statement</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/reset">Change
+							Password</a></td>
 				</tr>
 				<tr>
 					<td><a

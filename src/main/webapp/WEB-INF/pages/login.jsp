@@ -90,7 +90,6 @@
 					<td align="left"><a href="javascript:;"
 						title="change captcha text" name="imgCaptcha"
 						onclick="document.getElementById('captcha_id').src = '<%=request.getContextPath()%>/login?' + 'imgCaptcha';  return false">
-							<img src="<%=request.getContextPath()%>/images/refresh.png">
 					</a></td>
 				</tr>
 				<tr>
@@ -112,6 +111,10 @@
 				<tr>
 					<td></td>
 					<td><a href="${pageContext.servletContext.contextPath}/forgotpassword">Forgot password</a></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td><a href="${pageContext.servletContext.contextPath}/unlock">Unlock account</a></td>
 				</tr>
 			</table>
 

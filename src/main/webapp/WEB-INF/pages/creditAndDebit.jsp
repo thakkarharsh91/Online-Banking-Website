@@ -63,7 +63,7 @@
 					href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></td>
 			</tr>
 		</table>
-		<h3>Credit And Debit Transactions</h3>
+		<h2>Credit And Debit Transactions</h2>
 		<c:if test="${not empty emptyFields}">
 			<div class="msg">
 				<c:out value="${emptyFields}" />

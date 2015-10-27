@@ -31,7 +31,7 @@
 </table>
 <br/>
 
-<h3 align = "center">View Balance</h3>
+<h2 align = "center">View Balance</h2>
 <table border="1" align = "center">
 	<tr>
 		<th>Account Number</th>

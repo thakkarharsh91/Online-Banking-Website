@@ -110,8 +110,8 @@ public class TopController {
 
 	@RequestMapping(value = {"**/changeaccount" }, method={RequestMethod.GET, RequestMethod.POST})
 	public ModelAndView changeaccount(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException {
-		
-		
+
+
 		String role = (String)session.getAttribute("Role");
 		if(role == null)
 		{
@@ -121,24 +121,24 @@ public class TopController {
 		}
 		else if(role.equals("USER")||role.equals("MERCHANT")){
 			ModelAndView model = new ModelAndView();
-		if(request.getParameter("search")!=null){
-			ModifyUsersHandler handler = new ModifyUsersHandler();
-		    String test = (String)handler.getaccounttypeHandler((String) request.getSession().getAttribute("USERNAME"),request.getParameter("accountnumber"));
-		    if (!(test.equals("Saving Account")||test.equals("Checking Account"))){
-		    	model.addObject("status", "Invalid account");	
-		    	model.setViewName("searchaccounttochange");
-		    }
-		    else{
-			model.addObject("account",handler.getaccounttypeHandler((String) request.getSession().getAttribute("USERNAME"),request.getParameter("accountnumber")));
-			model.addObject("managers", handler.requestManagers());
-			model.addObject("accountnumber",request.getParameter("accountnumber"));
-			model.setViewName("changeaccount");}
+			if(request.getParameter("search")!=null){
+				ModifyUsersHandler handler = new ModifyUsersHandler();
+				String test = (String)handler.getaccounttypeHandler((String) request.getSession().getAttribute("USERNAME"),request.getParameter("accountnumber"));
+				if (!(test.equals("Saving Account")||test.equals("Checking Account"))){
+					model.addObject("status", "Invalid account");	
+					model.setViewName("searchaccounttochange");
+				}
+				else{
+					model.addObject("account",handler.getaccounttypeHandler((String) request.getSession().getAttribute("USERNAME"),request.getParameter("accountnumber")));
+					model.addObject("managers", handler.requestManagers());
+					model.addObject("accountnumber",request.getParameter("accountnumber"));
+					model.setViewName("changeaccount");}
 			}
-		else{
-			model.setViewName("searchaccounttochange");
-		}
+			else{
+				model.setViewName("searchaccounttochange");
+			}
 
-		return model;
+			return model;
 		}
 		else
 		{
@@ -196,18 +196,18 @@ public class TopController {
 			model.setViewName("index");
 			return model;
 		}
-		
-		else if(role.equals("USER")||role.equals("MERCHANT")){
-		ModelAndView model = new ModelAndView();
-		ModifyUsersHandler handler = new ModifyUsersHandler();
-		if (request.getParameter("accountchange")!=null){
-			
-			handler.updateaccountrequest((String) request.getSession().getAttribute("USERNAME"),request.getParameter("managername"),request.getParameter("accountnumber"));
-			model.setViewName("searchaccounttochange");
 
+		else if(role.equals("USER")||role.equals("MERCHANT")){
+			ModelAndView model = new ModelAndView();
+			ModifyUsersHandler handler = new ModifyUsersHandler();
+			if (request.getParameter("accountchange")!=null){
+
+				handler.updateaccountrequest((String) request.getSession().getAttribute("USERNAME"),request.getParameter("managername"),request.getParameter("accountnumber"));
+				model.setViewName("searchaccounttochange");
+
+			}
+			return model;
 		}
-		return model;
-	}
 		else
 		{
 			ModelAndView model = new ModelAndView();
@@ -357,71 +357,95 @@ public class TopController {
 			return model;
 		}
 		else if (role.equals("EMPLOYEE")||role.equals("MANAGER")){
-		ModelAndView model = null;
-		try{
-			
-			String searchParameter = "";
-			String deleteParameter="";
-			String accountnumber="";
-			String searchParameterType = "";
-			
-			model = new ModelAndView();	
-			model.setViewName("modifyUsers");
-			if (request.getParameter("submit")!=null){
-				if(request.getParameter("username").isEmpty()){
-					model.addObject("status", "Invalid account");	
-			    	model.setViewName("modifyUsers");
-					
+			ModelAndView model = null;
+			try{
+
+				String searchParameter = "";
+				String deleteParameter="";
+				String accountnumber="";
+				String searchParameterType = "";
+
+				model = new ModelAndView();	
+				model.setViewName("modifyUsers");
+				if (request.getParameter("submit")!=null){
+					if(request.getParameter("username").isEmpty()){
+						model.addObject("status", "Invalid account");	
+						model.setViewName("modifyUsers");
+
+					}
+					else{
+						searchParameter = request.getParameter("username");
+						searchParameterType = request.getParameter("searchcat");
+						ModifyUsersHandler handler = new ModifyUsersHandler(); 
+						model.addObject("users", handler.requestHandler(searchParameter,searchParameterType));
+						model.addObject("title", "All users in the database");
+						model.addObject("message", "This is protected page!");
+						if (role.equalsIgnoreCase("EMPLOYEE")){
+							model.setViewName("modifyUsersemployee");
+						}
+
+						else if (role.equalsIgnoreCase("MANAGER")){
+							model.setViewName("modifyUsers");
+						}}
+
+
 				}
-				else{
-				searchParameter = request.getParameter("username");
-				searchParameterType = request.getParameter("searchcat");
-				ModifyUsersHandler handler = new ModifyUsersHandler(); 
-				model.addObject("users", handler.requestHandler(searchParameter,searchParameterType));
-				model.addObject("title", "All users in the database");
-				model.addObject("message", "This is protected page!");
-				if (role.equalsIgnoreCase("EMPLOYEE")){
+
+
+				else if ((request.getParameter("searchcat").equals("AccountNumber")|| request.getParameter("searchcat").equals("UserName"))&&(!request.getParameter("username").matches("[0-9 ]+"))){
+					System.out.println("its wrong");
+					model.addObject("status", "Invalid Entry");	
+					if (role.equalsIgnoreCase("EMPLOYEE")){
+						model.setViewName("modifyUsersemployee");
+					}
+
+					else if (role.equalsIgnoreCase("MANAGER")){
+						model.setViewName("modifyUsers");
+					}
+				}
+				else if (request.getParameter("searchcat").equals("Name")&&(!request.getParameter("username").matches("[a-zA-Z]+(\\s+[a-zA-Z]+)*"))){
+
+					model.addObject("status", "Invalid Entry");	
+					if (role.equalsIgnoreCase("EMPLOYEE")){
+						model.setViewName("modifyUsersemployee");
+					}
+
+					else if (role.equalsIgnoreCase("MANAGER")){
+						model.setViewName("modifyUsers");
+					}
+				}
+
+				else if (request.getParameter("delete")!= null){
+					deleteParameter =request.getParameter("hiddenUser");
+					accountnumber = request.getParameter("hiddenUserNumber");
+					ModifyUsersHandler handler = new ModifyUsersHandler(); 
+					handler.deleteRequestHandler(deleteParameter,accountnumber);
+					searchParameter = request.getParameter("hiddenUser");
+					searchParameterType = "UserName";
+
+					model.addObject("users", handler.requestHandler(searchParameter,searchParameterType));
+					model.addObject("title", "All users in the database");
+					model.addObject("status", "User deleted Successfully");
+					model.setViewName("modifyUsers");
+
+				}
+
+				else if (role.equalsIgnoreCase("EMPLOYEE")){
 					model.setViewName("modifyUsersemployee");
 				}
 
 				else if (role.equalsIgnoreCase("MANAGER")){
 					model.setViewName("modifyUsers");
-				}}
-				
-			
-			}
+				}
 
-			else if (request.getParameter("delete")!= null){
-				deleteParameter =request.getParameter("hiddenUser");
-				accountnumber = request.getParameter("hiddenUserNumber");
-				ModifyUsersHandler handler = new ModifyUsersHandler(); 
-				handler.deleteRequestHandler(deleteParameter,accountnumber);
-				searchParameter = request.getParameter("hiddenUser");
-				searchParameterType = "UserName";
-
-				model.addObject("users", handler.requestHandler(searchParameter,searchParameterType));
-				model.addObject("title", "All users in the database");
-				model.addObject("status", "User deleted Successfully");
-				model.setViewName("modifyUsers");
 
 			}
-			
-			else if (role.equalsIgnoreCase("EMPLOYEE")){
-				model.setViewName("modifyUsersemployee");
+			catch(Exception e)
+			{
+				e.printStackTrace();
 			}
 
-			else if (role.equalsIgnoreCase("MANAGER")){
-				model.setViewName("modifyUsers");
-			}
-
-
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-
-		return model;}
+			return model;}
 		else
 		{
 			ModelAndView model = new ModelAndView();
@@ -437,75 +461,96 @@ public class TopController {
 
 	@RequestMapping(value = "**/reqModify", method = {RequestMethod.POST,RequestMethod.GET})
 	public ModelAndView reqPermissionPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException  {
-	String role = (String)session.getAttribute("Role");
-	if(role == null)
-	{
-		ModelAndView model = new ModelAndView();
-		model.setViewName("index");
-		return model;
-	}
-	else if (role.equals("USER")||role.equals("MERCHANT"))	{
-	ModelAndView model = null;
-		try{
-			String updateParameter = "";
-			String ManagerName = "";
-			String updateParameterType = "";
-			int count = 0;
-			model = new ModelAndView();	
-			if (request.getParameter("submit")!=null){
-				updateParameter = request.getParameter("newvalue");
-				updateParameterType = request.getParameter("searchcat");
-				if (request.getParameter("newvalue").isEmpty()){
-					model.addObject("status", "Field is Empty");	
-			    	model.setViewName("requestpermissionmodify");
-				}
-				else{
-				ModifyUsersHandler handler = new ModifyUsersHandler();
-				ResultSet rs = handler.requestCountHandler();
-				try {
-					while(rs.next())
-					{
-						ManagerName = rs.getString("username");
-						count = rs.getInt("requestcount");
-						count = count+1;
-						handler.updateCountHandler(count, ManagerName);
-						break;
-					}
-				} 
-				catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				handler.requestModifyHandler((String) request.getSession().getAttribute("USERNAME"),updateParameter,updateParameterType,ManagerName);
-
-				if(role.equalsIgnoreCase("USER")){
-					model.setViewName("customerhome");
-				}
-				else if(role.equalsIgnoreCase("MERCHANT")){
-					model.setViewName("merchanthome");
-				}}
-			}
-			else {
-				ModifyUsersHandler handler = new ModifyUsersHandler();
-				model.addObject("managers", handler.requestManagers());
-				model.setViewName("requestpermissionmodify");
-			}
-		}
-		catch(Exception e)
+		String role = (String)session.getAttribute("Role");
+		if(role == null)
 		{
-			e.printStackTrace();
+			ModelAndView model = new ModelAndView();
+			model.setViewName("index");
+			return model;
 		}
-		return model;}
-	else
-	{
-		ModelAndView model = new ModelAndView();
-		LoginHandler handler = new LoginHandler();
-		String userName = (String)session.getAttribute("USERNAME");
-		handler.updateLoggedInFlag(userName,0);
-		session.invalidate();
-		model.setViewName("index");
-		return model;
-	}
+		else if (role.equals("USER")||role.equals("MERCHANT"))	{
+			ModelAndView model = null;
+			try{
+				String updateParameter = "";
+				String ManagerName = "";
+				String updateParameterType = "";
+				int count = 0;
+				model = new ModelAndView();	
+				if (request.getParameter("submit")!=null){
+					updateParameter = request.getParameter("newvalue");
+					updateParameterType = request.getParameter("searchcat");
+					if (request.getParameter("newvalue").isEmpty()){
+						model.addObject("status", "Field is Empty");	
+						model.setViewName("requestpermissionmodify");
+					}
+					else if ((request.getParameter("searchcat").equals("phonenumber")||request.getParameter("searchcat").equals("zip"))&&(!request.getParameter("newvalue").matches("[0-9]+$"))){
+						
+						model.addObject("status", "Invalid Entry");	
+				    	model.setViewName("requestpermissionmodify");
+					}
+					
+					else if ((request.getParameter("searchcat").equals("address")||request.getParameter("searchcat").equals("businesslicense"))&&(!request.getParameter("newvalue").matches("[\\p{Alnum}\\p{Punct}]*"))){
+						
+						model.addObject("status", "Invalid Entry");	
+				    	model.setViewName("requestpermissionmodify");
+					}
+					else if (request.getParameter("searchcat").equals("email")&&(!request.getParameter("newvalue").matches("^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$"))){
+						
+						model.addObject("status", "Invalid Entry");	
+				    	model.setViewName("requestpermissionmodify");
+					}
+					else if ((request.getParameter("searchcat").equals("firstname")||request.getParameter("searchcat").equals("lastname")||request.getParameter("searchcat").equals("state"))&&(!request.getParameter("newvalue").matches("[a-zA-Z]+(\\s+[a-zA-Z]+)*"))){
+						
+						model.addObject("status", "Invalid Entry");	
+				    	model.setViewName("requestpermissionmodify");
+					}
+					else{
+						ModifyUsersHandler handler = new ModifyUsersHandler();
+						ResultSet rs = handler.requestCountHandler();
+						try {
+							while(rs.next())
+							{
+								ManagerName = rs.getString("username");
+								count = rs.getInt("requestcount");
+								count = count+1;
+								handler.updateCountHandler(count, ManagerName);
+								break;
+							}
+						} 
+						catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						handler.requestModifyHandler((String) request.getSession().getAttribute("USERNAME"),updateParameter,updateParameterType,ManagerName);
+
+						if(role.equalsIgnoreCase("USER")){
+							model.setViewName("customerhome");
+						}
+						else if(role.equalsIgnoreCase("MERCHANT")){
+							model.setViewName("merchanthome");
+						}}
+				}
+				else {
+					ModifyUsersHandler handler = new ModifyUsersHandler();
+					model.addObject("managers", handler.requestManagers());
+					model.setViewName("requestpermissionmodify");
+				}
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+			return model;}
+		else
+		{
+			ModelAndView model = new ModelAndView();
+			LoginHandler handler = new LoginHandler();
+			String userName = (String)session.getAttribute("USERNAME");
+			handler.updateLoggedInFlag(userName,0);
+			session.invalidate();
+			model.setViewName("index");
+			return model;
+		}
 	}
 
 	@RequestMapping(value = "**/viewReq", method = {RequestMethod.POST,RequestMethod.GET})
@@ -637,7 +682,7 @@ public class TopController {
 										}
 									}
 									else{
-										model.addObject("loggedIn", "User is already logged in to the other system");
+										model.addObject("loggedIn", "User is already logged in to the other system. If you get this message frequently then request you to raise the unlock request.");
 										model.setViewName("login");
 									}
 								}
@@ -731,6 +776,13 @@ public class TopController {
 	public ModelAndView forgotUserName(HttpServletRequest request,HttpSession session) { 
 		ModelAndView model = new ModelAndView();	
 		model.setViewName("forgotusername"); 
+		return model;
+	}
+	
+	@RequestMapping(value = "/unlock", method = {RequestMethod.POST, RequestMethod.GET}) 
+	public ModelAndView unlockUser(HttpServletRequest request,HttpSession session) { 
+		ModelAndView model = new ModelAndView();	
+		model.setViewName("unlockaccount"); 
 		return model;
 	}
 
@@ -1224,6 +1276,7 @@ public class TopController {
 		String user = "";
 		String account = "";
 		String admin = "";
+		model.setViewName("unlockaccount");
 		if(request.getParameter("submit")!=null){
 
 			accountNumber=request.getParameter("account");
@@ -1275,7 +1328,7 @@ public class TopController {
 			}
 		}
 
-		else if(request.getParameter("submit")!=null){ 
+		else if(request.getParameter("otpButton")!=null){ 
 			String userSession = (String) session.getAttribute("USERNAME");
 			handler = new LoginHandler();
 			ResultSet rs = handler.requestLoginHandler(userSession);
@@ -1305,7 +1358,7 @@ public class TopController {
 		String requestType = "";
 		String[] authRequests = null;
 		role = (String)session.getAttribute("Role");
-		if(role.equals("USER") || role.equals("ADMIN"))
+		if(role.equals("USER") || role.equals("ADMIN") || role.equals("MERCHANT"))
 		{
 			ModelAndView model = new ModelAndView();
 			model.setViewName("accessRequests");
@@ -1668,7 +1721,7 @@ public class TopController {
 			catch(Exception e){
 				model.addObject("zeroerror", "Amounts should include numbers only");
 			}
-			
+
 
 			ResultSet rs = authorize.getModDelHandler("pendingapproval","PAYMENT",10000);
 			try {
