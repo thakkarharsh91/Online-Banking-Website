@@ -154,7 +154,7 @@ public class CustomerController {
 								tempBalance=tempBalance-rs1.getDouble("transactionamount");
 							}
 						}
-						double finalBalance=balance-tempBalance;
+						double finalBalance=balance;
 						if(option.equalsIgnoreCase("debit") && (Double.parseDouble(amount)>finalBalance)){
 							model.addObject("insuffFunds", "The Account has insufficient funds");
 							getAccountNumbers(model,userName, session);

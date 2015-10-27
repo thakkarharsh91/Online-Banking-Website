@@ -3,10 +3,14 @@
 <%@ page trimDirectiveWhitespaces="true"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+	
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Pragma" content="no-cache">
+ <meta http-equiv="Cache-Control" content="no-cache">
+ <meta http-equiv="Expires" content="-1">
 <title>Insert title here</title>
 <script type = "text/javascript" >
     history.pushState(null, null,window.location.href);
@@ -20,15 +24,19 @@
 </head>
 <body>
 <div style="text-align: center">
+		<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
+	</div>
+	<br></br>
+	<div style="text-align: center">
 		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
 	</div>
-<div style="text-align: center">
-<a
-href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
-</div>
 	<form:form name='loginForm'
-		action="${pageContext.servletContext.contextPath}/viewaccount/?${_csrf.parameterName}=${_csrf.token}"
+		action="${pageContext.servletContext.contextPath}/AccountView/?${_csrf.parameterName}=${_csrf.token}"
 		method='POST'>
+		<h3 align="center">
+			<c:if test="${not empty Select}">
+			<div class="msg">${Select}</div>
+		</c:if></h3>
 		<table border="3" align="center">
 		<tr>
 				<th>Select</th>
@@ -117,4 +125,7 @@ href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 	url = url.replace("/WEB-INF/pages/AccountDetails.jsp",
 			"/logoutusers");
 	response.setHeader("Refresh", "300; URL =" + url);
+	response.setHeader("Cache-Control","no-cache"); 
+	response.setHeader("Pragma","no-cache"); 
+	response.setDateHeader ("Expires", -1);
 %>

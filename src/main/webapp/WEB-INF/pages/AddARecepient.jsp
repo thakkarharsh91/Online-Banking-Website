@@ -58,6 +58,9 @@
 		<c:if test="${not empty wrongDebit}">
 			<div class="msg">${wrongDebit}</div>
 		</c:if>
+		<c:if test="${not empty sameuser}">
+			<div class="msg">${sameuser}</div>
+		</c:if>
 		
 	</div>
 		<table width="500" border="0" align = "center">

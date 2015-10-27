@@ -49,6 +49,7 @@ public class AnishaController {
 			return model;
 		}
 		else if(role.equals("MANAGER")){
+			try{
 			ModelAndView model = new ModelAndView("VerifyExternalUser");
 			requests = handler.getRequests("MANAGER");
 			if(!requests.isEmpty())
@@ -56,6 +57,17 @@ public class AnishaController {
 			else
 				model.addObject("norequests", "You currently do not have any requests");
 			return model;
+			}
+			catch(Exception e){
+				e.printStackTrace();
+				logger.error("Caugth an exception:"+ e);
+				ModelAndView model = new ModelAndView();
+				String username = (String) session.getAttribute("USERNAME");
+				lhandler.updateLoggedInFlag(username, 0);
+				session.invalidate();
+				model.setViewName("index");
+				return model;
+			}
 
 		}
 		else{
@@ -77,6 +89,7 @@ public class AnishaController {
 			return model;
 		}
 		else if(role.equals("MANAGER")){
+			try{
 			ModelAndView model = new ModelAndView("VerifyExternalUser");
 			String id = request.getParameter("approve");
 			String id1 = request.getParameter("decline");
@@ -91,7 +104,7 @@ public class AnishaController {
 					}
 				}
 				if(Requesttype.equals("modify")){
-					if(request1.getModifiedcolumn().equalsIgnoreCase("accounttype"))
+					if(!request1.getModifiedcolumn().equalsIgnoreCase("accounttype"))
 					handler.updatePI(request1.getUsername(), request1.getModifiedcolumn(), request1.getOldvalue(), request1.getNewvalue());
 					else
 					handler.updatePIAccount(request1.getUsername(), request1.getModifiedcolumn(), request1.getOldvalue(), request1.getNewvalue(),request1.getNewaccountnumber());
@@ -143,7 +156,18 @@ public class AnishaController {
 			else
 				model.addObject("norequests", "You currently do not have any requests");
 			return model;
-		}
+			}
+			catch(Exception e){
+				e.printStackTrace();
+				logger.error("Caugth an exception:"+ e);
+				ModelAndView model = new ModelAndView();
+				String username = (String) session.getAttribute("USERNAME");
+				lhandler.updateLoggedInFlag(username, 0);
+				session.invalidate();
+				model.setViewName("index");
+				return model;
+			}
+	}
 		else{
 			ModelAndView model = new ModelAndView();
 			String username = (String) session.getAttribute("USERNAME");
@@ -173,13 +197,24 @@ public class AnishaController {
 			return model;
 		}
 		else if(role.equals("MERCHANT") || role.equals("USER")){
+			try{
 			ModelAndView model = new ModelAndView("InternalFundTransfer");
 			String userName="";
 			userName = (String)session.getAttribute("USERNAME");
-			//userName = "srav";
 			useraccounts = handler.getaccountdetails(userName);
 			model.addObject("useraccounts", useraccounts);
 			return model;
+			}
+			catch(Exception e){
+				e.printStackTrace();
+				logger.error("Caugth an exception:"+ e);
+				ModelAndView model = new ModelAndView();
+				String username = (String) session.getAttribute("USERNAME");
+				lhandler.updateLoggedInFlag(username, 0);
+				session.invalidate();
+				model.setViewName("index");
+				return model;
+			}
 		}
 		else{
 			ModelAndView model = new ModelAndView();
@@ -200,6 +235,7 @@ public class AnishaController {
 			return model;
 		}
 		else if(role.equals("MERCHANT") || role.equals("USER")){
+			try{
 			ModelAndView model = new ModelAndView("InternalFundTransfer");
 			model.addObject("useraccounts", useraccounts);
 			String SourceAccount = "";
@@ -209,9 +245,8 @@ public class AnishaController {
 			String Amount="";
 			String userName="";
 			double SourceBalance = 0.0;
-			int amount = 0;
+			double amount = 0;
 			userName = (String)session.getAttribute("USERNAME");
-			//userName = "srav";
 			SourceAccount= request.getParameter("sourceuseraccounts");
 			DestinationAccount= request.getParameter("destinationuseraccount");
 			Amount = request.getParameter("amount");
@@ -219,9 +254,21 @@ public class AnishaController {
 				model.addObject("amountError", "Please enter a valid amount");
 				logger.info("Could not process transaction for " + userName +
 						"because : " + amount + " is not a valid amount" );
+				return model;
 			}
 			else
-				amount = Integer.parseInt(Amount);
+			{
+				try {
+					amount = Double.parseDouble(Amount);
+					} catch(NumberFormatException ex)
+					{
+						model.addObject("amountError", "Please enter a valid amount");
+						logger.info("Could not process transaction for " + userName +
+								"because : " + amount + " is not a valid amount" );
+						return model;
+
+					}
+			}
 			if(SourceAccount.equals(DestinationAccount)){
 				model.addObject("destinationError", "Please select a different destination account for fund transfer");
 				logger.info("Could not process transaction for " + userName +
@@ -233,7 +280,6 @@ public class AnishaController {
 						"because : " + amount + " is not a valid amount" );
 			}
 			else{
-				amount = Integer.parseInt(Amount);
 				for(UserAccounts ac :useraccounts){
 					if(ac.getAccounttype().equals(DestinationAccount)){
 						DestinationAccountNumber = ac.getAccountnumber();
@@ -271,6 +317,17 @@ public class AnishaController {
 				}
 			}
 			return model;
+			}
+			catch(Exception e){
+				e.printStackTrace();
+				logger.error("Caugth an exception:"+ e);
+				ModelAndView model = new ModelAndView();
+				String username = (String) session.getAttribute("USERNAME");
+				lhandler.updateLoggedInFlag(username, 0);
+				session.invalidate();
+				model.setViewName("index");
+				return model;
+			}
 		}
 		else{
 			ModelAndView model = new ModelAndView();
@@ -290,10 +347,12 @@ public class AnishaController {
 			return model;
 		}
 		else if(role.equals("MERCHANT") || role.equals("USER")){
+			ResultSet rs = null;
+			try{
 			ModelAndView model = new ModelAndView("ExternalFundTransfer");
 			String userName="";
 			userName = (String)session.getAttribute("USERNAME");
-			ResultSet rs = lhandler.requestLoginHandler(userName);
+			rs = lhandler.requestLoginHandler(userName);
 			if(rs.next()){
 				userEmail = rs.getString("email");
 			}
@@ -311,6 +370,27 @@ public class AnishaController {
 				model=makeExternalTransfer(request,session);
 			}
 			return model;
+			}
+			catch(Exception e){
+				e.printStackTrace();
+				logger.error("Caugth an exception:"+ e);
+				ModelAndView model = new ModelAndView();
+				String username = (String) session.getAttribute("USERNAME");
+				lhandler.updateLoggedInFlag(username, 0);
+				session.invalidate();
+				model.setViewName("index");
+				return model;
+			}
+			finally{
+				try{
+				if(rs!=null){
+					rs.close();
+				}
+				}
+				catch(Exception e){
+					logger.error("Exception closing a resultset");
+				}
+			}
 		}
 		else{
 			ModelAndView model = new ModelAndView();
@@ -330,6 +410,7 @@ public class AnishaController {
 			return model;
 		}
 		else if(role.equals("MERCHANT") || role.equals("USER")){
+			try{
 			ModelAndView model = new ModelAndView("ExternalFundTransfer");
 			model.addObject("useraccounts", useraccounts);
 			model.addObject("recepients", userrecepients);
@@ -366,6 +447,7 @@ public class AnishaController {
 					model.addObject("amountError", "Please enter a valid amount");
 					logger.info("Could not process transaction for " + userName +
 							"because : " + amount + " is not a valid amount" );
+					return model;
 
 				}
 				if(amount < 0){
@@ -420,7 +502,17 @@ public class AnishaController {
 				}
 			}
 			return model;
+			}
+			catch(Exception e){
+				ModelAndView model = new ModelAndView();
+				String username = (String) session.getAttribute("USERNAME");
+				lhandler.updateLoggedInFlag(username, 0);
+				session.invalidate();
+				model.setViewName("index");
+				return model;
+			}
 		}
+			
 		else{
 			ModelAndView model = new ModelAndView();
 			String username = (String) session.getAttribute("USERNAME");
@@ -452,6 +544,8 @@ public class AnishaController {
 				String debitcard="";
 				String userDebitCard1="";
 				String userDebitCard2="";
+				String userAccountNumber1 = "";
+				String userAccountNumber2 = "";
 				//String userEmail="";
 				//getting user debitcard no. for validaton
 				userName = (String)session.getAttribute("USERNAME");
@@ -460,9 +554,11 @@ public class AnishaController {
 				for(UserAccounts ac :useraccounts){
 					if(ac.getAccounttype().equals("Checking Account")){
 						userDebitCard1 = ac.getUserdebitcard();
+						userAccountNumber1 = ac.getAccountnumber();
 					}
 					if(ac.getAccounttype().equals("Saving Account")){
 						userDebitCard2 = ac.getUserdebitcard();
+						userAccountNumber2 = ac.getAccountnumber();
 					}
 				}
 
@@ -507,6 +603,9 @@ public class AnishaController {
 						else if(!(debitcard.equals(userDebitCard1) || debitcard.equals(userDebitCard2))){
 							model.addObject("wrongDebit", "debit card number does not match");
 						}
+						else if(userAccountNumber1.equals(accountNumber) || userAccountNumber2.equals(accountNumber)){
+							model.addObject("sameuser", "cannot add recepient as he is the same user");
+						}
 						else
 						{
 							boolean success= false;
@@ -536,7 +635,7 @@ public class AnishaController {
 			}
 			catch( Exception e ){
 				e.printStackTrace();
-				logger.error("Caugth an exception:"+ e.getMessage());
+				logger.error("Caugth an exception:"+ e);
 				//ModelAndView model = new ModelAndView();
 				String username = (String) session.getAttribute("USERNAME");
 				lhandler.updateLoggedInFlag(username, 0);
@@ -544,6 +643,7 @@ public class AnishaController {
 				model.setViewName("index");
 				return model;
 			}
+			
 			return model;
 		}
 		else{

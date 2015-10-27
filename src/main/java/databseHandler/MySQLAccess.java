@@ -55,7 +55,8 @@ public class MySQLAccess {
 
 			ResultSet resultSet = preparedStatement.executeQuery();
 			ArrayList<UserAccounts> users = writeResultSet(resultSet);
-			resultSet.close();
+			if(resultSet!=null)
+				resultSet.close();
 			return users;
 
 		} catch (Exception e) {
@@ -215,7 +216,7 @@ public class MySQLAccess {
 		} catch (Exception e) {
 			LOG.error("Request Successfully inserted into database"+e.getMessage());
 			throw e;
-			
+
 		}
 
 	}
@@ -303,7 +304,7 @@ public class MySQLAccess {
 		} catch (Exception e) {
 			LOG.error("Error in reading user"+e.getMessage());
 			throw e;
-			
+
 		}
 	}
 
@@ -318,7 +319,7 @@ public class MySQLAccess {
 			ArrayList<Request> users = writeResultSetRequests (resultSet);
 			LOG.info("request view success");
 			return users;
-			
+
 		} catch (Exception e) {
 			throw e;
 		}
@@ -334,20 +335,27 @@ public class MySQLAccess {
 			ResultSet resultSet = preparedStatement.executeQuery();
 			return resultSet;
 
-
-
-		} catch (Exception e) {
+		} catch(Exception e){
+			LOG.error("Issue while counting the requests of managers"+e.getMessage());
 			throw e;
 		}
 	}
 
 	public void updatecountDatabase(int count,String User) throws SQLException{
 		// Remove again the insert comment
-		preparedStatement = connect
-				.prepareStatement("UPDATE software_security.tbl_user_account_view_request SET requestcount=? WHERE username=?");
-		preparedStatement.setInt(1, count);
-		preparedStatement.setString(2, User);
-		preparedStatement.executeUpdate();
+		try
+		{
+			preparedStatement = connect
+					.prepareStatement("UPDATE software_security.tbl_user_account_view_request SET requestcount=? WHERE username=?");
+			preparedStatement.setInt(1, count);
+			preparedStatement.setString(2, User);
+			preparedStatement.executeUpdate();
+			LOG.info("Requests updated successfully");
+		}
+		catch(Exception e){
+			LOG.error("Issue while updating the requests count of managers"+e.getMessage());
+			throw e;
+		}
 	}
 
 	/*reads the login information of the desired user*/
@@ -360,7 +368,8 @@ public class MySQLAccess {
 			ResultSet resultSet = preparedStatement.executeQuery();
 			return resultSet;
 
-		} catch (Exception e) {
+		} catch(Exception e){
+			LOG.error("Issue while getting the login information "+e.getMessage());
 			throw e;
 		}
 	}
@@ -376,25 +385,27 @@ public class MySQLAccess {
 			preparedStatement.setString(4, userNameTo);
 			preparedStatement.setString(5, date);
 			preparedStatement.executeUpdate();
-
-		} catch (Exception e) {
+			LOG.info("Reqeust information updated successfully");
+		} catch(Exception e){
+			LOG.error("Issue while inserting the transaction request information "+e.getMessage());
 			throw e;
 		}
 	}
 
 	/*reads the account information of the desired user */
 	public ResultSet readAccount(String userName) throws Exception {
+		ResultSet resultSet = null;
 		try {						
 			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_user_details JOIN "
 					+ "software_security.tbl_user_account ON tbl_user_details.username=tbl_user_account.username "
 					+ "where tbl_user_account.username = ?");    
 			preparedStatement.setString(1, userName);    
-			ResultSet resultSet = preparedStatement.executeQuery();
-			return resultSet;
+			resultSet = preparedStatement.executeQuery();
 
-		} catch (Exception e) {
-			throw e;
+		} catch(Exception e){
+			LOG.error("Issue while reading the account information "+e.getMessage());
 		}
+		return resultSet;
 	}
 
 	public ResultSet checkRequest(String userName,String type, String status) throws SQLException{
@@ -407,6 +418,7 @@ public class MySQLAccess {
 			return resultSet;
 		}
 		catch(Exception e){
+			LOG.error("Issue while checking the request information "+e.getMessage());
 			throw e;
 		}
 
@@ -418,9 +430,13 @@ public class MySQLAccess {
 			preparedStatement.setString(1,requestto);
 			ResultSet resultSet = preparedStatement.executeQuery();
 			ArrayList<Requests> requests = changeToArrayList(resultSet);
+			if(resultSet !=null){
+				resultSet.close();
+			}
 			return requests;
 		}
 		catch(Exception e){
+			LOG.error("Issue while getting the request information "+e.getMessage());
 			throw e;
 		}
 	}
@@ -433,8 +449,10 @@ public class MySQLAccess {
 
 			preparedStatement.setString(2, requestid);
 			preparedStatement.executeUpdate();
+			LOG.info("Request information updated successfully");
 		}
 		catch(Exception e){
+			LOG.error("Issue while updating the request information "+e.getMessage());
 			throw e;
 		}
 	}
@@ -447,13 +465,13 @@ public class MySQLAccess {
 		preparedStatement.setBytes(2, username.getBytes());
 		preparedStatement.executeUpdate();
 	}
-	
+
 	public void updateuserinfo1(String username,String modifiedcolumn,String oldvalue,String newvalue,String newaccountnumber) throws SQLException{
 		preparedStatement = connect
 				.prepareStatement("update software_security.tbl_user_account set " + modifiedcolumn +" = ?, accountnumber = ?  where username = ?");
-		preparedStatement.setBytes(1, newvalue.getBytes());
-		preparedStatement.setBytes(2 , newaccountnumber.getBytes());
-		preparedStatement.setBytes(3, username.getBytes());
+		preparedStatement.setString(1, newvalue);
+		preparedStatement.setString(2 , newaccountnumber);
+		preparedStatement.setString(3, username);
 		preparedStatement.executeUpdate();
 	}
 
@@ -502,6 +520,7 @@ public class MySQLAccess {
 			return resultSet;
 
 		} catch (Exception e) {
+			LOG.error("Issue while reading the transaction request information "+e.getMessage());
 			throw e;
 		}
 	}
@@ -515,6 +534,7 @@ public class MySQLAccess {
 			return resultSet;
 
 		} catch (Exception e) {
+			LOG.error("Issue while reading the transaction request information "+e.getMessage());
 			throw e;
 		}
 	}
@@ -527,9 +547,11 @@ public class MySQLAccess {
 				preparedStatement = connect.prepareStatement("DELETE FROM software_security.tbl_transaction_requests WHERE requestid=?");
 				preparedStatement.setString(1, deleteRequests[i]);
 				preparedStatement.executeUpdate();
+				LOG.info("Transaction request deleted successfully");
 			}
 
 		} catch (Exception e) {
+			LOG.error("Issue while deleting the transaction request information "+e.getMessage());
 			throw e;
 		}
 	}
@@ -544,6 +566,7 @@ public class MySQLAccess {
 			return resultSet;
 
 		} catch (Exception e) {
+			LOG.error("Issue while reading the transaction request status information "+e.getMessage());
 			throw e;
 		}
 	}
@@ -557,6 +580,7 @@ public class MySQLAccess {
 			return resultSet;
 
 		} catch (Exception e) {
+			LOG.error("Issue while reading the transactions information "+e.getMessage());
 			throw e;
 		}
 	}
@@ -565,12 +589,13 @@ public class MySQLAccess {
 	public ResultSet authRequest(String User) throws Exception {
 		try {						
 			preparedStatement = connect.prepareStatement("SELECT requestid,requestfrom,requestdate,requeststatus, requestfor FROM software_security.tbl_transaction_requests JOIN " 
-					+"software_security.tbl_user_details ON tbl_transaction_requests.requestto=tbl_user_details.username and tbl_transaction_requests.requestfor=tbl_user_details.username where tbl_transaction_requests.requestto = ? AND tbl_transaction_requests.requeststatus='Pending'");
+					+"software_security.tbl_user_details ON tbl_transaction_requests.requestfor=tbl_user_details.username where tbl_transaction_requests.requestto = ? AND tbl_transaction_requests.requeststatus='Pending'");
 			preparedStatement.setString(1, User);
 			ResultSet resultSet = preparedStatement.executeQuery();
 			return resultSet;
 
 		} catch (Exception e) {
+			LOG.error("Issue while getting authorizing request information "+e.getMessage());
 			throw e;
 		}
 	}
@@ -585,6 +610,7 @@ public class MySQLAccess {
 			return resultSet;
 
 		} catch (Exception e) {
+			LOG.error("Issue while getting authorizing transaction information "+e.getMessage());
 			throw e;
 		}
 	}
@@ -611,6 +637,7 @@ public class MySQLAccess {
 			return resultSet;
 
 		} catch (Exception e) {
+			LOG.error("Issue while getting status of transaction requests "+e.getMessage());
 			throw e;
 		}
 	}
@@ -641,9 +668,11 @@ public class MySQLAccess {
 				preparedStatement = connect.prepareStatement("DELETE from software_security.tbl_transactions WHERE transactionid=?");
 				preparedStatement.setString(1, rID[i]);
 				preparedStatement.executeUpdate();
+				LOG.info("Transaction successfully deleted");
 			}
 
 		} catch (Exception e) {
+			LOG.error("Issue while deleting transaction information "+e.getMessage());
 			throw e;
 		}
 	}
@@ -656,9 +685,11 @@ public class MySQLAccess {
 				preparedStatement.setString(1, status);
 				preparedStatement.setString(2, rID[i]);
 				preparedStatement.executeUpdate();
+				LOG.info("Transaction status successfully modified");
 			}
 
 		} catch (Exception e) {
+			LOG.error("Issue while updating status of transaction "+e.getMessage());
 			throw e;
 		}
 	}
@@ -671,9 +702,11 @@ public class MySQLAccess {
 				preparedStatement.setString(1, rStatus);
 				preparedStatement.setString(2, rID[i]);
 				preparedStatement.executeUpdate();
+				LOG.info("Transaction request status successfully modified");
 			}
 
 		} catch (Exception e) {
+			LOG.error("Issue while updating status of transaction request "+e.getMessage());
 			throw e;
 		}
 	}
@@ -884,24 +917,27 @@ public class MySQLAccess {
 				preparedStatement.setString(1, rStatus);
 				preparedStatement.setString(2, rID[i]);
 				preparedStatement.executeUpdate();
+				LOG.info("Transaction status successfully updated");
 			}
 
 		} catch (Exception e) {
+			LOG.error("Issue while updating status of transactions "+e.getMessage());
 			throw e;
 		}
 	}
 
-	public ResultSet validateUserInfo(String User) throws Exception {
+	public ResultSet validateUserInfo(String User) {
+		ResultSet resultSet = null;
 		try {						
-			preparedStatement = connect.prepareStatement("SELECT Usertype FROM software_security.tbl_user_details "
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_user_details "
 					+"where username= ? ");
 			preparedStatement.setString(1, User); 
-			ResultSet resultSet = preparedStatement.executeQuery();
-			return resultSet;
+			resultSet = preparedStatement.executeQuery();
 
 		} catch (Exception e) {
-			throw e;
+			LOG.error("Issue while getting the user information "+e.getMessage());
 		}
+		return resultSet;
 	}
 
 	public ResultSet validateUserInfo1(String User) throws Exception {
@@ -922,9 +958,11 @@ public class MySQLAccess {
 			preparedStatement = connect.prepareStatement("UPDATE software_security.tbl_transaction_requests SET requeststatus='Approved' WHERE `requestid`='6';");
 			preparedStatement.setString(1, User); 
 			ResultSet resultSet = preparedStatement.executeQuery();
+			LOG.info("Transaction requests successfully updated");
 			return resultSet;
 
 		} catch (Exception e) {
+			LOG.error("Issue while updating status of transactions request "+e.getMessage());
 			throw e;
 		}
 	}
@@ -982,29 +1020,29 @@ public class MySQLAccess {
 		ArrayList<ModifyUser> users = new ArrayList<ModifyUser>();
 		try {
 
-		while (resultSet.next()) {
+			while (resultSet.next()) {
 
-			byte[] user = resultSet.getBytes("username");
-			byte []accountnumber = resultSet.getBytes("accountnumber");
-			byte[] email = resultSet.getBytes("email");
-			byte[] firstname = resultSet.getBytes("firstname");
-			byte[] lastname = resultSet.getBytes("lastname");
-			byte[] address = resultSet.getBytes("address");
-			byte[] zip = resultSet.getBytes("zip");
-			byte[] phonenumber = resultSet.getBytes("phonenumber");
-			byte[] state = resultSet.getBytes("state");
-			byte[] passport=resultSet.getBytes("passportnumber");
-			byte[] businessLicense=resultSet.getBytes("businesslicense");
-			byte[] dateofbirth=resultSet.getBytes("dateofbirth");
+				byte[] user = resultSet.getBytes("username");
+				byte []accountnumber = resultSet.getBytes("accountnumber");
+				byte[] email = resultSet.getBytes("email");
+				byte[] firstname = resultSet.getBytes("firstname");
+				byte[] lastname = resultSet.getBytes("lastname");
+				byte[] address = resultSet.getBytes("address");
+				byte[] zip = resultSet.getBytes("zip");
+				byte[] phonenumber = resultSet.getBytes("phonenumber");
+				byte[] state = resultSet.getBytes("state");
+				byte[] passport=resultSet.getBytes("passportnumber");
+				byte[] businessLicense=resultSet.getBytes("businesslicense");
+				byte[] dateofbirth=resultSet.getBytes("dateofbirth");
 
 
-			users.add(new ModifyUser(new String(user),new String(accountnumber),new String(email), 
-					new String(firstname), new String(lastname),new String(address),new String(dateofbirth), 
-					new String(phonenumber), new String(state),new String(zip),new String(passport), 
-					new String(businessLicense)));
-		}
-		LOG.info("read User successfully");
-		
+				users.add(new ModifyUser(new String(user),new String(accountnumber),new String(email), 
+						new String(firstname), new String(lastname),new String(address),new String(dateofbirth), 
+						new String(phonenumber), new String(state),new String(zip),new String(passport), 
+						new String(businessLicense)));
+			}
+			LOG.info("read User successfully");
+
 		}
 		catch(Exception e){
 			LOG.error("Error in reading user"+e.getMessage());
@@ -1063,30 +1101,30 @@ public class MySQLAccess {
 
 	public void insertintoRequestDatabase(String user, String parameter,String parametertype, String permissionto) throws SQLException{
 		// Remove again the insert comment
- try{
-		preparedStatement = connect
-				.prepareStatement("SELECT "+ parametertype+" FROM software_security.tbl_user_details where tbl_user_details.username= ? ; ");
-		preparedStatement.setString(1, user);
-		ResultSet resultSet = preparedStatement.executeQuery();
-		while (resultSet.next()){
-			byte [] test= resultSet.getBytes(parametertype);
+		try{
 			preparedStatement = connect
-					.prepareStatement("INSERT into software_security.tbl_requests(username,requesttype,requestfrom,requestto,modifiedcolumn,approvalstatus,oldvalue,newvalue)VALUES(?,?,?,?,?,?,?,?); ");
+					.prepareStatement("SELECT "+ parametertype+" FROM software_security.tbl_user_details where tbl_user_details.username= ? ; ");
 			preparedStatement.setString(1, user);
-			preparedStatement.setString(2, "modify");
-			preparedStatement.setString(3, user);
-			preparedStatement.setString(4, permissionto);
-			preparedStatement.setString(5, parametertype);
-			preparedStatement.setString(6, "pending");
-			preparedStatement.setString(7, new String(test));
-			preparedStatement.setString(8, parameter);
-			preparedStatement.executeUpdate();}
-			
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()){
+				byte [] test= resultSet.getBytes(parametertype);
+				preparedStatement = connect
+						.prepareStatement("INSERT into software_security.tbl_requests(username,requesttype,requestfrom,requestto,modifiedcolumn,approvalstatus,oldvalue,newvalue)VALUES(?,?,?,?,?,?,?,?); ");
+				preparedStatement.setString(1, user);
+				preparedStatement.setString(2, "modify");
+				preparedStatement.setString(3, user);
+				preparedStatement.setString(4, permissionto);
+				preparedStatement.setString(5, parametertype);
+				preparedStatement.setString(6, "pending");
+				preparedStatement.setString(7, new String(test));
+				preparedStatement.setString(8, parameter);
+				preparedStatement.executeUpdate();}
+
 			LOG.info("inserted request  successfully");			
- } 
- catch (Exception e){
-	 LOG.error("read User successfully"+e.getMessage());
- }
+		} 
+		catch (Exception e){
+			LOG.error("read User successfully"+e.getMessage());
+		}
 
 	}
 
@@ -1126,7 +1164,7 @@ public class MySQLAccess {
 	public void declineRequestDatabase(String newvalue, String columnname, String user) throws SQLException{
 		// Remove again the insert comment
 
-try
+		try
 		{preparedStatement.executeUpdate();
 		preparedStatement = connect
 				.prepareStatement("update software_security.tbl_requests set tbl_requests.approvalstatus=? where tbl_requests.username= ? and tbl_requests.modifiedcolumn=? and tbl_requests.newvalue=? ; ");
@@ -1136,43 +1174,43 @@ try
 		preparedStatement.setString(4, newvalue);
 		preparedStatement.executeUpdate();
 		LOG.info("decline request successfully");
+		}
+		catch(Exception e)
+		{
+		}
 	}
-catch(Exception e)
-{
-	}
-}
 
 
 	public void deleteUserDetails(String user,String accountnumber) throws SQLException{
 		// Remove again the insert comment
 		try {
-		preparedStatement = connect
-				.prepareStatement("DELETE FROM software_security.tbl_user_account where username= ? and accountnumber= ?");
-		preparedStatement.setString(1, user);
-		preparedStatement.setString(2, accountnumber);
-		System.out.println(accountnumber);
-		preparedStatement.executeUpdate();
-		preparedStatement = connect
-				.prepareStatement("SELECT * FROM software_security.tbl_user_account where username= ? ");
-		preparedStatement.setString(1, user);
-		ResultSet rs= preparedStatement.executeQuery();
-		if(rs.next())
-		{
-			System.out.println("in delete right");
-		}
-		else{
 			preparedStatement = connect
-					.prepareStatement("DELETE FROM software_security.tbl_user_details where username= ?  ");
+					.prepareStatement("DELETE FROM software_security.tbl_user_account where username= ? and accountnumber= ?");
 			preparedStatement.setString(1, user);
+			preparedStatement.setString(2, accountnumber);
+			System.out.println(accountnumber);
 			preparedStatement.executeUpdate();
+			preparedStatement = connect
+					.prepareStatement("SELECT * FROM software_security.tbl_user_account where username= ? ");
+			preparedStatement.setString(1, user);
+			ResultSet rs= preparedStatement.executeQuery();
+			if(rs.next())
+			{
+				System.out.println("in delete right");
+			}
+			else{
+				preparedStatement = connect
+						.prepareStatement("DELETE FROM software_security.tbl_user_details where username= ?  ");
+				preparedStatement.setString(1, user);
+				preparedStatement.executeUpdate();
 
-			preparedStatement = connect
-					.prepareStatement("DELETE FROM software_security.tbl_user_authentication where username= ?  ");
-			preparedStatement.setString(1, user);
-			preparedStatement.executeUpdate();
-			System.out.println("hiii");
-		}
-		LOG.info("Deleted USer");}
+				preparedStatement = connect
+						.prepareStatement("DELETE FROM software_security.tbl_user_authentication where username= ?  ");
+				preparedStatement.setString(1, user);
+				preparedStatement.executeUpdate();
+				System.out.println("hiii");
+			}
+			LOG.info("Deleted USer");}
 		catch(Exception e){
 			LOG.error("Delete not successful"+e.getMessage());
 		}
@@ -1457,7 +1495,7 @@ catch(Exception e)
 
 
 
-			/*	// Get the public/private key pair
+				/*	// Get the public/private key pair
 				KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
 				keyGen.initialize(1024);
 				KeyPair keyPair = keyGen.genKeyPair();
@@ -1469,7 +1507,7 @@ catch(Exception e)
 				byte[] privateKeyBytes = privateKey.getEncoded();
 				byte[] publicKeyBytes = publicKey.getEncoded();
 
-				*/
+				 */
 
 				String pri= "PRIVATE_KEY";
 				String pub = "PUBLIC_KEY";
@@ -1491,16 +1529,16 @@ catch(Exception e)
 
 				//Insert into USER details table
 				preparedStatement2.executeUpdate();
-				
+
 				//Update the public private key pair
 				EncryptDecryptModule module = new EncryptDecryptModule();
 				pkiDatabaseHandler databaseHandler = new pkiDatabaseHandler();
-				
+
 				EncryptionKeyPair pair = module.generatekeysmodule();
 				databaseHandler.putKeysInDatabase(tmpusername, pair.getPriveKeyStr(), pair.getPubKeyStr());
 
-				
-				
+
+
 				SendEmail sendemail=new SendEmail();
 				sendemail.sendEmailApprove(tmpusername, tmppwd, pair.getPubKeyStr(),email);
 
@@ -1742,6 +1780,9 @@ catch(Exception e)
 			preparedStatement.setString(1, userName);    
 			ResultSet resultSet = preparedStatement.executeQuery();
 			ArrayList<UserRecepients> users = writeRecResultSet(resultSet);
+			if(resultSet!=null){
+				resultSet.close();
+			}
 			return users;
 
 		} catch (Exception e) {

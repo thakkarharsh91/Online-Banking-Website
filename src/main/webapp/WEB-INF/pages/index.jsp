@@ -29,6 +29,14 @@
 </head>
 
 <body>
+<noscript>
+<h2>JavaScript is disabled! Why you want to do so? 
+	Please enable JavaScript in your web browser and Refresh!</h2>
+
+	<style type="text/css">
+		#main-content { display:none; }
+	</style>
+</noscript>
 	<nav id="navigation">
 		<div class="container">
 			<ul class="navlinks">
@@ -90,10 +98,3 @@
 	</div>
 </body>
 </html>
-<%
-	int timeout = session.getMaxInactiveInterval();
-	String url = request.getRequestURL().toString();
-	url = url.replace("/WEB-INF/pages/index.jsp",
-			"/logoutusers");
-	response.setHeader("Refresh", "300; URL =" + url);
-%>

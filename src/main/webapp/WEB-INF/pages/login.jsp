@@ -30,6 +30,10 @@
 </head>
 
 <body>
+<noscript>
+  <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}" />
+  Javascript Disabled
+</noscript>
 	<nav id="navigation">
 		<div class="container">
 			<ul class="navlinks">

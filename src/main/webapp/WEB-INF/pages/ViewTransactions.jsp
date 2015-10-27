@@ -20,6 +20,13 @@
     </script>
 </head>
 <body>
+<div style="text-align: center">
+		<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
+	</div>
+	<br></br>
+	<div style="text-align: center">
+		<a href="${pageContext.servletContext.contextPath}/managerhome">Home</a>
+	</div>
 <table border="3" align="center">
 		<h2 align="center">
 			<u>Requests</u>

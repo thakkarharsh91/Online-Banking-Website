@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -42,10 +43,11 @@ import authentication.User;
 @Controller
 public class SayantanController 
 {
+	final static Logger logger = Logger.getLogger(AnishaController.class);
 
 	String ssn="";
 	String accounttype="";
-	ResultSet rs;
+	
 	String requestid = "";
 	authorizeExtUserHandler handler =  new authorizeExtUserHandler();
 	AddRecepientHandler handler1 = new AddRecepientHandler();
@@ -329,6 +331,7 @@ public class SayantanController
 			return model;
 		}
 		else if(role.equals("MERCHANT") || role.equals("USER")){
+			try{
 		ModelAndView model = new ModelAndView();
 		PaymentFormDataLoader handler = new PaymentFormDataLoader();
 
@@ -346,7 +349,15 @@ public class SayantanController
 		}
 		model.setViewName("Request.New.Card");
 		return model;
-
+			}
+			catch(Exception e){
+				ModelAndView model = new ModelAndView();
+				String username = (String) session.getAttribute("USERNAME");
+				lhandler.updateLoggedInFlag(username, 0);
+				session.invalidate();
+				model.setViewName("index");
+				return model;
+			}
 	}
 		else{
 			ModelAndView model = new ModelAndView();
@@ -361,6 +372,7 @@ public class SayantanController
 	@RequestMapping(value="/replaceCard",method=RequestMethod.POST)
 	public ModelAndView submituserCardReplacement(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws SQLException
 	{String role = (String) session.getAttribute("Role");
+	ResultSet rs = null;
 	if(role == null){
 		ModelAndView model = new ModelAndView();
 		model.setViewName("index");
@@ -388,7 +400,7 @@ public class SayantanController
 					requestCardHandler handler = new requestCardHandler();
 
 
-					ResultSet rs =  handler.getExsistingCardRequest(accountno);
+					 rs =  handler.getExsistingCardRequest(accountno);
 					if(rs.next())
 					{
 
@@ -424,6 +436,22 @@ public class SayantanController
 		catch( Exception e )
 		{
 			e.printStackTrace();
+			//ModelAndView model = new ModelAndView();
+			String username = (String) session.getAttribute("USERNAME");
+			lhandler.updateLoggedInFlag(username, 0);
+			session.invalidate();
+			model.setViewName("index");
+			return model;
+		}
+		finally{
+				try{
+					if(rs!=null){
+						rs.close();
+					}
+				}
+					catch(Exception e){
+						logger.error("Exception closing a resultset");
+					}
 		}
 		return model;
 	}
@@ -590,6 +618,8 @@ public class SayantanController
 	public ModelAndView authorizeExternalUser1(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws SQLException
 	{	
 		String role = (String) session.getAttribute("Role");
+		ResultSet rs=null;
+		ResultSet rs1 = null;
 		if(role == null){
 			ModelAndView model = new ModelAndView();
 			model.setViewName("index");
@@ -609,7 +639,7 @@ public class SayantanController
 				System.out.println("SSN:"+ssn);
 				System.out.println("Account Type:"+accounttype);
 				
-				ResultSet rs1 =  handler.getExsistingApprovedAccount(ssn,accounttype);
+			 rs1 =  handler.getExsistingApprovedAccount(ssn,accounttype);
 			 if (rs1.next())
 				{
                     model.addObject("ExsistingUser", " The application has been already approved");
@@ -671,7 +701,31 @@ public class SayantanController
 		catch( Exception e )
 		{
 			e.printStackTrace();
+			//ModelAndView model = new ModelAndView();
+			String username = (String) session.getAttribute("USERNAME");
+			lhandler.updateLoggedInFlag(username, 0);
+			session.invalidate();
+			model.setViewName("index");
+			return model;
 		}
+		finally{
+			try{
+				if(rs!=null){
+					rs.close();
+				}
+			}
+				catch(Exception e){
+					logger.error("Exception closing a resultset");
+				}
+		try{
+			if(rs1!=null){
+				rs1.close();
+			}
+		}
+			catch(Exception e){
+				logger.error("Exception closing a resultset");
+			}
+	}
 		return model;
 	}
 

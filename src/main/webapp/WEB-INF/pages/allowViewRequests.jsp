@@ -9,12 +9,12 @@
 <link href="<c:url value="/css/keyboard.css" />" rel="stylesheet"
 	type="text/css">
 <sec:csrfMetaTags />
+<meta http-equiv="Pragma" content="no-cache">
+ <meta http-equiv="Cache-Control" content="no-cache">
+ <meta http-equiv="Expires" content="-1">
 <title>Request Page</title>
 <style>
-.buttonHolder {
-	text-align: center;
-}
-
+.buttonHolder{ text-align: center; }
 .error {
 	padding: 15px;
 	margin-bottom: 20px;
@@ -46,32 +46,44 @@
 }
 </style>
 <script type="text/javascript">
-	function check_User(val) {
-		var element = document.getElementById('adminID');
-		if (val == 'ADMIN') {
-			element.style.display = 'block';
-			document.getElementById('adID').innerHTML = "Admin ID: ";
-		} else {
-			element.style.display = 'none';
-			document.getElementById('adID').innerHTML = "";
-		}
-	}
-</script>
-<script type="text/javascript">
-	history.pushState(null, null, window.location.href);
-	window.addEventListener('popstate', function(event) {
-		history.pushState(null, null, window.location.href);
-	});
-	document.addEventListener("contextmenu", function(e) {
-		e.preventDefault();
-	}, false);
-</script>
-</head>
-<body onload='document.loginForm.username.focus();'>
+function check_User(val){
+ var element=document.getElementById('adminID');
+ if(val=='ADMIN')
+	 {
+   element.style.display='block';
+   document.getElementById('adID').innerHTML = "Admin ID: ";
+	 }
+ else  
+	 {
+   element.style.display='none';
+   document.getElementById('adID').innerHTML = "";
+	 }
+}
 
+</script>
+
+<script type = "text/javascript" >
+    history.pushState(null, null,window.location.href);
+    window.addEventListener('popstate', function(event) {
+    history.pushState(null, null, window.location.href);
+    });
+    document.addEventListener("contextmenu", function(e){
+        e.preventDefault();
+    }, false);
+    </script>
+</head>
+<body>
+<noscript>
+  <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
+  Javascript Disabled
+</noscript>
 	<h1 align="center">Sun Devils Bank</h1>
 	<div style="text-align: center">
 		<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
+	</div>
+	<br></br>
+	<div style="text-align: center">
+		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
 	</div>
 	<div id="login-box" align="center">
 
@@ -98,9 +110,8 @@
 					<td>&nbsp;</td>
 				</tr>
 				<tr>
-					<td id="adID"></td>
-					<td><input type="text" name="adminID" id="adminID"
-						style='display: none;' /></td>
+				<td id="adID"></td>
+				<td><input type="text" name="adminID" id="adminID" style='display:none;'/></td>
 				</tr>
 				<tr>
 					<td>&nbsp;</td>
@@ -126,83 +137,87 @@
 		</form:form>
 	</div>
 	<form:form name='loginForm'
-		action="${pageContext.servletContext.contextPath}/updateAllow/?${_csrf.parameterName}=${_csrf.token}"
-		method='POST'>
-		<table border="3" align="center">
-			<h2 align="center">
-				<u>Requests</u>
-			</h2>
+			action="${pageContext.servletContext.contextPath}/updateAllow/?${_csrf.parameterName}=${_csrf.token}"
+			method='POST'>
+	<table border="3" align="center">
+		<h2 align="center">
+		<c:if test="${not empty Select}">
+			<div class="msg">${Select}</div>
+		</c:if>
+		<c:if test="${not empty SelectView}">
+			<div class="msg">${SelectView}</div>
+		</c:if>
+			<u>Requests</u>
+		</h2>
+		<tr>
+		    <th>Select to delete</th>
+		    <th>Select to View</th>
+			<th>Request ID</th>
+			<th>Request To</th>
+			<th>Request From</th>
+			<th>Request For</th>
+			<th>Request Type</th>
+			<th>Request Time</th>
+			<th>Request Status</th>
+		</tr>
+		<c:forEach var="view" items="${requestDetails}">
 			<tr>
-				<th>Select to delete</th>
-				<th>Select to View</th>
-				<th>Request ID</th>
-				<th>Request To</th>
-				<th>Request From</th>
-				<th>Request For</th>
-				<th>Request Type</th>
-				<th>Request Time</th>
-				<th>Request Status</th>
-			</tr>
-			<c:forEach var="view" items="${requestDetails}">
-				<tr>
-
-					<c:if test="${view.rqstStatus == 'Approve'}">
-						<td><input type="checkbox" value="${view.requstID}"
-							name="check"></td>
-						<td><INPUT TYPE="radio" name="radio" value="${view.rqstFor}" /></td>
-						<td><c:out value="${view.requstID}" /></td>
-						<c:set var="User" value="${view.rqstFor}" />
-						<%
-							session.setAttribute("User",
-												(String) pageContext.getAttribute("User"));
-						%>
-						<c:set var="User" value="${view.requstID}" />
-						<td><c:out value="${view.rqstTo}" /></td>
-						<td><c:out value="${view.rqstFrom}" /></td>
-						<td><c:out value="${view.rqstFor}" /></td>
-						<td><c:out value="${view.rqstType}" /></td>
-						<td><c:out value="${view.rqstTime}" /></td>
-						<td><c:out value="${view.rqstStatus}" /></td>
-					</c:if>
-					<c:if test="${view.rqstStatus == 'Reject'}">
-						<td><input type="checkbox" value="${view.requstID}"
-							name="check"></td>
-						<td></td>
-						<td><c:out value="${view.requstID}" /></td>
-						<c:set var="User" value="${view.rqstFor}" />
-						<c:set var="User" value="${view.requstID}" />
-						<td><c:out value="${view.rqstTo}" /></td>
-						<td><c:out value="${view.rqstFrom}" /></td>
-						<td><c:out value="${view.rqstFor}" /></td>
-						<td><c:out value="${view.rqstType}" /></td>
-						<td><c:out value="${view.rqstTime}" /></td>
-						<td><c:out value="${view.rqstStatus}" /></td>
-					</c:if>
-					<c:if test="${view.rqstStatus == 'Pending'}">
-						<td></td>
-						<td></td>
-						<td><c:out value="${view.requstID}" /></td>
-						<td><c:out value="${view.rqstTo}" /></td>
-						<td><c:out value="${view.rqstFrom}" /></td>
-						<td><c:out value="${view.rqstFor}" /></td>
-						<td><c:out value="${view.rqstType}" /></td>
-						<td><c:out value="${view.rqstTime}" /></td>
-						<td><c:out value="${view.rqstStatus}" /></td>
-					</c:if>
-			</c:forEach>
-		</table>
-		</br>
-		</br>
-		<div class="buttonHolder">
-			<input name="submitDelete" type="submit" value="Delete" />
-		</div>
-		</br>
-
-		<div class="buttonHolder">
-			<input name="submitView" type="submit" value="View" />
-		</div>
-		<input type="hidden" name="${_csrf.parameterName}"
-			value="${_csrf.token}" />
+			
+			<c:if test="${view.rqstStatus == 'Approve'}">
+			<td><input type="checkbox" value="${view.requstID}" name="check"></td>
+			<td><INPUT TYPE="radio" name="radio" value="${view.rqstFor}"/></td>
+			<td><c:out value="${view.requstID}" /></td>
+			<c:set var="User" value="${view.rqstFor}"/>
+			<%session.setAttribute("User",(String)pageContext.getAttribute("User"));
+			%>
+			    <c:set var="User" value="${view.requstID}"/>
+				<td><c:out value="${view.rqstTo}" /></td>
+				<td><c:out value="${view.rqstFrom}" /></td>
+				<td><c:out value="${view.rqstFor}" /></td>
+				<td><c:out value="${view.rqstType}" /></td>
+				<td><c:out value="${view.rqstTime}" /></td>
+				<td><c:out value="${view.rqstStatus}" /></td>
+		</c:if>
+		<c:if test="${view.rqstStatus == 'Reject'}">
+			<td><input type="checkbox" value="${view.requstID}" name="check"></td>
+			<td></td>
+			<td><c:out value="${view.requstID}" /></td>
+			<c:set var="User" value="${view.rqstFor}"/>
+			    <c:set var="User" value="${view.requstID}"/>
+				<td><c:out value="${view.rqstTo}" /></td>
+				<td><c:out value="${view.rqstFrom}" /></td>
+				<td><c:out value="${view.rqstFor}" /></td>
+				<td><c:out value="${view.rqstType}" /></td>
+				<td><c:out value="${view.rqstTime}" /></td>
+				<td><c:out value="${view.rqstStatus}" /></td>
+		</c:if>
+		<c:if test="${view.rqstStatus == 'Pending'}">
+		    <td></td>
+		    <td></td>
+			<td><c:out value="${view.requstID}" /></td>
+				<td><c:out value="${view.rqstTo}" /></td>
+				<td><c:out value="${view.rqstFrom}" /></td>
+				<td><c:out value="${view.rqstFor}" /></td>
+				<td><c:out value="${view.rqstType}" /></td>
+				<td><c:out value="${view.rqstTime}" /></td>
+				<td><c:out value="${view.rqstStatus}" /></td>
+		</c:if>
+				
+			
+		</c:forEach>
+	</table>
+	</br>
+	</br>
+	<div class="buttonHolder">
+	<input name="submitDelete" type="submit" value="Delete"/>
+	</div>
+	</br>
+	
+	<div class="buttonHolder">
+	<input name="submitView" type="submit" value="View"/>
+	</div>
+	<input type="hidden" name="${_csrf.parameterName}"
+				value="${_csrf.token}" />
 	</form:form>
 </body>
 </html>
@@ -212,4 +227,7 @@
 	url = url.replace("/WEB-INF/pages/allowViewRequests.jsp",
 			"/logoutusers");
 	response.setHeader("Refresh", "300; URL =" + url);
+	response.setHeader("Cache-Control","no-cache"); 
+	response.setHeader("Pragma","no-cache"); 
+	response.setDateHeader ("Expires", -1);
 %>
