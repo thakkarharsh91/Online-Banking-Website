@@ -20,24 +20,24 @@ public class PIIRequestDatabaseHandler {
 	}
 
 	public void addNewEntry( String username, String requesttype, String requestdetails, 
-			String authorizedto, String status) throws Exception {
+			String status) throws Exception {
 		
 		EncDecModule encrypter = new EncDecModule();
 
 		byte[] encryptedRequesttype = encrypter.encrypt(requesttype);
 		byte[] encryptedRequestdetails = encrypter.encrypt(requestdetails);
-		byte[] encryptedAuthorizedto = encrypter.encrypt(authorizedto);
-		byte[] encryptedStatus = encrypter.encrypt(status);
+		
 
 		getConnection();
 
 		preparedStatement = connect
-				.prepareStatement("insert into  software_security.tbl_pii_requests values (?, ?, ?, ?, ?)");
-		preparedStatement.setBytes(1, username.getBytes());
-		preparedStatement.setBytes(2, encryptedRequesttype);
-		preparedStatement.setBytes(3, encryptedRequestdetails);
-		preparedStatement.setBytes(4, encryptedAuthorizedto);
-		preparedStatement.setBytes(5, encryptedStatus);
+				.prepareStatement("insert into  software_security.tbl_pii_requests values (?, ?, ?, ?, ?, ?)");
+		preparedStatement.setBytes(1, null);
+		preparedStatement.setBytes(2, username.getBytes());
+		preparedStatement.setBytes(3, encryptedRequesttype);
+		preparedStatement.setBytes(4, encryptedRequestdetails);
+		preparedStatement.setBytes(5, "Yo".getBytes());
+		preparedStatement.setBytes(6, status.getBytes());
 
 		preparedStatement.executeUpdate();
 
@@ -58,12 +58,10 @@ public class PIIRequestDatabaseHandler {
 			if (resultSet.next()) {
 				int pid = resultSet.getInt("pid");
 				String requesttype = new String(encrypter.decrypt(resultSet.getBytes("requesttype")));
-				String requestdetails = new String(encrypter.decrypt(resultSet.getBytes("requestdetails")));
-				String authorizedto = new String(encrypter.decrypt(resultSet.getBytes("authorizedto")));
+				String requestdetails = new String(encrypter.decrypt(resultSet.getBytes("requestdetails")));				
 				String status = new String(encrypter.decrypt(resultSet.getBytes("status")));
 
-				user = new PIIRequest(pid, username, requesttype, requestdetails, 
-						authorizedto, status);
+				user = new PIIRequest(pid, username, requesttype, requestdetails, "", status);
 			}
 			resultSet.close();
 			close();

@@ -144,16 +144,7 @@ public class CustomerController {
 								balance=rs.getDouble("balance");
 							}
 						}
-						ResultSet rs1=handler.requestPendingTransaction(userName);
-						double tempBalance=0;
-						while(rs1.next()){
-							if((rs.getString("transfertype").equalsIgnoreCase("D") ||rs.getString("transfertype").equalsIgnoreCase("T"))){
-								tempBalance=tempBalance+rs1.getDouble("transactionamount");
-							}
-							else if(rs.getString("transfertype").equalsIgnoreCase("C")){
-								tempBalance=tempBalance-rs1.getDouble("transactionamount");
-							}
-						}
+						
 						double finalBalance=balance;
 						if(option.equalsIgnoreCase("debit") && (Double.parseDouble(amount)>finalBalance)){
 							model.addObject("insuffFunds", "The Account has insufficient funds");
@@ -167,19 +158,19 @@ public class CustomerController {
 							boolean flag2 = false;
 							if(option.equalsIgnoreCase("debit")){
 								logger.info("Insereting the requested debit transacation for the user "+userName+" for amount:"+amount);
-								flag1=handler.insertTransactionDetails(userName,random,amount,accountNum,"",TimeUtility.generateDateMethod(),option,"pendingapproval");
+								flag1=handler.insertTransactionDetails(userName,random,amount,accountNum,"",TimeUtility.generateSysDateMethod(),option,"pendingapproval");
 								logger.info("Succesfully inserted the requested debit transacation for the user "+userName+" for amount:"+amount);
 								balance=balance-Double.parseDouble(amount);
-								flag2=handler.updateBalance(userName,balance);
+								flag2=handler.updateBalance(accountNum,balance,userName);
 								logger.info("Successfully updated the balance of the user:"+userName);
 								
 							}
 							else if(option.equalsIgnoreCase("credit")){
 								logger.info("Insereting the requested debit transacation for the user "+userName+" for amount:"+amount);
-								flag1=handler.insertTransactionDetails(userName,random,amount,"",accountNum,TimeUtility.generateDateMethod(),option,"pendingapproval");
+								flag1=handler.insertTransactionDetails(userName,random,amount,"",accountNum,TimeUtility.generateSysDateMethod(),option,"pendingapproval");
 								logger.info("Succesfully inserted the requested debit transacation for the user "+userName+" for amount:"+amount);
 								balance=balance+Double.parseDouble(amount);
-								flag2=handler.updateBalance(userName,balance);
+								flag2=handler.updateBalance(accountNum,balance,userName);
 								logger.info("Successfully updated the balance of the user:"+userName);
 							}
 	
@@ -272,7 +263,7 @@ public class CustomerController {
 			String confirmNewInfo=request.getParameter("cnfrmNewInfo");
 			String otp=request.getParameter("otpCode");
 			String otpString = (String)session.getAttribute("OTP");
-			otpEnterTime=TimeUtility.generateDateMethod()+" "+TimeUtility.generateHoursMethod()+":"+TimeUtility.generateMinutesMethod()+":"+TimeUtility.generateSecondsMethod();
+			otpEnterTime=TimeUtility.generateSysDateMethod()+" "+TimeUtility.generateSysHoursMethod()+":"+TimeUtility.generateSysMinutesMethod()+":"+TimeUtility.generateSysSecondsMethod();
 //			long diff = System.currentTimeMillis() - startTime;
 			int random = (new Random()).nextInt(900000) + 100000;
 //			int minutes = (int) ((diff / (1000*60)) % 60);
@@ -313,7 +304,7 @@ public class CustomerController {
 		}
 		else if(request.getParameter("otpButton")!=null){
 			startTime = System.currentTimeMillis();
-			otpGenerateTime=TimeUtility.generateDateMethod()+" "+TimeUtility.generateHoursMethod()+":"+TimeUtility.generateMinutesMethod()+":"+TimeUtility.generateSecondsMethod();
+			otpGenerateTime=TimeUtility.generateSysDateMethod()+" "+TimeUtility.generateSysHoursMethod()+":"+TimeUtility.generateSysMinutesMethod()+":"+TimeUtility.generateSysSecondsMethod();
 			OtpUtility otp = new OtpUtility();
 			String email = null;
 			ResultSet rs = handler.getEmail(userName);

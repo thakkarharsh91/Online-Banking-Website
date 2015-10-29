@@ -10,6 +10,9 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Pragma" content="no-cache">
+ <meta http-equiv="Cache-Control" content="no-cache">
+ <meta http-equiv="Expires" content="-1">
 <title>Insert title here</title>
 <script type = "text/javascript" >
     history.pushState(null, null,window.location.href);
@@ -21,7 +24,12 @@
     }, false);
     </script>
 </head>
-<body>
+<body oncopy="return false" oncut="return false" onpaste="return false">
+	<noscript>
+  <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
+
+  Javascript Disabled
+</noscript>
 
 	<form:form
 		action="${pageContext.servletContext.contextPath}/merchantreceivepayment/?${_csrf.parameterName}=${_csrf.token}"
@@ -66,4 +74,7 @@
 	url = url.replace("/WEB-INF/pages/Merchant.Organization/Receive.Payment.jsp",
 			"/logoutusers");
 	response.setHeader("Refresh", "300; URL =" + url);
+	response.setHeader("Cache-Control","no-cache"); 
+    response.setHeader("Pragma","no-cache"); 
+    response.setDateHeader ("Expires", -1);
 %>

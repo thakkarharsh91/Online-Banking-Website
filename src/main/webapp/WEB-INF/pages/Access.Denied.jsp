@@ -7,6 +7,9 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Pragma" content="no-cache">
+ <meta http-equiv="Cache-Control" content="no-cache">
+ <meta http-equiv="Expires" content="-1">
 <title>Error</title>
 <script type = "text/javascript" >
     history.pushState(null, null,window.location.href);
@@ -18,7 +21,11 @@
     }, false);
     </script>
 </head>
-<body>
+<body oncopy="return false" oncut="return false" onpaste="return false">
+    <noscript>
+  <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
+  Javascript Disabled
+</noscript>
 	<h2>Access to this page is denied:</h2>
 
 	<br/>

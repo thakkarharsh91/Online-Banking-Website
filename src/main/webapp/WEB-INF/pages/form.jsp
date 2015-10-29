@@ -7,6 +7,9 @@
 <html>
 <head>
 <script type="text/javascript" src="<c:url value="/js/keyboard.js " />"></script>
+<meta http-equiv="Pragma" content="no-cache">
+ <meta http-equiv="Cache-Control" content="no-cache">
+ <meta http-equiv="Expires" content="-1">
 <link href="<c:url value="/css/keyboard.css" />" rel="stylesheet"
 	type="text/css">
 <title>Login Page</title>
@@ -20,7 +23,11 @@
     }, false);
     </script>
 </head>
-<body>
+<body oncopy="return false" oncut="return false" onpaste="return false">
+	<noscript>
+  <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
+  Javascript Disabled
+</noscript>
 
 	<h1 align="center">Sun Devils Bank</h1>
 
@@ -45,4 +52,7 @@
 	url = url.replace("/WEB-INF/pages/form.jsp",
 			"/logoutusers");
 	response.setHeader("Refresh", "300; URL =" + url);
+	response.setHeader("Cache-Control","no-cache"); 
+	response.setHeader("Pragma","no-cache"); 
+	response.setDateHeader ("Expires", -1);
 %>

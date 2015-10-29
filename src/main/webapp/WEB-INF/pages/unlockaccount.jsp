@@ -7,6 +7,9 @@
 <html lang="en-US">
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta http-equiv="Pragma" content="no-cache">
+ <meta http-equiv="Cache-Control" content="no-cache">
+ <meta http-equiv="Expires" content="-1">
 <title>Sun Devils Bank Home Page</title>
 
 <script type="text/javascript"
@@ -27,7 +30,7 @@
 <link
 	href="<c:url value="http://teamtreehouse.com/assets/favicon.ico" />"
 	rel="icon">
-	<script type = "text/javascript" >
+<script type="text/javascript">
     history.pushState(null, null,window.location.href);
     window.addEventListener('popstate', function(event) {
     history.pushState(null, null, window.location.href);
@@ -38,7 +41,11 @@
     </script>
 </head>
 
-<body>
+<body oncopy="return false" oncut="return false" onpaste="return false">
+	<noscript>
+  <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
+  Javascript Disabled
+</noscript>
 	<nav id="navigation">
 		<div class="container">
 			<ul class="navlinks">
@@ -62,37 +69,35 @@
 
 	<div id="login-box" align="center">
 		<h2 align="center">UNLOCK ACCOUNT</h2>
-		<strong>
-		<c:if test="${not empty lock}">
-			<div class="msg">${lock}</div>
-		</c:if>
-		<c:if test="${not empty emptyFields}">
-			<div class="msg">${emptyFields}</div>
-		</c:if>
-		<c:if test="${not empty wrongOtp}">
-			<div class="msg">${wrongOtp}</div>
-		</c:if>
-		<c:if test="${not empty incorrectFields}">
-			<div class="msg">${incorrectFields}</div>
-		</c:if>
-		<c:if test="${not empty alreadypresent}">
-			<div class="msg">${alreadypresent}</div>
-		</c:if>
-		<c:if test="${not empty success}">
-			<div class="msg">${success}</div>
-		</c:if></strong>
+		<strong> <c:if test="${not empty lock}">
+				<div class="msg">${lock}</div>
+			</c:if> <c:if test="${not empty emptyFields}">
+				<div class="msg">${emptyFields}</div>
+			</c:if> <c:if test="${not empty wrongOtp}">
+				<div class="msg">${wrongOtp}</div>
+			</c:if> <c:if test="${not empty incorrectFields}">
+				<div class="msg">${incorrectFields}</div>
+			</c:if> <c:if test="${not empty alreadypresent}">
+				<div class="msg">${alreadypresent}</div>
+			</c:if> <c:if test="${not empty success}">
+				<div class="msg">${success}</div>
+			</c:if></strong>
 		<form name="form"
 			action="${pageContext.servletContext.contextPath}/unlockaccount?${_csrf.parameterName}=${_csrf.token}"
 			method='POST'>
 			<table border="0">
 				<tbody>
 					<tr>
-						<td>Enter the User name:</td>
-						<td><input type="text" name="username"></td>
+						<td>User name:</td>
+						<td><c:out value="${user}" /></td>
 					</tr>
 					<tr>
-						<td>Enter Account Number:</td>
-						<td><input type="text" name="account"></td>
+						<td>Enter SSN</td>
+						<td><input type="text" name="ssn"></td>
+					</tr>
+					<tr>
+						<td>Enter email address</td>
+						<td><input type="text" name="email"></td>
 					</tr>
 					<tr>
 						<td>&nbsp;</td>
@@ -100,23 +105,10 @@
 					</tr>
 					<tr>
 						<td></td>
-						<td><img id="otp_id" name="otpCaptcha123" src="captcha.jpg"
-							hidden="true"> <a href="javascript:;"
-							title="Send OTP in email" name="otpButton"
-							onclick="document.getElementById('otp_id').src = '${pageContext.servletContext.contextPath}/unlockaccount?' + 'otpButton';  return false">
-								Send Otp in Email </a></td>
-					</tr>
-
-					<tr>
-						<td>OTP :</td>
-						<td><input type='text' name='otpCode' class='keyboardInput'></td>
 					</tr>
 					<tr>
 						<td></td>
-					</tr>
-					<tr>
-						<td></td>
-						<td><input name="submit" type="submit" value="submit" /></td>
+						<td><input class="btn btn-primary" name="submit" type="submit" value="submit" /></td>
 					</tr>
 
 
@@ -135,4 +127,7 @@
 	url = url.replace("/WEB-INF/pages/unlockaccount.jsp",
 			"/logoutusers");
 	response.setHeader("Refresh", "300; URL =" + url);
+	response.setHeader("Cache-Control","no-cache"); 
+	response.setHeader("Pragma","no-cache"); 
+	response.setDateHeader ("Expires", -1);
 %>

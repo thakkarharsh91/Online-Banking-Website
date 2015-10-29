@@ -7,6 +7,9 @@
 <html lang="en-US">
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta http-equiv="Pragma" content="no-cache">
+ <meta http-equiv="Cache-Control" content="no-cache">
+ <meta http-equiv="Expires" content="-1">
 <title>Sun Devils Bank Home Page</title>
 <link rel="shortcut icon"
 	href="http://teamtreehouse.com/assets/favicon.ico">
@@ -31,7 +34,11 @@
     </script>
 </head>
 
-<body>
+<body oncopy="return false" oncut="return false" onpaste="return false">
+	<noscript>
+  <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}" />
+  Javascript Disabled
+</noscript>
 	<form name="form"
 		action="${pageContext.servletContext.contextPath}/customerquery?${_csrf.parameterName}=${_csrf.token}"
 		method='POST'>

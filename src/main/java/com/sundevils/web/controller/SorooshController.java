@@ -97,7 +97,7 @@ public class SorooshController {
 			String email = handler.getEmailAddressForUsername(username);
 			OtpUtility otp = new OtpUtility();
 			otp.sendOtp(request, email);
-			otpGenerateTime = TimeUtility.generateDateMethod()+" "+TimeUtility.generateHoursMethod()+":"+TimeUtility.generateMinutesMethod()+":"+TimeUtility.generateSecondsMethod();
+			otpGenerateTime = TimeUtility.generateSysDateMethod()+" "+TimeUtility.generateSysHoursMethod()+":"+TimeUtility.generateSysMinutesMethod()+":"+TimeUtility.generateSysSecondsMethod();
 			request.getSession().setAttribute("otpGenerateTime", otpGenerateTime);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -219,6 +219,7 @@ public class SorooshController {
 			LOGGER.error("Internal error occured - data decryption error");
 			errors.add("Internal error occured - try again later");
 			model.setViewName("Merchant.Organization/Payment.Error");
+			model.addObject("errors", errors);
 			return model;		
 		}
 
@@ -234,6 +235,7 @@ public class SorooshController {
 			LOGGER.error("Internal error occured - data decryption error");
 			errors.add("Internal error occured - try again later");
 			model.setViewName("Merchant.Organization/Payment.Error");
+			model.addObject("errors", errors);
 			return model;
 		}
 
@@ -244,6 +246,7 @@ public class SorooshController {
 			LOGGER.error("Cannot request payment from self");
 			model.addObject("errors", errors);
 			model.setViewName("Merchant.Organization/Payment.Error");
+			model.addObject("errors", errors);
 			return model;
 		}
 
@@ -324,6 +327,7 @@ public class SorooshController {
 			LOGGER.error("Internal error occured");
 			errors.add("Internal error occured - data decryption error");
 			model.setViewName("Individual.Customers/Payment.Error");
+			model.addObject("errors", errors);
 			return model;
 		}
 
@@ -341,6 +345,7 @@ public class SorooshController {
 			LOGGER.error("Internal error occured");
 			errors.add("Internal error occured - try again later");
 			model.setViewName("Individual.Customers/Payment.Error");
+			model.addObject("errors", errors);
 			return model;
 		}
 

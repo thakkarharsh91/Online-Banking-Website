@@ -57,7 +57,8 @@ public class ModifyUser  {
 	}
 
 	public void setAddress(String address) {
-		this.address = address;
+		if(address==null) this.address="";
+		else this.address = address;
 	}
 
 
@@ -66,14 +67,17 @@ public class ModifyUser  {
 	}
 
 	public void setPhonenumber(String phonenumber) {
-		this.phonenumber = phonenumber;
+		if(phonenumber==null) this.phonenumber="";
+		else this.phonenumber = phonenumber;
+		
 	}
 	public String getDateOfBirth() {
 		return dateOfBirth;
 	}
 
 	public void setDateOfBirth(String dateOfBirth) {
-		this.dateOfBirth = dateOfBirth;
+		if(dateOfBirth==null) this.dateOfBirth="";
+		else this.dateOfBirth = dateOfBirth;
 	}
 	public String getPassport() {
 		return passport;
@@ -87,12 +91,14 @@ public class ModifyUser  {
 	}
 
 	public void setZip(String zip) {
-		this.zip = zip;
+		if(zip==null) this.zip="";
+		else this.zip = zip;
 	}
 
 
 	public void setState(String state) {
-		this.state = state;
+		if(state==null) this.state="";
+		else this.state = state;
 	}
 	public String getState() {
 		return state;
@@ -111,7 +117,8 @@ public class ModifyUser  {
 	}
 
 	public void setLastName(String lastName) {
-		this.lastName = lastName;
+		if(lastName==null) this.lastName="";
+		else this.lastName = lastName;
 	}
 
 	public String getEmail() {
@@ -126,7 +133,8 @@ public class ModifyUser  {
 	}
 
 	public void setBusinessLicense(String businesslicense) {
-		this.businessLicense = businesslicense;
+		if(businesslicense==null) this.businessLicense="";
+		else this.businessLicense = businesslicense;
 	}
 
 	@Override

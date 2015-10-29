@@ -12,10 +12,17 @@
         e.preventDefault();
     }, false);
     </script>
+    <meta http-equiv="Pragma" content="no-cache">
+	 <meta http-equiv="Cache-Control" content="no-cache">
+	 <meta http-equiv="Expires" content="-1">
 </head>
 
 
-<body>
+<body oncopy="return false" oncut="return false" onpaste="return false">
+	<noscript>
+  <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
+  Javascript Disabled
+</noscript>
 	<div style="text-align: center">
 		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
 	</div>
@@ -32,16 +39,16 @@
 			</c:if><br/>
 		<table align="center">
 			<tr><td><label>UserName</label></td>
-			<td><input type="text" name="username"></td>
+			<td><input type="text" name="username" maxlength="45"></td>
 			</tr>
     		<tr><td><label>Transaction Amount</label></td>
-    		<td><input type="text" name="transamount" />
+    		<td><input type="text" name="transamount" maxlength="10"/>
 			</td></tr>		
     		<tr><td><label>Source Account</label></td>
-    		<td><input type="text" name="sourceacc"/>
+    		<td><input type="text" name="sourceacc" maxlength="20"/>
 			</td></tr>	
     		<tr><td><label>Destination Account</label></td>
-    		<td><input type="text" name="destacc"/>
+    		<td><input type="text" name="destacc" maxlength="20"/>
 			</td></tr>
 			<tr><td></td><td><input type="submit" value="Create" name="submit"/>
 			<input type="hidden" name="${_csrf.parameterName}"
@@ -58,4 +65,7 @@
 	url = url.replace("/WEB-INF/pages/create_transactions.jsp",
 			"/logoutusers");
 	response.setHeader("Refresh", "300; URL =" + url);
+	response.setHeader("Cache-Control","no-cache"); 
+	response.setHeader("Pragma","no-cache"); 
+	response.setDateHeader ("Expires", -1);
 %>

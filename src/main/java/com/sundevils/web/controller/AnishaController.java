@@ -295,14 +295,14 @@ public class AnishaController {
 							boolean success = false;
 							String transferType = "fundstransfer";
 							SourceBalance = SourceBalance-amount;
-							lhandler.updateBalance(userName,SourceBalance);
+							lhandler.updateBalance(SourceAccountNumber,SourceBalance,userName);
 							String Status = "pendingapproval";
-							success = handler.submitTrasferRequest(userName,TransactionID,Amount,SourceAccountNumber,DestinationAccountNumber,TimeUtility.generateDateMethod(),transferType,Status,success);
+							success = handler.submitTrasferRequest(userName,TransactionID,Amount,SourceAccountNumber,DestinationAccountNumber,TimeUtility.generateSysDateMethod(),transferType,Status,success);
 							if(success){
 								logger.info("Succesfully submitted the transaction for " + userName );
 
 								model.addObject("success","Successfully submited the transaction for approval");
-								model.setViewName("customerhome");
+								model.setViewName("InternalFundTransfer");
 							}
 							else{
 								model.addObject("failure", "Could not submit transaction");
@@ -482,15 +482,15 @@ public class AnishaController {
 								int TransactionID = 0;
 								boolean success = false;
 								String transferType = "fundstransfer";
-								String Status = "pending";
+								String Status = "pendingapproval";
 								SourceBalance = SourceBalance-amount;
-								lhandler.updateBalance(userName,SourceBalance);
-								success = handler.submitTrasferRequest(userName,TransactionID,Amount,SourceAccountNumber,DestinationAccount,TimeUtility.generateDateMethod(),transferType,Status,success);
+								lhandler.updateBalance(SourceAccountNumber,SourceBalance,userName);
+								success = handler.submitTrasferRequest(userName,TransactionID,Amount,SourceAccountNumber,DestinationAccount,TimeUtility.generateSysDateMethod(),transferType,Status,success);
 								if(success){
 									model.addObject("success","Successfully submited the transaction for approval");
 									logger.info("Succesfully submitted the transaction for " + userName );
 
-									model.setViewName("customerhome");
+									model.setViewName("ExternalFundTransfer");
 								}
 								else{
 									model.addObject("failure", "Could not submit transaction");
@@ -617,7 +617,7 @@ public class AnishaController {
 								{
 									model.addObject("Successfull", "Recepient added successfully");
 									logger.info("Succesfully added the recepient: " + firstName + lastName +" for user: " + userName);
-									model.setViewName("customerhome");}
+									model.setViewName("AddARecepient");}
 								else
 									{
 									model.addObject("dulicateuser", "Reepient with above information(account number) already exsists");

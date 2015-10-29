@@ -26,7 +26,11 @@ public class ModifyUsersHandler {
 
 
 		try {
-			return (Object)sql.readModifyUser(userName,parameterType);
+			Object obj=null;
+			obj=(Object)sql.readModifyUser(userName,parameterType);
+			sql.close();
+			return obj;
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -45,13 +49,40 @@ public class ModifyUsersHandler {
 
 
 		try {
-			return (Object)sql.readSystemManagers();
+			Object obj=null;
+			obj= (Object)sql.readSystemManagers();
+			sql.close();
+			return obj;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
 
 	}
+	
+	public void setloggedin(String Username) {
+
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+		
+			sql.setisloggeddb(Username);
+			sql.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+
+	}
+	
 	public ResultSet requestCountHandler() {
 
 		try {
@@ -64,7 +95,10 @@ public class ModifyUsersHandler {
 
 
 		try {
-			return (ResultSet)sql.countRequestDatabase();
+			ResultSet obj= null;
+			obj= (ResultSet)sql.countRequestDatabase();
+			sql.close();
+			return obj;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -85,7 +119,10 @@ public class ModifyUsersHandler {
 
 
 		try {
+		
 			sql.updatecountDatabase(count,Username);
+			sql.close();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -104,7 +141,9 @@ public class ModifyUsersHandler {
 
 
 		try {
+			
 			sql.deleteUserDetails(userName,accountnumber);
+			sql.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -124,6 +163,7 @@ public class ModifyUsersHandler {
 
 		try {
 			sql.updateUserDetails(parameters);
+			sql.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -143,6 +183,7 @@ public class ModifyUsersHandler {
 
 		try {
 			sql.insertintoRequestDatabase(user,parameter,parametertype,usertype);
+			sql.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -161,7 +202,9 @@ public class ModifyUsersHandler {
 
 
 		try {
+			
 			sql.updateRequestDatabase(newvalue, columnname, user);
+			sql.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -181,6 +224,7 @@ public class ModifyUsersHandler {
 
 		try {
 			sql.declineRequestDatabase(newvalue,columnname,user);
+			sql.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -198,8 +242,10 @@ public class ModifyUsersHandler {
 		}
 
 
-		try {
-			return sql.viewRequestDatabase( Manager);
+		try {Object obj=null;
+			obj =sql.viewRequestDatabase( Manager);
+			sql.close();
+			return obj;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -219,7 +265,10 @@ public class ModifyUsersHandler {
 
 
 		try {
-			return sql.readAccountType(username,accountnumber);
+			Object obj = null;
+			obj = sql.readAccountType(username,accountnumber);
+			sql.close();
+			return obj;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -239,6 +288,7 @@ public class ModifyUsersHandler {
 
 		try {
 		 sql.insertAccountChangeRequest(username,manager,Accountnumber);
+		 sql.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

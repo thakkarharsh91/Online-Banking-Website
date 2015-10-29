@@ -63,7 +63,7 @@ public class PaymentInfoValidator {
 
 		else{
 			
-			String otpEnteredtime=TimeUtility.generateDateMethod()+" "+TimeUtility.generateHoursMethod()+":"+TimeUtility.generateMinutesMethod()+":"+TimeUtility.generateSecondsMethod();
+			String otpEnteredtime=TimeUtility.generateSysDateMethod()+" "+TimeUtility.generateSysHoursMethod()+":"+TimeUtility.generateSysMinutesMethod()+":"+TimeUtility.generateSysSecondsMethod();
 			String modelTime="2015/10/24 00:00:00";
 			long genSec = TimeUtility.getDifferenceinSeconds(modelTime, oTPGenerateTime);
 			long enterSec = TimeUtility.getDifferenceinSeconds(modelTime, otpEnteredtime);

@@ -30,10 +30,13 @@ public class EncDecModule {
 		return encrypted;
 	}
 
-	public byte[] decrypt(byte[] encryptedData) 
-			throws Exception {
+	public byte[] decrypt(byte[] encryptedData) throws Exception 
+	{
 		if(this.privateKey == null)
+		{
 			deserilizePrivateKey();
+		}
+			
 		Cipher cipher = Cipher.getInstance(databaseEncryptionAlgo);
 		cipher.init(Cipher.DECRYPT_MODE, this.privateKey);
 		byte[] decrypted = cipher.doFinal(encryptedData);
@@ -46,7 +49,8 @@ public class EncDecModule {
 		this.publicKey = (PublicKey)pubObjInput.readObject();
 	}
 	
-	private void deserilizePrivateKey() throws IOException, ClassNotFoundException{
+	private void deserilizePrivateKey() throws IOException, ClassNotFoundException
+	{
 		InputStream inPrivate = new FileInputStream("\\C:\\Keys\\private.ser");
 		ObjectInputStream privObjInput = new ObjectInputStream(inPrivate);
 		this.privateKey = (PrivateKey)privObjInput.readObject();

@@ -2,41 +2,52 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ page trimDirectiveWhitespaces="true"%>
-<!doctype html>
+<!DOCTYPE html>
 <html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-		<title>Add Internal User</title>
-		<script type = "text/javascript" >
-   			 history.pushState(null, null,window.location.href);
-    		 window.addEventListener('popstate', function(event) 
-    		 {history.pushState(null, null, window.location.href);});
-    		 document.addEventListener("contextmenu", function(e)
-    		 {e.preventDefault();}, false);
-   		 </script>
-	</head>	
-	<body>
-		<form action="addinternaluser" method='POST'>
-		<input type="hidden" name="${_csrf.parameterName}"	value="${_csrf.token}" />
-			<p style="text-align:right"><a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></p>
-			<h2 align="justify">Add Internal User:</h2>
-			<table>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" charset="UTF-8">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Expires" content="-1">
+<title>Add Internal User</title>
+<script type = "text/javascript" >
+   	history.pushState(null, null,window.location.href);
+    window.addEventListener('popstate', function(event) 
+    {history.pushState(null, null, window.location.href);});
+    document.addEventListener("contextmenu", function(e)
+    {e.preventDefault();}, false);
+</script>
+</head>	
+<body oncopy="return false" oncut="return false" onpaste="return false">	
+<noscript>
+	<h2>JavaScript is disabled! Why you want to do so? Please enable JavaScript in your web browser and Refresh!</h2>
+			<style type="text/css">	#main-content { display:none; } </style>
+</noscript>
+
+	<div style="text-align: center"><a href="${pageContext.servletContext.contextPath}/Home">Home</a></div>
+	<div style="text-align: center"><a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></div>
+	
+<form action="addinternaluser" method='POST'>
+	<input type="hidden" name="${_csrf.parameterName}"	value="${_csrf.token}" />
+			<table border="3" align="center">
+				<h2 align="center">	<u>Transactions</u>	</h2>
+				<div><c:if test="${not empty invalid}"><div class="msg">${invalid}</div></c:if></div>
 				<tbody>
 					<tr>
 						<td>First Name: </td>
-						<td><input type="text" name ="firstname"></td>
+						<td><input type="text" name ="firstname" maxlength="45"></td>
 					</tr>
 					<tr>
 						<td>Middle Name: </td>
-						<td><input type="text" name ="middlename"></td>
+						<td><input type="text" name ="middlename" maxlength="45"></td>
 					</tr>
 					<tr>
 						<td>Last Name: </td>
-						<td><input type="text" name ="lastname"></td>
+						<td><input type="text" name ="lastname" maxlength="45"></td>
 					</tr>
 					<tr>
 						<td>Username: </td>
-						<td><input type="text" name ="username"></td>
+						<td><input type="text" name ="username" maxlength="45"> </td>
 					</tr> 
 					<tr>
 						<td>Designation: </td>
@@ -49,23 +60,26 @@
 					<tr>
 					<tr>
 						<td>SSN: </td>
-						<td><input type="text" name ="ssn"></td>
+						<td><input type="text" name ="ssn" maxlength="45"></td>
+						<td>(xxx-xx-xxxx)</td>
 					</tr>
 					<tr>
 						<td>Email Address: </td>
-						<td><input type="text" name ="email"></td>
+						<td><input type="text" name ="email" maxlength="45"></td>
 					</tr>
 					<tr>
 						<td>Phone Number:</td>
-						<td><input type="text" name ="phonenumber"></td>
+						<td><input type="text" name ="phonenumber" maxlength="45"></td>
+						<td>(1xxxxxxxxxx) </td>
 					</tr>
 					<tr>
 						<td>Date of Birth: </td>
-						<td><input type="text" name ="dateofbirth"></td>
+						<td><input type="date" name ="dateofbirth" maxlength="45"></td>
+						<td>(yyyy/mm/dd)</td>
 					</tr>
 					<tr>
       					<td>Address: </td>
-      					<td><textarea name ="address"></textarea></td>
+      					<td><textarea name ="address" maxlength="45"></textarea></td>
     				</tr>
    					<tr>
       					<td>State: </td>
@@ -126,7 +140,7 @@
 				    </tr>
     				<tr>
       					<td>Zip: </td>
-     					 <td><input type="text" name ="zip"></td>
+     					 <td><input type="text" name ="zip" maxlength="45"></td>
     				</tr>					
 					<tr>
 						<td>&nbsp;</td>
@@ -138,8 +152,7 @@
     				</tr>
 										
 				</tbody>
-			</table>
-			<p style="text-align:left"><a href="${pageContext.servletContext.contextPath}/adminhome">Admin Home</a></p>		
+			</table>				
 		</form>
 	</body>
 </html>
@@ -149,4 +162,7 @@
 	String url = request.getRequestURL().toString();
 	url = url.replace("/WEB-INF/pages/addInternalUser.jsp", "/login");
 	response.setHeader("Refresh", timeout + "; URL =" + url);
+	response.setHeader("Cache-Control","no-cache"); 
+	response.setHeader("Pragma","no-cache"); 
+	response.setDateHeader ("Expires", -1);
 %>

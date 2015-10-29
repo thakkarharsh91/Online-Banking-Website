@@ -15,7 +15,6 @@ public class JdbcConnection_tbl_user_authentication
 	private PreparedStatement preparedStatement = null;
 	private static final Logger LOG = Logger.getLogger(JdbcConnection_tbl_user_authentication.class);
 	
-	
 	public Connection getConnection()   
 	{
 		
@@ -84,7 +83,8 @@ public class JdbcConnection_tbl_user_authentication
 		return resultSet;
 	}
 	
-	public ResultSet get_Internal_Users_Details()  {
+	public ResultSet get_Internal_Users_Details()  
+	{
 		ResultSet resultSet = null;
 		try {
 			conn = this.getConnection();
@@ -214,8 +214,9 @@ public class JdbcConnection_tbl_user_authentication
 			int len = list.size();
 			for(int i =0; i<len;i++)
 			{
-				String pid = list.get(i);
-				preparedStatement = conn.prepareStatement("UPDATE tbl_pii_requests SET status = 'COMPLETED' WHERE pid = '"+ pid +"' ");
+				String stringPID = list.get(i);				
+				preparedStatement = conn.prepareStatement("UPDATE tbl_pii_requests SET status = 'COMPLETED' WHERE pid = ?");
+				preparedStatement.setString(1, stringPID);
 				preparedStatement.executeUpdate();				
 			}			
 		}
@@ -231,10 +232,9 @@ public class JdbcConnection_tbl_user_authentication
 		try
 		{
 			conn = this.getConnection();
-			preparedStatement = conn.prepareStatement("SELECT firstname,username,email FROM tbl_user_details WHERE"
+			preparedStatement = conn.prepareStatement("SELECT firstname,username FROM tbl_user_details WHERE"
 					+ " firstname = '"+ firstname+"'"
-					+ "OR username = '"+ username +"'"
-					+ "OR email = '"+ email +"'");
+					+ "OR username = '"+ username +"'");
 			rs = preparedStatement.executeQuery();
 						
 		}
@@ -253,7 +253,7 @@ public class JdbcConnection_tbl_user_authentication
 			preparedStatement = conn.prepareStatement("INSERT INTO tbl_user_details VALUES ("
 					+ "'"+ username +"'," //username
 					+ "'"+ username +"',"
-					+ "'"+ "" +"',"
+					+ "'"+ "GOVERNMENT" +"',"
 					+ "'"+ "" +"'," //prefix
 					+ "'"+ firstname +"',"
 					+ "'"+ "" +"',"
@@ -266,8 +266,9 @@ public class JdbcConnection_tbl_user_authentication
 					+ "'"+ "" +"',"
 					+ "'"+ "" +"',"
 					+ "'"+ "" +"'," //businesslicence
-					+ "'"+ "" +"'," //status
-					+ "'"+ email +"')");  preparedStatement.executeUpdate();	
+					+ "'"+ email +"'," 
+					+ "'"+ "" +"')");  //status
+			preparedStatement.executeUpdate();	
 			
 		}
 		catch (Exception e) 
@@ -294,7 +295,7 @@ public class JdbcConnection_tbl_user_authentication
 		return rs;
 	}
 	
-	public void update_internalUser(String username, String firstname,String middlename,String lastname,
+	public void add_internalUser(String username, String firstname,String middlename,String lastname,
 									String ssn,String email,String usertype,String phonenumber,
 									String dateofbirth,String address,String state,String zip) throws Exception
 	{
@@ -335,7 +336,6 @@ public class JdbcConnection_tbl_user_authentication
 			conn = this.getConnection();
 			preparedStatement = conn.prepareStatement("UPDATE tbl_user_details SET "+ column +" = '"+ newinfo +"' WHERE username = '"+ username +"' ");
 			preparedStatement.executeUpdate();	
-			System.out.println("filed modified");
 		}
 		catch (Exception e) 
 		{
@@ -361,21 +361,22 @@ public class JdbcConnection_tbl_user_authentication
 		return rs;	
 	}
 
-	public void addusername(String username) throws Exception
+	public void addusername(String username,String password) throws Exception
 	{
 		try
 		{
 			conn = this.getConnection();
 			preparedStatement = conn.prepareStatement("INSERT INTO tbl_user_authentication VALUES("
 							+ "'"+ username +"',"
+							+ "'"+password+"',"
+							+ "'"+""+"',"
+							+ "'"+"0"+"',"
+							+ "'"+"0"+"',"
 							+ "'"+""+"',"
 							+ "'"+""+"',"
 							+ "'"+""+"',"
 							+ "'"+""+"',"
-							+ "'"+""+"',"
-							+ "'"+""+"',"
-							+ "'"+""+"',"
-							+ "'"+""+"')");
+							+ "'"+"1"+"')");
 			preparedStatement.executeUpdate();
 						
 		}
@@ -433,8 +434,10 @@ public class JdbcConnection_tbl_user_authentication
 			int len = list.size();
 			for(int i =0; i<len;i++)
 			{
-				String pid = list.get(i);
-				preparedStatement = conn.prepareStatement("SELECT email FROM tbl_user_details WHERE username IN (SELECT username FROM tbl_pii_requests WHERE pid = '"+ pid +"')");
+				
+				String stringPID = list.get(i);				
+				preparedStatement = conn.prepareStatement("SELECT email FROM tbl_user_details WHERE username IN (SELECT username FROM tbl_pii_requests WHERE pid = ?)");
+				preparedStatement.setString(1, stringPID);
 				ResultSet rs  = null;
 				rs =preparedStatement.executeQuery();
 				while(rs.next())
@@ -449,5 +452,57 @@ public class JdbcConnection_tbl_user_authentication
 			LOG.error("Error with getting emaillist: "+e.getMessage());
 		}
 		return emaillist;
+	}
+
+	public void delete_Internal_Auth(ArrayList<String> delList) 
+	{		
+		try
+		{
+			conn = this.getConnection();
+			int len = delList.size();
+			for(int i =0; i<len;i++)
+			{
+				String user = delList.get(i);
+				preparedStatement = conn.prepareStatement("DELETE FROM tbl_user_authentication WHERE username = '"+ user +"' ");
+				preparedStatement.executeUpdate();				
+			}			
+		}
+		catch (Exception e) 
+		{
+			LOG.error("Error with deleting Internal User: "+e.getMessage());
+		}		
+	}
+	
+	public ResultSet getpwd(String username)  
+	{
+		ResultSet resultSet = null;
+		try {
+			conn = this.getConnection();
+			preparedStatement = conn.prepareStatement("SELECT " + "usercurrentpassword,FROM tbl_user_authentication "
+					+ "WHERE username = "+ username );
+			resultSet = preparedStatement.executeQuery();
+			
+		} catch (Exception e) 
+		{			
+			LOG.error("Error with getting user details: "+e.getMessage());
+		}
+		return resultSet;
+	}
+		
+	public void addManager(String username,String usertype)
+	{
+		try
+		{
+			conn = this.getConnection();
+			preparedStatement = conn.prepareStatement("INSERT INTO tbl_user_account_view_request VALUES(?,?,?)");
+			preparedStatement.setString(1, username);
+			preparedStatement.setString(2, usertype);
+			preparedStatement.setString(3, "");
+			preparedStatement.executeUpdate();						
+		}
+		catch (Exception e) 
+		{
+			LOG.error("Error with adding username: "+e.getMessage());
+		}
 	}
 }

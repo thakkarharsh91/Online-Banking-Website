@@ -24,7 +24,10 @@ public class CheckSourceAccountNumberHandler {
 		
 		
 		try {
-			return (Object)sql.readDataBaseAccount(username,fromaccountnumber,transamount);
+			Object obj=null;
+			obj=(Object)sql.readDataBaseAccount(username,fromaccountnumber,transamount);
+			sql.close();
+			return obj;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

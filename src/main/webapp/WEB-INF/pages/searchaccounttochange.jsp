@@ -10,6 +10,9 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Pragma" content="no-cache">
+ <meta http-equiv="Cache-Control" content="no-cache">
+ <meta http-equiv="Expires" content="-1">
 <title>Manage Users</title>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"  
@@ -26,7 +29,11 @@ type="text/javascript" charset="utf-8"></script>
     </script>
 
 </head>
-<body>
+<body oncopy="return false" oncut="return false" onpaste="return false">
+	<noscript>
+  <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
+  Javascript Disabled
+</noscript>
 <h1>
 <c:if test="${not empty status}">
 			<div class="msg"><c:out value="${status}" /></div>
@@ -41,7 +48,7 @@ href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 <form:form action="${pageContext.servletContext.contextPath}/changeaccount/?${_csrf.parameterName}=${_csrf.token}" method='POST'>
 	<h2 align= "center">Search User</h2>
 	<label>Enter Account Number</label>
-	<input type=number name="accountnumber" required>
+	<input type=number name="accountnumber" required maxlength=30>
 	<input type= submit name="search" value="search by account number">
  
 	</form:form>
@@ -57,4 +64,7 @@ href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 	url = url.replace("/WEB-INF/pages/searchaccounttochange.jsp",
 			"/logoutusers");
 	response.setHeader("Refresh", "300; URL =" + url);
+	response.setHeader("Cache-Control","no-cache"); 
+	response.setHeader("Pragma","no-cache"); 
+	response.setDateHeader ("Expires", -1);
 %>

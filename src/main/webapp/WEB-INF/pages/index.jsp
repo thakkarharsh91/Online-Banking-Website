@@ -4,6 +4,9 @@
 <html lang="en-US">
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta http-equiv="Pragma" content="no-cache">
+ <meta http-equiv="Cache-Control" content="no-cache">
+ <meta http-equiv="Expires" content="-1">
 <title>Sun Devils Bank Home Page</title>
 <link rel="shortcut icon"
 	href="http://teamtreehouse.com/assets/favicon.ico">
@@ -28,7 +31,7 @@
     </script>
 </head>
 
-<body>
+<body oncopy="return false" oncut="return false" onpaste="return false">
 <noscript>
 <h2>JavaScript is disabled! Why you want to do so? 
 	Please enable JavaScript in your web browser and Refresh!</h2>

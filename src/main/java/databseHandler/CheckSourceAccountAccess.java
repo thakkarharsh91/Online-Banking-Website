@@ -31,8 +31,9 @@ public class CheckSourceAccountAccess {
 		try {
 			Double newbal=0.0;
 			String newbalance="";
-			preparedStatement = connect.prepareStatement("select * from software_security.tbl_user_account WHERE username=?");
+			preparedStatement = connect.prepareStatement("select * from software_security.tbl_user_account WHERE username=? and accountnumber=?");
 			preparedStatement.setString(1, username);
+			preparedStatement.setString(2, fromaccnumber);
 			ResultSet resultSet2 = preparedStatement.executeQuery();
 			UserAccount useracc = writeResultSetAccount(resultSet2);
 			resultSet2.close();			

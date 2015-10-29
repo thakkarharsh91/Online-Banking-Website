@@ -169,6 +169,44 @@ public class RequestAuthorize {
 		}
 	}
 	
+	public void approveModifyTransaction(Double newAmount,String rStatus,double balance, String[] rID) {
+
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+			sql.approveModifyTransactions(newAmount,rStatus,balance, rID);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void approveModifySourceTransaction(Double newAmount,String rStatus,double balance, String[] rID) {
+
+		try {
+			sql.getConnection();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		try {
+			sql.approveModifySourceTransactions(newAmount,rStatus,balance, rID);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void rejectTransaction(String rStatus,double balance, String[] rID) {
 
 		try {

@@ -25,7 +25,11 @@ public class UnlockInternalAccountHandler {
 
 
 		try {
-			return (Object)sql.UpdateDataBaseUserAuthentication(username);
+			Object obj=null;
+			obj=(Object)sql.UpdateDataBaseUserAuthentication(username);
+			sql.close();
+			return obj;
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -45,7 +49,10 @@ public class UnlockInternalAccountHandler {
 
 
 		try {
-			return (Object)sql.readDataBaseRequest();
+			Object obj=null;
+			obj=(Object)sql.readDataBaseRequest();
+			sql.close();
+			return obj;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -65,7 +72,10 @@ public class UnlockInternalAccountHandler {
 
 
 		try {
-			return (Object)sql.UpdateDataBaseRequest(username);
+			Object obj=null;
+			obj=(Object)sql.UpdateDataBaseRequest(username);
+			sql.close();
+			return obj;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

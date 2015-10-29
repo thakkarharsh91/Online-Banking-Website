@@ -28,6 +28,7 @@ public class PasswordChangeHandler {
 		
 		try {
 			sql.UpdatePass(username);
+			sql.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

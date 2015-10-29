@@ -8,6 +8,9 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Pragma" content="no-cache">
+ <meta http-equiv="Cache-Control" content="no-cache">
+ <meta http-equiv="Expires" content="-1">
 <title>Insert title here</title>
 <script type = "text/javascript" >
     history.pushState(null, null,window.location.href);
@@ -19,7 +22,11 @@
     }, false);
     </script>
 </head>
-<body>
+<body oncopy="return false" oncut="return false" onpaste="return false">
+	<noscript>
+  <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
+  Javascript Disabled
+</noscript>
 	<div>
 		<c:if test="${not empty emptyFields}">
 			<div class="msg">${emptyFields}</div>
@@ -32,9 +39,13 @@
 		</c:if>
 	</div>
 	<h2 align="justify">Request for New Card</h2>
-	<form mothod='POST' action="${pageContext.servletContext.contextPath}/replaceCard/?${_csrf.parameterName}=${_csrf.token}" method="post">
-		<table width="400" border="0">
+	<form method='POST' action="${pageContext.servletContext.contextPath}/replaceCard/?${_csrf.parameterName}=${_csrf.token}" method="post">
+		<table width="400" border="0" align = "center">
 			<tbody>
+				<tr>
+					<td><a href="${pageContext.servletContext.contextPath}/home">Home</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></td>
+				</tr>
 				<tr>
 					<td>Select the bank account:</td>
 					<td><select name="accountNumber">
@@ -63,4 +74,7 @@
 	url = url.replace("/WEB-INF/pages/Request.New.Card.jsp",
 			"/logoutusers");
 	response.setHeader("Refresh", "300; URL =" + url);
+	response.setHeader("Cache-Control","no-cache"); 
+	response.setHeader("Pragma","no-cache"); 
+	response.setDateHeader ("Expires", -1);
 %>

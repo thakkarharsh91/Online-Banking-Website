@@ -5,32 +5,37 @@
 <!doctype html>
 <html>
 <head>
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Expires" content="-1">
 <title>Delete Internal User</title>
-		<script type = "text/javascript" >
+<script type = "text/javascript" >
    			 history.pushState(null, null,window.location.href);
     		 window.addEventListener('popstate', function(event) 
     		 {history.pushState(null, null, window.location.href);});
     		 document.addEventListener("contextmenu", function(e)
     		 {e.preventDefault();}, false);
-   		 </script>
+</script>
 </head>
-<body>
-	<form action="showInternal" method='POST'>
-		<input type="hidden" name="${_csrf.parameterName}"	value="${_csrf.token}" />
-		<p style="text-align: right"><a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
-		</p>
-		<h2 align="justify">Show Internal Users:</h2>
-		<tr>
-			<td><button type="submit">Show Internal Users</button></td>
-		</tr>
-	</form>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	<form action="delInternalUser" method='POST'>
+<body oncopy="return false" oncut="return false" onpaste="return false">
+
+
+<noscript>
+	<h2>JavaScript is disabled! Why you want to do so? 	Please enable JavaScript in your web browser and Refresh!</h2>
+	<style type="text/css">#main-content { display:none; }</style>
+</noscript>
+	<div style="text-align: center"><a href="${pageContext.servletContext.contextPath}/Home">Home</a></div>
+	<div style="text-align: center"><a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></div>
+
+
+
+<form action="delInternalUser" method='POST'>
 	<input type="hidden" name="${_csrf.parameterName}"	value="${_csrf.token}" />
-		<h2 align="justify">Delete Internal Users:</h2>
-		<table>
+		<table border="3" align="center">
+			<h2 align="center">	<u>Delete Internal User</u></h2>
+			<div><c:if test="${not empty nouser}"><div class="msg">${nouser}</div></c:if></div>	
+			<div><c:if test="${not empty delinternal}"><div class="msg">${delinternal}</div></c:if></div>	
+			<div><c:if test="${not empty notchecked}"><div class="msg">${notchecked}</div></c:if></div>				
 			<tr>
 				<th>Select</th>
 				<th>Username</th>
@@ -46,12 +51,10 @@
 				</tr>
 			</c:forEach>
 		</table>		
-			<tr>
-				<td><button type="submit" id="deleteusers">Delete</button></td>
-			</tr>
-		</form>
-		<p style="text-align:left"><a href="${pageContext.servletContext.contextPath}/adminhome">Admin Home</a></p>
-	
+		<tr>
+			<td><button type="submit" id="deleteusers">Delete</button></td>
+		</tr>
+		</form>		
 </body>
 </html>
 <%
@@ -60,4 +63,7 @@
 	String url = request.getRequestURL().toString();
 	url = url.replace("/WEB-INF/pages/deleteInternalUser.jsp", "/login");
 	response.setHeader("Refresh", timeout + "; URL =" + url);
+	response.setHeader("Cache-Control","no-cache"); 
+	response.setHeader("Pragma","no-cache"); 
+	response.setDateHeader ("Expires", -1);
 %>

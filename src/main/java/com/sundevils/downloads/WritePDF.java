@@ -27,7 +27,8 @@ public class WritePDF extends AbstractITextPdfView {
 			Document document, PdfWriter writer, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 		// TODO Auto-generated method stub
-		
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		classLoader.getResourceAsStream("/views.properties");
 		List<TransactionRequestDetails> balanceDetails=(List<TransactionRequestDetails>) model.get("transactionDetails");
 		
 		document.add(new Paragraph("Transaction Details of your accounts"));

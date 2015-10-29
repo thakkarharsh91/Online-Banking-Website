@@ -32,7 +32,7 @@ public class RequestPIIHandler {
 		return null;
 }
 
-	public void requestPII(String username,String requesttype,String requestdetails,String authorizeto) {
+	public void requestPII(String username,String requesttype,String requestdetails) {
 
 		try {
 			sql.getConnection();
@@ -44,7 +44,7 @@ public class RequestPIIHandler {
 
 
 		try {
-			sql.requestPIItodb(username, requesttype, requestdetails, authorizeto);
+			sql.requestPIItodb(username, requesttype, requestdetails);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

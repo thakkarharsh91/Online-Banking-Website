@@ -1,7 +1,6 @@
 package com.sundevils.web.controller;
 
 
-import gunpreetPackage.BusinessLogic.CheckAuthentication;
 import handlers.adminHandlers.LoginHandler;
 import handlers.adminHandlers.ModifyUsersHandler;
 import handlers.adminHandlers.RequestAuthorize;
@@ -13,26 +12,35 @@ import handlers.adminHandlers.updateAllowHandler;
 import handlers.employeeHandlers.CheckSourceAccountNumberHandler;
 import handlers.employeeHandlers.CreateTransactionHandler;
 import handlers.employeeHandlers.ViewAccounts;
+import handlers.systemmanagerHandlers.reviewExtUserHandler;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import passwordSaltModules.SaltModule;
 import utilities.CaptchaUtility;
 import utilities.OtpUtility;
 import utilities.TimeUtility;
+import authentication.ModifyUser;
 
 import com.user.info.AccountDetails;
 import com.user.info.PersonalDetails;
@@ -41,7 +49,7 @@ import com.user.info.Transactions.TransactionRequestDetails;
 
 @Controller
 public class TopController {
-	private static final Logger LOG = Logger.getLogger(CheckAuthentication.class);
+	private static final Logger LOG = Logger.getLogger(TopController.class);
 	long startOtpTime = 0;
 	long startEmailTime = 0;
 	long startTime = 0;
@@ -170,35 +178,132 @@ public class TopController {
 
 	}
 
+	@RequestMapping(value = "/viewlogs", method = RequestMethod.GET)
+	public ModelAndView printWelcome() {
+
+		ModelAndView model = new ModelAndView();
+		model.setViewName("viewlogs");
+		return model;
+	}
+
+
+	@RequestMapping(value = "/logsaccess", method={RequestMethod.GET, RequestMethod.POST})
+	public ModelAndView accessLogs() {
+
+		ModelAndView model = new ModelAndView();
+		String directorypath="C:\\AppLogs\\";
+		File folder = new File(directorypath);
+		File[] listOfFiles = folder.listFiles();
+
+		for (int i = 0; i < listOfFiles.length; i++) {
+			if (listOfFiles[i].isFile()) {
+				model.addObject("file1", listOfFiles[0].getName());
+			}
+		}
+		model.setViewName("viewlogs");
+		return model;
+	}
+
+	@RequestMapping(value = "/viewfile", method = RequestMethod.GET)
+	public @ResponseBody void downloadFiles(HttpServletRequest request,
+			HttpServletResponse response,HttpSession session, String ssn) {
+		String directorypath="C:\\AppLogs\\";
+		File folder = new File(directorypath);
+		File[] listOfFiles = folder.listFiles();
+
+		for (int i = 0; i < listOfFiles.length; i++) 
+		{
+			String filepath= directorypath +"\\"+ listOfFiles[i].getName();
+
+			ServletContext context = request.getServletContext();
+			File downloadFile = new File(filepath);
+			FileInputStream inputStream = null;
+			OutputStream outStream = null;
+
+
+
+			try {
+				inputStream = new FileInputStream(downloadFile);
+
+				response.setContentLength((int) downloadFile.length());
+				response.setContentType(context.getMimeType(filepath));			
+
+				// response header
+				String headerKey = "Content-Disposition";
+				String headerValue = String.format("attachment; filename=\"%s\"",downloadFile.getName());
+				response.setHeader(headerKey, headerValue);
+
+				// Write response
+				outStream = response.getOutputStream();
+				IOUtils.copy(inputStream, outStream);
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if (null != inputStream)
+						inputStream.close();
+					if (null != inputStream)
+						outStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+			}
+		}
+
+	}
+
+
 
 	@RequestMapping(value = "/Home", method = {RequestMethod.POST,RequestMethod.GET})
 	public ModelAndView getHome(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException  {
 		String role = (String)session.getAttribute("Role");
-		ModelAndView model = new ModelAndView();
-		if(role.equals("MANAGER")){
-			model.setViewName("managerhome");
-		}
-		else if(role.equals("EMPLOYEE")){
-			model.setViewName("employeehome");
-		}
-		else if(role.equals("ADMIN")){
-			model.setViewName("admin");
-		}
-		else if(role.equals("MERCHANT")){
-			model.setViewName("merchanthome");
-		}
-		else if(role.equals("USER")){
-			model.setViewName("customerhome");
-		}
-		else if(role.equals("GOVERNMENT")){
-			model.setViewName("governmenthome");
+		if(role == null)
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("index");
+			return model;
 		}
 		else{
-			model.addObject("loggedIn", "User is already logged in to the other system");
-			model.setViewName("login");
-		}
+			try{
+				ModelAndView model = new ModelAndView();
+				if(role.equals("MANAGER")){
+					model.setViewName("managerhome");
+				}
+				else if(role.equals("EMPLOYEE")){
+					model.setViewName("employeehome");
+				}
+				else if(role.equals("ADMIN")){
+					model.setViewName("admin");
+				}
+				else if(role.equals("MERCHANT")){
+					model.setViewName("merchanthome");
+				}
+				else if(role.equals("USER")){
+					model.setViewName("customerhome");
+				}
+				else if(role.equals("GOVERNMENT")){
+					model.setViewName("governmenthome");
+				}
+				else{
+					model.addObject("loggedIn", "User is already logged in to the other system");
+					model.setViewName("login");
+				}
 
-		return model;
+				return model;
+			}
+			catch(Exception e){
+				ModelAndView model = new ModelAndView();
+				LoginHandler handler = new LoginHandler();
+				String userName = (String)session.getAttribute("USERNAME");
+				handler.updateLoggedInFlag(userName,0);
+				session.invalidate();
+				model.setViewName("index");
+				return model;
+
+			}
+		}
 	}
 
 	@RequestMapping(value = {"**/reqchangeaccount" }, method={RequestMethod.GET, RequestMethod.POST})
@@ -217,6 +322,7 @@ public class TopController {
 			if (request.getParameter("accountchange")!=null){
 
 				handler.updateaccountrequest((String) request.getSession().getAttribute("USERNAME"),request.getParameter("managername"),request.getParameter("accountnumber"));
+				model.addObject("status", "Request Successfully Sent");
 				model.setViewName("searchaccounttochange");
 
 			}
@@ -286,7 +392,9 @@ public class TopController {
 					model.addObject("success_msg", "Error: There are empty fields. Please rectify");
 				}
 				else if(!destacc.matches("[0-9]+$"))
-					model.addObject("success_msg","Enter account number in proper format proper format");
+					model.addObject("success_msg","Enter account number in proper format");
+				else if(sourceacc.equals(destacc))
+					model.addObject("success_msg","Source and destination account numbers can't be the same");
 				else
 				{
 					CheckSourceAccountNumberHandler accounthandler = new CheckSourceAccountNumberHandler(); 
@@ -372,17 +480,43 @@ public class TopController {
 
 				model = new ModelAndView();	
 				model.setViewName("modifyUsers");
-				if (request.getParameter("submit")!=null){
+				if (request.getParameter("delete")!= null){
+					deleteParameter =request.getParameter("hiddenUser");
+					accountnumber = request.getParameter("hiddenUserNumber");
+					ModifyUsersHandler handler = new ModifyUsersHandler(); 
+					handler.deleteRequestHandler(deleteParameter,accountnumber);
+					searchParameter = request.getParameter("hiddenUser");
+					searchParameterType = "UserName";
+
+					model.addObject("users", handler.requestHandler(searchParameter,searchParameterType));
+					model.addObject("title", "All users in the database");
+					model.addObject("status", "User deleted Successfully");
+					if (role.equalsIgnoreCase("EMPLOYEE")){
+						model.setViewName("modifyUsersemployee");
+					}
+
+					else if (role.equalsIgnoreCase("MANAGER")){
+						model.setViewName("modifyUsers");
+					}
+
+				}
+				else if (request.getParameter("submit")!=null){
 					if(request.getParameter("username").isEmpty()){
 						model.addObject("status", "Invalid account");	
 						model.setViewName("modifyUsers");
 
 					}
 					else{
+
 						searchParameter = request.getParameter("username");
 						searchParameterType = request.getParameter("searchcat");
 						ModifyUsersHandler handler = new ModifyUsersHandler(); 
-						model.addObject("users", handler.requestHandler(searchParameter,searchParameterType));
+						ArrayList <ModifyUser> test= (ArrayList<ModifyUser>)handler.requestHandler(searchParameter,searchParameterType);
+						if (test.size()!=0)
+							model.addObject("users", test);
+						else							
+							model.addObject("status","No user present who satisifies the criteria");	
+
 						model.addObject("title", "All users in the database");
 						model.addObject("message", "This is protected page!");
 						if (role.equalsIgnoreCase("EMPLOYEE")){
@@ -397,9 +531,16 @@ public class TopController {
 
 				}
 
+				else if (role.equalsIgnoreCase("EMPLOYEE")){
+					model.setViewName("modifyUsersemployee");
+				}
+
+				else if (role.equalsIgnoreCase("MANAGER")){
+					model.setViewName("modifyUsers");
+				}
+
 
 				else if ((request.getParameter("searchcat").equals("AccountNumber")|| request.getParameter("searchcat").equals("UserName"))&&(!request.getParameter("username").matches("[0-9 ]+"))){
-					System.out.println("its wrong");
 					model.addObject("status", "Invalid Entry");	
 					if (role.equalsIgnoreCase("EMPLOYEE")){
 						model.setViewName("modifyUsersemployee");
@@ -420,31 +561,6 @@ public class TopController {
 						model.setViewName("modifyUsers");
 					}
 				}
-
-				else if (request.getParameter("delete")!= null){
-					deleteParameter =request.getParameter("hiddenUser");
-					accountnumber = request.getParameter("hiddenUserNumber");
-					ModifyUsersHandler handler = new ModifyUsersHandler(); 
-					handler.deleteRequestHandler(deleteParameter,accountnumber);
-					searchParameter = request.getParameter("hiddenUser");
-					searchParameterType = "UserName";
-
-					model.addObject("users", handler.requestHandler(searchParameter,searchParameterType));
-					model.addObject("title", "All users in the database");
-					model.addObject("status", "User deleted Successfully");
-					model.setViewName("modifyUsers");
-
-				}
-
-				else if (role.equalsIgnoreCase("EMPLOYEE")){
-					model.setViewName("modifyUsersemployee");
-				}
-
-				else if (role.equalsIgnoreCase("MANAGER")){
-					model.setViewName("modifyUsers");
-				}
-
-
 			}
 			catch(Exception e)
 			{
@@ -464,6 +580,7 @@ public class TopController {
 		}
 
 	}
+
 
 	@RequestMapping(value = "**/reqModify", method = {RequestMethod.POST,RequestMethod.GET})
 	public ModelAndView reqPermissionPage(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws IOException  {
@@ -612,25 +729,26 @@ public class TopController {
 		ModelAndView model = new ModelAndView();
 		ResultSet rs = null;
 		try{
+			boolean flag = false;
 			String correct_time = "";
 			String userName = "";
 			String system_time = "";
 			int web_sec = 0;
 			int sys_sec = 0;
-			correct_time = TimeUtility.generateDateMethod();
+			correct_time = TimeUtility.generateSysDateMethod();
 			system_time = TimeUtility.generateSysDateMethod();
-			web_sec = TimeUtility.generateSecondsMethod();
+			web_sec = TimeUtility.generateSysSecondsMethod();
 			sys_sec = TimeUtility.generateSysSecondsMethod();
 			session = request.getSession();
-			if (session.isNew()) {
-				System.out.println("New");
+			if (!session.isNew()) {
+				LOG.info("New session created");
 			} else {
 				model = new ModelAndView();
 				LoginHandler handler = new LoginHandler(); 
-				userName = (String)session.getAttribute("USERNAME");
 				model.setViewName("index");
-				if(userName!=null)
+				if(userName!=null && !flag)
 				{
+					userName = (String)session.getAttribute("USERNAME");
 					handler.updateLoggedInFlag(userName,0);
 					session.invalidate();
 
@@ -652,18 +770,21 @@ public class TopController {
 
 					if(userName.equals("") || password.equals("") ||
 							captchaData.equals("")){
+						flag = true;
+						session.setAttribute("FLAG", flag);
 						model.addObject("emptyFields", "All fields are mandatory");
 						model.setViewName("login");
 					}
 
 					else if(!captchaData.equals(captchaString)){
+						flag = true;
+						session.setAttribute("FLAG", flag);
 						model.addObject("wrongCaptcha", "Please re-enter captcha");
 						model.setViewName("login");
 					}
 
 					else{
 						LoginHandler handler = new LoginHandler(); 
-
 						rs = handler.requestLoginHandler(userName);
 						if(rs.next()){
 							String uName = rs.getString("username");
@@ -673,14 +794,23 @@ public class TopController {
 							int loggedIn = rs.getInt("isloggedin");
 							String ispwdchange = rs.getString("ispasswordchange");
 							int lock = rs.getInt("islocked");
-
+							session.setAttribute("USERNAME", userName);
 							if(lock == 0){
-								if(uName.equals(userName) && pass.equals(password)){
+								boolean correctPass;
+								if(ispwdchange.equals("1")){
+									correctPass = password.equals(pass);
+								}
+								else{
+									SaltModule saltPass = new SaltModule();
+									correctPass = saltPass.isPasswordValid(password,pass);
+								}
+								if(uName.equals(userName) && correctPass){
 									if(loggedIn == 0){
 
 										if(ispwdchange.equals("1"))
 										{
-											session.setAttribute("USERNAME", userName);
+											flag = false;
+											session.setAttribute("FLAG", flag);
 											model.addObject("user", userName);
 											model.setViewName("resetpassword");
 											return model;
@@ -688,37 +818,51 @@ public class TopController {
 										handler.updateLoggedInFlag(userName,1);
 										request.getSession().setAttribute("Role", role);
 										if(role.equals("MANAGER")){
+											flag = false;
+											session.setAttribute("FLAG", flag);
 											session.setAttribute("USERNAME", userName);
 											request.getSession().setAttribute("Manager", fName);
 											model.setViewName("managerhome");
 										}
 										else if(role.equals("EMPLOYEE")){
+											flag = false;
+											session.setAttribute("FLAG", flag);
 											session.setAttribute("USERNAME", userName);
 											request.getSession().setAttribute("Employee", fName);	
 											model.setViewName("employeehome");
 										}
 										else if(role.equals("ADMIN")){
+											flag = false;
+											session.setAttribute("FLAG", flag);
 											session.setAttribute("USERNAME", userName);
 											request.getSession().setAttribute("Admin", fName);	
 											model.setViewName("admin");
 										}
 										else if(role.equals("MERCHANT")){
+											flag = false;
+											session.setAttribute("FLAG", flag);
 											session.setAttribute("USERNAME", userName);
 											request.getSession().setAttribute("Merchant", fName);	
 											model.setViewName("merchanthome");
 										}
 										else if(role.equals("USER")){
+											flag = false;
+											session.setAttribute("FLAG", flag);
 											session.setAttribute("USERNAME", userName);
 											request.getSession().setAttribute("User", fName);	
 											model.setViewName("customerhome");
 										}
 										else if(role.equals("GOVERNMENT")){
+											flag = false;
+											session.setAttribute("FLAG", flag);
 											session.setAttribute("USERNAME", userName);
 											request.getSession().setAttribute("Government", fName);	
 											model.setViewName("governmenthome");
 										}
 									}
 									else{
+										flag = true;
+										session.setAttribute("FLAG", flag);
 										model.addObject("loggedIn", "User is already logged in to the other system");
 										model.setViewName("login");
 									}
@@ -726,32 +870,47 @@ public class TopController {
 								else{
 									count++;
 									if(count>2){
+										flag = false;
+										session.setAttribute("FLAG", flag);
+										model.addObject("user", userName);
 										handler.updateLockedFlag(userName,1);
+										model.addObject("lock", "Your account has been locked. Please fill in the below details to make a request for unlock account.");
 										model.setViewName("unlockaccount");
 									}
 									else{
+										flag = true;
+										session.setAttribute("FLAG", flag);
 										model.addObject("wrongCredentials", "Username and Password do not match");
 										model.setViewName("login");
 									}
 								}
 							}
 							else{
+								flag = false;
+								session.setAttribute("FLAG", flag);
+								model.addObject("user", userName);
 								model.addObject("lock", "Your account has been locked. Please fill in the below details to make a request for unlock account.");
 								model.setViewName("unlockaccount");
 							}
 						}
 						else{
+							flag = true;
+							session.setAttribute("FLAG", flag);
 							model.addObject("wrongCredentials", "Username does not exist. Please enter correct username");
 							model.setViewName("login");
 						}
 					}
 				}
 				else if(request.getParameter("imgCaptcha")!=null){
+					flag = true;
+					session.setAttribute("FLAG", flag);
 					CaptchaUtility captcha = new CaptchaUtility();
 					captcha.generateCaptcha(request,response);
 					model.setViewName("login");
 				}
 				else{
+					flag = false;
+					session.setAttribute("FLAG", flag);
 					LoginHandler handler;
 					handler = new LoginHandler();
 					String userSessionName = (String) session.getAttribute("USERNAME");
@@ -761,6 +920,8 @@ public class TopController {
 			}
 			else
 			{
+				flag = false;
+				session.setAttribute("FLAG", flag);
 				model = new ModelAndView();
 				model.addObject("Timetampering","System time is not updated");
 				model.setViewName("login");
@@ -781,7 +942,6 @@ public class TopController {
 					rs.close();
 				}
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				LoginHandler handler;
 				handler = new LoginHandler();
 				String userSessionName = (String) session.getAttribute("USERNAME");
@@ -875,44 +1035,32 @@ public class TopController {
 		LoginHandler handler;
 		String emailAddress = "";
 		handler = new LoginHandler();
-		String role = (String)session.getAttribute("Role");
-		if(role == null)
+		emailAddress=request.getParameter("emailAddress");
+		if(emailAddress.equals("") || emailAddress == null)
 		{
-			emailAddress=request.getParameter("emailAddress");
-			if(emailAddress.equals("") || emailAddress == null)
-			{
-				model.addObject("emptyFields", "Please enter email address");
-				model.setViewName("forgotusername");
-			}
-			else
-			{
-				ResultSet rs = handler.getUsername(emailAddress);
-				String userName = "";
-				OtpUtility otp = new OtpUtility(); 
-				if(rs.next()){
-					userName = rs.getString("username");
-					otp.sendUserName(request, userName, emailAddress);
-					model.addObject("successusername", "Your username has been mailed to you. Please check your inbox to get the username. You will be automatically redirected to login page within few seconds.");
-					model.setViewName("success"); 
-				}
-				else{
-					model.addObject("wrongemail", "Please enter correct email address");
-					model.setViewName("forgotusername");
-				}
-			}	
-			return model;
+			model.addObject("emptyFields", "Please enter email address");
+			model.setViewName("forgotusername");
 		}
 		else
 		{
-			String userName = (String)session.getAttribute("USERNAME");
-			handler.updateLoggedInFlag(userName,0);
-			session.invalidate();	
-			model.setViewName("index"); 
-			return model;
-		}
+			ResultSet rs = handler.getUsername(emailAddress);
+			String userName = "";
+			OtpUtility otp = new OtpUtility(); 
+			if(rs.next()){
+				userName = rs.getString("username");
+				otp.sendUserName(request, userName, emailAddress);
+				model.addObject("successusername", "Your username has been mailed to you. Please check your inbox to get the username. You will be automatically redirected to login page within few seconds.");
+				model.setViewName("success"); 
+			}
+			else{
+				model.addObject("wrongemail", "Please enter correct email address");
+				model.setViewName("forgotusername");
+			}
+		}	
+		return model;
 	}
 
-	@RequestMapping(value = "/getpassword", method = {RequestMethod.POST, RequestMethod.GET}) 
+	@RequestMapping(value = "/getpassword**", method = {RequestMethod.POST, RequestMethod.GET}) 
 	public ModelAndView getPassword(HttpServletRequest request,HttpSession session) throws SQLException { 
 		ModelAndView model = new ModelAndView();	
 		LoginHandler handler;
@@ -921,49 +1069,35 @@ public class TopController {
 		handler = new LoginHandler();
 		String user = "";
 		String email = "";
-		String role = (String)session.getAttribute("Role");
-		if(role == null)
+		if(request.getParameter("submit")!=null)
 		{
-			if(request.getParameter("submit")!=null)
+			emailAddress=request.getParameter("email");
+			userName=request.getParameter("username");
+			if(emailAddress.equals("") || userName.equals(""))
 			{
+				model.addObject("emptyFields", "All fields are mandatory");
+				model.setViewName("forgotpassword");
+			}
 
-				emailAddress=request.getParameter("email");
-				userName=request.getParameter("username");
-				if(emailAddress.equals("") || userName.equals(""))
-				{
-					model.addObject("emptyFields", "All fields are mandatory");
-					model.setViewName("forgotpassword");
-				}
-
-				else{
-					ResultSet rs = handler.requestLoginHandler(userName);
-					if(rs.next()){
-						user = rs.getString("username");
-						email = rs.getString("email");
-						if(user.equals(userName) && email.equals(emailAddress)){
-							session.setAttribute("USERNAME", userName);
-							model.addObject("user", user);
-							model.setViewName("resetpassword");
-						}
-						else{
-							model.addObject("incorrectFields","Either username and/or email address is incorrect");
-							model.setViewName("forgotpassword");
-						}
+			else{
+				ResultSet rs = handler.requestLoginHandler(userName);
+				if(rs.next()){
+					user = rs.getString("username");
+					email = rs.getString("email");
+					if(user.equals(userName) && email.equals(emailAddress)){
+						session.setAttribute("USERNAME", userName);
+						model.addObject("user", user);
+						model.setViewName("resetpassword");
 					}
 					else{
 						model.addObject("incorrectFields","Either username and/or email address is incorrect");
 						model.setViewName("forgotpassword");
 					}
 				}
-				return model;
-			}
-			else
-			{
-				userName = (String)session.getAttribute("USERNAME");
-				handler.updateLoggedInFlag(userName,0);
-				session.invalidate();	
-				model.setViewName("index"); 
-				return model;
+				else{
+					model.addObject("incorrectFields","Either username and/or email address is incorrect");
+					model.setViewName("forgotpassword");
+				}
 			}
 		}
 		return model;
@@ -1147,7 +1281,7 @@ public class TopController {
 								{
 									toUserName = forUser;
 									OtpUtility.sendEmailViewRequest(email,role,"",firstname, middleName,lastName,"","","","");
-									String date = TimeUtility.generateDateMethod();
+									String date = TimeUtility.generateSysDateMethod();
 									handler.requestUpdateHandler(forUser,fromUserName,toUserName, "View",date);
 								}
 								else
@@ -1160,7 +1294,7 @@ public class TopController {
 										OtpUtility.sendEmailViewRequest(email,role, fromUserName, firstname, middleName,lastName,forUser,firstname_Recipient,middleName_Recipient,lastName_Recipient);
 										if (type.equals(userType))
 										{
-											String date = TimeUtility.generateDateMethod();
+											String date = TimeUtility.generateSysDateMethod();
 											handler.requestUpdateHandler(forUser,fromUserName,toUserName, "View",date);
 										}
 									}
@@ -1532,52 +1666,43 @@ public class TopController {
 
 	@RequestMapping(value = "/unlockaccount**", method = {RequestMethod.GET,RequestMethod.POST})
 	public ModelAndView unlockAccount(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws SQLException { 
-		ModelAndView model = new ModelAndView();	
+		ModelAndView model = new ModelAndView();
+		String userNameSession = (String) session.getAttribute("USERNAME");
+		model.addObject("user", userNameSession);
 		LoginHandler handler;
-		String accountNumber = "";
-		String userName = "";
-		String otpCode = "";
 		handler = new LoginHandler();
-		String otpString = "";
+		String emailAddress = "";
 		String user = "";
-		String account = "";
+		String ssnNumber = "";
 		String admin = "";
+		String ssn="";
+		String email="";
+		ViewAccounts acc = new ViewAccounts();
 		if(request.getParameter("submit")!=null){
 
-			accountNumber=request.getParameter("account");
-			userName=request.getParameter("username");
-			otpCode = request.getParameter("otpCode");
-			otpString = (String)session.getAttribute("OTP");
-			otpEnterTime=TimeUtility.generateDateMethod()+" "+TimeUtility.generateHoursMethod()+":"+TimeUtility.generateMinutesMethod()+":"+TimeUtility.generateSecondsMethod();
-			long genSec=TimeUtility.getDifferenceinSeconds(modelTime,otpGenerateTime);
-			long enterSec=TimeUtility.getDifferenceinSeconds(modelTime,otpEnterTime);
-			if((enterSec-genSec)>180){
-				otpString = "";
-			}
-			if(accountNumber.equals("") || userName.equals("") || otpCode.equals("")){
+			ssnNumber=request.getParameter("ssn");
+			emailAddress = request.getParameter("email");
+			if(ssnNumber.equals("") || emailAddress.equals("")){
 				model.addObject("emptyFields", "All fields are mandatory");
 				model.setViewName("unlockaccount");
 			}
-			else if(!otpString.equals(otpCode)){
-				model.addObject("wrongOtp", "Otp code does not match");
-				model.setViewName("unlockaccount");
-			}
 			else{
-				ResultSet rs = handler.requestAccountHandler(userName);
+				ResultSet rs = acc.requestPersonalDetailsHandler(userNameSession);
 				ResultSet rs1 = handler.requestAdminHandler("ADMIN");
-				ResultSet rs2 = handler.checkRequestExist(userName,"unlock","pending");
+				ResultSet rs2 = handler.checkRequestExist(userNameSession,"unlock","pending");
 				if(rs.next() && rs1.next()){
 					if(!rs2.next()){
 						user = rs.getString("username");
-						account = rs.getString("accountnumber");
+						email = rs.getString("email");
+						ssn = rs.getString("ssn");
 						admin = rs1.getString("username");
-						if(user.equals(userName) && account.equals(accountNumber)){
+						if(email.equals(emailAddress) && ssn.equals(ssnNumber)){
 							handler.insertUnlockRequests(user,"unlock", user, admin,"test", "pending","test","test");
 							model.addObject("successunlock","Your request has been generated successfully. You will be notified via email when your account is ready for use. You will be automatically redirected to login page within few seconds.");
 							model.setViewName("success");
 						}
 						else{
-							model.addObject("incorrectFields","Either username and/or account number is incorrect");
+							model.addObject("incorrectFields","Either email address and/or ssn is incorrect");
 							model.setViewName("unlockaccount");
 						}
 					}
@@ -1587,29 +1712,13 @@ public class TopController {
 					}
 				}
 				else{
-					model.addObject("incorrectFields","Either username and/or account number is incorrect");
+					model.addObject("incorrectFields","Either email address and/or ssn is incorrect");
 					model.setViewName("unlockaccount");
 				}
 			}
 		}
-
-		else if(request.getParameter("otpButton")!=null){ 
-			String userSession = (String) session.getAttribute("USERNAME");
-			handler = new LoginHandler();
-			ResultSet rs = handler.requestLoginHandler(userSession);
-			String email = "";
-			if(rs.next()){
-				email = rs.getString("email");
-			}
-			OtpUtility otp = new OtpUtility();
-			otpGenerateTime=TimeUtility.generateDateMethod()+" "+TimeUtility.generateHoursMethod()+":"+TimeUtility.generateMinutesMethod()+":"+TimeUtility.generateSecondsMethod();
-			otp.sendOtp(request,email);
-			startTime = System.currentTimeMillis();
-			model.setViewName("unlockaccount");
-		}
 		else{
-			userName = (String)session.getAttribute("USERNAME");
-			handler.updateLoggedInFlag(userName,0);
+			handler.updateLoggedInFlag(userNameSession,0);
 			session.invalidate();
 			model.setViewName("index");
 		}
@@ -1764,7 +1873,7 @@ public class TopController {
 							status = authorize.checkAccountNumber(destinationAccountNumber);
 							if(status){
 								destinationAmount = authorize.getDestinationBalance(destinationAccountNumber);
-								authorize.approveTransaction(requestType,balance + destinationAmount, authRequests);
+								//authorize.approveTransaction(requestType,balance + destinationAmount, authRequests);
 							}
 							else{
 								model.addObject("destinationerror","Destination account does not exist. Please delete the transaction");
@@ -1877,7 +1986,7 @@ public class TopController {
 							status = authorize.checkAccountNumber(destinationAccountNumber);
 							if(status){
 								destinationAmount = authorize.getDestinationBalance(destinationAccountNumber);
-								authorize.approveTransaction(requestType,balance + destinationAmount, authRequests);
+								//authorize.approveTransaction(requestType,balance + destinationAmount, authRequests);
 							}
 							else{
 								model.addObject("destinationerror","Destination account does not exist. Please delete the transaction");
@@ -1954,7 +2063,8 @@ public class TopController {
 		String role = "";
 		String requestType = "";
 		String[] authRequests = null;
-		String newAmount = "";
+		Double newAmount = 0.0;
+		String transactionAmount = "";
 		role = (String)session.getAttribute("Role");
 		double amount = 0.0;
 		double balance = 0.0;
@@ -1963,6 +2073,7 @@ public class TopController {
 		String sourceAccountNumber = "";
 		boolean sourceFlag = true;
 		Boolean status = true;
+		Boolean statusSource = true;
 		if(role == null)
 		{
 			ModelAndView model = new ModelAndView();
@@ -1982,23 +2093,29 @@ public class TopController {
 					authRequests = request.getParameterValues("check");
 					requestType = request.getParameter("Type");
 					if(authRequests!=null){
-						balance = authorize.getBalance(authRequests);
+						//balance = authorize.getBalance(authRequests);
 						if(requestType.equals("Modify")){
 
 							if(authRequests.length > 1)
 								model.addObject("multiplemodify","Please check only one transaction while modifying.");
 							else{
-								newAmount = request.getParameter(authRequests[0]);
-								if(Double.parseDouble(newAmount) > 0 || !newAmount.matches("[0-9]+$")){
+								newAmount = Double.parseDouble(request.getParameter(authRequests[0]));
+								transactionAmount = (String) session.getAttribute("AMOUNT");
+								Double difference = newAmount - Double.parseDouble(transactionAmount);
+								if(newAmount > 0 || !newAmount.toString().matches("[0-9]+$")){
 									accountNumber = authorize.getDestinationAccount(authRequests[0]); 
+									sourceAccountNumber = authorize.getSourceAccount(authRequests[0]);
 									status = authorize.checkAccountNumber(accountNumber);
-									if(status){
+									statusSource = authorize.checkAccountNumber(sourceAccountNumber);
+									if(status && statusSource){
 										amount = authorize.getDestinationBalance(accountNumber);
-										if(Double.parseDouble(newAmount) > amount){
-											model.addObject("greatervalue","Please enter amount less than" +amount);
+										sourceAmount = authorize.getSourceBalance(sourceAccountNumber);
+										if(!(sourceAmount >= difference)){
+											model.addObject("greatervalue","Insufficint funds in the account");
 										}
 										else{
-											authorize.approveTransaction("approvedmodify",balance + amount,authRequests);
+											authorize.approveModifySourceTransaction(newAmount,"approvedmodify",sourceAmount - difference,authRequests);
+											authorize.approveModifyTransaction(newAmount,"approvedmodify",newAmount + amount,authRequests);
 										}
 									}
 									else{
@@ -2045,6 +2162,7 @@ public class TopController {
 					view.setUserName(rs.getString("username"));
 					view.setTransactionId(rs.getString("transactionid"));
 					view.setTransactionAmount(rs.getString("transactionamount"));
+					session.setAttribute("AMOUNT", rs.getString("transactionamount"));
 					view.setNewAmount(rs.getString("newamount"));
 					view.setSourceAccount(rs.getString("sourceaccountnumber"));
 					view.setDestAccount(rs.getString("destinationaccountnumber"));

@@ -10,11 +10,13 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import passwordSaltModules.SaltModule;
+
 public class CheckAuthentication {
 
 	private static final Logger LOG = Logger.getLogger(CheckAuthentication.class);
 
-	public String check(String username, String presentpassword,String newpassword, String confirmpassword)
+	public String check(String username,String newpassword, String confirmpassword)
 	{
 		String result = "";
 		try{
@@ -27,46 +29,39 @@ public class CheckAuthentication {
 			String regex = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{6,20})";
 			Pattern pattern = Pattern.compile(regex);
 			Matcher matcher = pattern.matcher(newpassword);
-			if(presentpassword.equals(current))
+			if(!newpassword.equals(current) || !newpassword.equals(old))
 			{
-				if(!newpassword.equals(current) || !newpassword.equals(old))
+				if(matcher.matches())
 				{
-					if(matcher.matches())
+					if(newpassword.equals(confirmpassword))
 					{
-						if(newpassword.equals(confirmpassword))
-						{
-							objAuthentication.setUsername(username);
-							objAuthentication.setUseroldpassword(current);
-							objAuthentication.setUsercurrentpassword(newpassword);
-
-
-							objJdbc.update_tbl_user_authentication
-							(
-									objAuthentication.getUsername(), 
-									objAuthentication.getUsercurrentpassword().getBytes(), 
-									objAuthentication.getUseroldpassword().getBytes()
-									);
-							result = "";
-						}
-						else
-						{
-							result = "New and Confirm password do not match!";
-						}
+						SaltModule saltPass = new SaltModule();
+						String hashed = saltPass.getHashedPassword(newpassword);
+						objAuthentication.setUsername(username);
+						objAuthentication.setUseroldpassword(current);
+						objAuthentication.setUsercurrentpassword(hashed);
+						
+						objJdbc.update_tbl_user_authentication
+						(
+								objAuthentication.getUsername(), 
+								objAuthentication.getUsercurrentpassword().getBytes(), 
+								objAuthentication.getUseroldpassword().getBytes()
+								);
+						result = "";
 					}
-					else{
-						result = "The password should be 6 to 20 characters string with at least one digit, one upper case letter, one lower case letter and one special symbol (“@#$%”).";
+					else
+					{
+						result = "New and Confirm password do not match!";
 					}
 				}
-				else
-				{
-					result = "This new password has already been used!";
+				else{
+					result = "The password should be 6 to 20 characters string with at least one digit, one upper case letter, one lower case letter and one special symbol (“@#$%”).";
 				}
 			}
 			else
 			{
-				result = "your current password does not match!";
-			}			
-
+				result = "This new password has already been used!";
+			}
 		}	
 		catch(Exception e){
 			LOG.error("Issue while reset password"+e.getMessage());

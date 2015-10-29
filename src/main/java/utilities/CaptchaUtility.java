@@ -53,7 +53,7 @@ public class CaptchaUtility {
 				response.sendRedirect("login.jsp");
 			}
 		} catch (Exception e) {
-			LOG.error("Outputstream issue but the functionality is working"+e.getMessage());
+			LOG.error("Outputstream issue but the functionality is working "+e.getMessage());
 		}
 	}
 

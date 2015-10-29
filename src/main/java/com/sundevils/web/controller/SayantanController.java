@@ -43,11 +43,11 @@ import authentication.User;
 @Controller
 public class SayantanController 
 {
-	final static Logger logger = Logger.getLogger(AnishaController.class);
+	final static Logger logger = Logger.getLogger(SayantanController.class);
 
 	String ssn="";
 	String accounttype="";
-	
+
 	String requestid = "";
 	authorizeExtUserHandler handler =  new authorizeExtUserHandler();
 	AddRecepientHandler handler1 = new AddRecepientHandler();
@@ -60,7 +60,6 @@ public class SayantanController
 	{
 
 		ModelAndView model = null;
-		System.out.println("here in POST");
 		try
 		{
 			model = new ModelAndView();
@@ -100,8 +99,8 @@ public class SayantanController
 				session.setAttribute("CUSTOMER_NAME", firstname + " " + lastname );
 				session.setAttribute("CUSTOMER_EMAIL", email);
 				session.setAttribute("ACCOUNT_TYPE", accounttype);
-				
-				
+
+
 				Pattern pattern = Pattern.compile(regex);
 				Matcher matcher = pattern.matcher(ssn);
 
@@ -159,9 +158,16 @@ public class SayantanController
 						}
 					}
 					else {
-						handler.openAccount(request.getParameter("usertype"),request.getParameter("accounttype"),request.getParameter("prefix"),request.getParameter("firstname"),request.getParameter("middlename"),request.getParameter("lastname"),request.getParameter("gender"),request.getParameter("address"),request.getParameter("state"),request.getParameter("zip"),request.getParameter("passportnumber"),request.getParameter("ssn"),request.getParameter("email"),request.getParameter("phonenumber"),request.getParameter("dateofbirth"),request.getParameter("documents"),request.getParameter("businesslicence"),"Applied");
-						model.addObject("Successful", "Account Opening Application has been submitted sucessfully");
-						model.setViewName("uploadfile");
+						boolean flag = handler.openAccount(request.getParameter("usertype"),request.getParameter("accounttype"),request.getParameter("prefix"),request.getParameter("firstname"),request.getParameter("middlename"),request.getParameter("lastname"),request.getParameter("gender"),request.getParameter("address"),request.getParameter("state"),request.getParameter("zip"),request.getParameter("passportnumber"),request.getParameter("ssn"),request.getParameter("email"),request.getParameter("phonenumber"),request.getParameter("dateofbirth"),request.getParameter("documents"),request.getParameter("businesslicence"),"Applied");
+						if(flag){
+							model.addObject("Successful", "Account Opening Application has been submitted sucessfully");
+							model.setViewName("uploadfile");
+						}
+						else 
+						{
+							model.addObject("Successful", "Account Opening Application not successful");
+							model.setViewName("Account.Opening.Form");
+						}
 					}
 				}
 			}
@@ -180,6 +186,22 @@ public class SayantanController
 		return model;
 	}
 
+	@RequestMapping(value = "/uploadFilesForm", method = {RequestMethod.GET})
+	public ModelAndView uploadFilesForm(HttpServletRequest request, HttpServletResponse response,
+			HttpSession session)  {
+		ModelAndView model = new ModelAndView();
+
+		if(session.getAttribute("registered") != null){
+			model.setViewName("uploadfile");
+		}
+
+		else{
+			model.setViewName("index");
+		}
+
+		return model;
+	}
+
 	// Government Agency Controller
 	@RequestMapping(value="/requestPII",method=RequestMethod.POST)
 	public ModelAndView requestPII(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws SQLException
@@ -191,87 +213,67 @@ public class SayantanController
 			return model;
 		}
 		else if(role.equals("GOVERNMENT")){
-		//System.out.println("I am inside POST of PII");
-		ModelAndView model = null;
-		//System.out.println("here in POST");
-		try
-		{
-			model = new ModelAndView();	
-			String requesttype="";
-			String requestdetails="";
-			String authorizeto="";		
-
-			if(request.getParameter("submit")!=null)
+			ModelAndView model = null;
+			try
 			{
-
-				requesttype=request.getParameter("requesttype");
-				requestdetails=request.getParameter("requestdetails");
-				authorizeto=request.getParameter("sysadminsList");
-
-
-
-				if(requesttype.equals("") || requestdetails.equals("") ||  authorizeto.equals(""))
+				model = new ModelAndView();	
+				String requesttype="";
+				String requestdetails="";
+				if(request.getParameter("submit")!=null)
 				{
-					model.addObject("emptyFields", "All fields are mandatory");
-					model.setViewName("Request.PII");
-				}
-				else 
-				{
-					RequestPIIHandler handler = new RequestPIIHandler();
-					System.out.println(requesttype);
-					System.out.println(requestdetails);
-					String usernamename=(String) session.getAttribute("USERNAME");
-					//Delete the below line
-					//	usernamename="sayantan";
-
-					ResultSet rs =  handler.getExsistingPIIRequest(usernamename,requesttype,requestdetails);
-					if(rs.next())
+					requesttype=request.getParameter("requesttype");
+					requestdetails=request.getParameter("requestdetails");
+					if(requesttype.equals("") || requestdetails.equals(""))
 					{
-						String temp_username = rs.getString("username");
-						String temp_requesttype = rs.getString("requesttype");
-						String temp_requestdetails = rs.getString("requestdetails");
-						System.out.println(temp_requesttype);
-						System.out.println(temp_requestdetails);
-						if(temp_username.equals(usernamename) && temp_requesttype.equals(requesttype) && temp_requestdetails.equals(requestdetails))
-						{
-							model.addObject("ExsistingUser", " The request type and request details already exsists");
-							sysadminHandlers sysadminhandler = new sysadminHandlers();
-							model.addObject("sysadmins", sysadminhandler.getAllAccountsForSysAdmins());
-							model.setViewName("Request.PII");
-						}
-
-
-
+						model.addObject("emptyFields", "All fields are mandatory");
+						model.setViewName("government");
 					}
 					else 
 					{
+						RequestPIIHandler handler = new RequestPIIHandler();
+						String usernamename=(String) session.getAttribute("USERNAME");
 
-						System.out.println("Inside Request PII");
-						handler.requestPII(usernamename,request.getParameter("requesttype"),request.getParameter("requestdetails"),request.getParameter("sysadminsList"));
-						model.addObject("Successful", "Request for PII has been submitted sucessfully");
-						sysadminHandlers sysadminhandler = new sysadminHandlers();
-						model.addObject("sysadmins", sysadminhandler.getAllAccountsForSysAdmins());
-						model.setViewName("Request.PII");
+						ResultSet rs =  handler.getExsistingPIIRequest(usernamename,requesttype,requestdetails);
+						if(rs.next())
+						{
+							String temp_username = rs.getString("username");
+							String temp_requesttype = rs.getString("requesttype");
+							String temp_requestdetails = rs.getString("requestdetails");
+							if(temp_username.equals(usernamename) && temp_requesttype.equals(requesttype) && temp_requestdetails.equals(requestdetails))
+							{
+								model.addObject("ExsistingUser", " The request type and request details already exsists");
+								sysadminHandlers sysadminhandler = new sysadminHandlers();
+								model.addObject("sysadmins", sysadminhandler.getAllAccountsForSysAdmins());
+								model.setViewName("government");
+							}
 
 
+
+						}
+						else 
+						{
+							handler.requestPII(usernamename,request.getParameter("requesttype"),request.getParameter("requestdetails"));
+							model.addObject("Successful", "Request for PII has been submitted sucessfully");
+							model.setViewName("government");
+
+						}
 					}
-
 				}
+				else
+				{
+
+					model.addObject("Successful","");
+					model.setViewName("government");
+				}
+
 			}
-			else
+			catch( Exception e )
 			{
-
-				model.addObject("Successful","");
-				model.setViewName("Request.PII");
+				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
-
+			return model;
 		}
-		catch( Exception e )
-		{
-			e.printStackTrace();
-		}
-		return model;
-	}
 		else{
 			ModelAndView model = new ModelAndView();
 			String username = (String) session.getAttribute("USERNAME");
@@ -291,25 +293,25 @@ public class SayantanController
 			return model;
 		}
 		else if(role.equals("GOVERNMENT")){
-		ModelAndView model = new ModelAndView();
-		sysadminHandlers sysadminhandler = new sysadminHandlers();
-		try {
-			model.addObject("sysadmins", sysadminhandler.getAllAccountsForSysAdmins());
+			ModelAndView model = new ModelAndView();
+			sysadminHandlers sysadminhandler = new sysadminHandlers();
+			try {
+				model.addObject("sysadmins", sysadminhandler.getAllAccountsForSysAdmins());
 
-		} catch (Exception e) {
+			} catch (Exception e) {
 
-			ArrayList<String> errors = new ArrayList<String>();
-			errors.add("Internal error - please try again later");
-			model.addObject("errors", errors);
-			model.setViewName("Request.PII");
-			e.printStackTrace();
+				ArrayList<String> errors = new ArrayList<String>();
+				errors.add("Internal error - please try again later");
+				model.addObject("errors", errors);
+				model.setViewName("government");
+				e.printStackTrace();
+				return model;
+
+			}
+			model.setViewName("government");
 			return model;
 
 		}
-		model.setViewName("Request.PII");
-		return model;
-
-	}
 		else{
 			ModelAndView model = new ModelAndView();
 			String username = (String) session.getAttribute("USERNAME");
@@ -332,23 +334,23 @@ public class SayantanController
 		}
 		else if(role.equals("MERCHANT") || role.equals("USER")){
 			try{
-		ModelAndView model = new ModelAndView();
-		PaymentFormDataLoader handler = new PaymentFormDataLoader();
+				ModelAndView model = new ModelAndView();
+				PaymentFormDataLoader handler = new PaymentFormDataLoader();
 
-		try {
-			String username=(String)session.getAttribute("USERNAME");
-		//username="anishaallada";
-			model.addObject("bankaccounts", handler.getAllAccountsForUserPayment(username));
-		} catch (Exception e) {
-			ArrayList<String> errors = new ArrayList<String>();
-			errors.add("Internal error - please try again later");
-			model.addObject("errors", errors);
-			model.setViewName("Request.New.Card");
-			e.printStackTrace();
-			return model;
-		}
-		model.setViewName("Request.New.Card");
-		return model;
+				try {
+					String username=(String)session.getAttribute("USERNAME");
+					//username="anishaallada";
+					model.addObject("bankaccounts", handler.getAllAccountsForUserPayment(username));
+				} catch (Exception e) {
+					ArrayList<String> errors = new ArrayList<String>();
+					errors.add("Internal error - please try again later");
+					model.addObject("errors", errors);
+					model.setViewName("Request.New.Card");
+					e.printStackTrace();
+					return model;
+				}
+				model.setViewName("Request.New.Card");
+				return model;
 			}
 			catch(Exception e){
 				ModelAndView model = new ModelAndView();
@@ -358,7 +360,7 @@ public class SayantanController
 				model.setViewName("index");
 				return model;
 			}
-	}
+		}
 		else{
 			ModelAndView model = new ModelAndView();
 			String username = (String) session.getAttribute("USERNAME");
@@ -379,7 +381,7 @@ public class SayantanController
 		return model;
 	}
 	else if(role.equals("MERCHANT") || role.equals("USER")){
-		
+
 		ModelAndView model = null;
 		try
 		{
@@ -400,7 +402,7 @@ public class SayantanController
 					requestCardHandler handler = new requestCardHandler();
 
 
-					 rs =  handler.getExsistingCardRequest(accountno);
+					rs =  handler.getExsistingCardRequest(accountno);
 					if(rs.next())
 					{
 
@@ -415,7 +417,7 @@ public class SayantanController
 
 						handler.requestChangeCard(username,accountno);
 						model.addObject("Successful", "Request for card replacement has been submitted sucessfully");
-
+						logger.info(username +" has request new card for" + accountno);
 						PaymentFormDataLoader handler1 = new PaymentFormDataLoader();
 						model.addObject("bankaccounts", handler1.getAllAccountsForUserPayment(username));
 						model.setViewName("Request.New.Card");
@@ -436,271 +438,7 @@ public class SayantanController
 		catch( Exception e )
 		{
 			e.printStackTrace();
-			//ModelAndView model = new ModelAndView();
-			String username = (String) session.getAttribute("USERNAME");
-			lhandler.updateLoggedInFlag(username, 0);
-			session.invalidate();
-			model.setViewName("index");
-			return model;
-		}
-		finally{
-				try{
-					if(rs!=null){
-						rs.close();
-					}
-				}
-					catch(Exception e){
-						logger.error("Exception closing a resultset");
-					}
-		}
-		return model;
-	}
-	else{
-		ModelAndView model = new ModelAndView();
-		String username = (String) session.getAttribute("USERNAME");
-		lhandler.updateLoggedInFlag(username, 0);
-		session.invalidate();
-		model.setViewName("index");
-		return model;
-	}
-}
-
-
-	//Authorize External User Account by System Manager
-	@RequestMapping(value="/authorizeExternalUser",method={RequestMethod.GET,RequestMethod.POST})
-	public ModelAndView authorizeExternalUser(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws SQLException
-	{
-		String role = (String) session.getAttribute("Role");
-		if(role == null){
-			ModelAndView model = new ModelAndView();
-			model.setViewName("index");
-			return model;
-		}
-		else if(role.equals("MANAGER")){
-			
-		ModelAndView model = null;
-		
-		try
-		{
-			model = new ModelAndView();
-			String regex = "^(?!000|666)[0-8][0-9]{2}-(?!00)[0-9]{2}-(?!0000)[0-9]{4}$";
-			String ssn="";
-			String accounttype="";
-			
-			//System.out.println("here in try");
-			if(request.getParameter("approve")!=null)
-			{
-				//System.out.println("Inside Approve Statement");
-
-				accounttype=request.getParameter("accounttype");
-
-				ssn=request.getParameter("ssn");
-				Pattern pattern = Pattern.compile(regex);
-				Matcher matcher = pattern.matcher(ssn);
-				//Check for validation
-				if (!matcher.matches())
-				{
-					model.addObject("emptyFields", "SSN should be of format XXX-XXX-XXXX.\n The first three digits called the area number. \nThe area number cannot be 000, 666, or between 900 and 999.Digits four and five are called the group number and range from 01 to 99.\nThe last four digits are serial numbers from 0001 to 9999.");
-					model.setViewName("System.Manager.Add.External.User");
-				}
-				else if(accounttype.equals("") || ssn.equals(""))
-				{
-
-
-					model.addObject("emptyFields", "Account type and SSN are mandatory fields");
-					model.setViewName("System.Manager.Add.External.User");
-				}
-				else 
-				{
-					authorizeExtUserHandler handler = new authorizeExtUserHandler();
-					System.out.println("SSN:"+ssn);
-					System.out.println("Account Type:"+accounttype);
-					ResultSet rs =  handler.getExsistingAccount(ssn,accounttype);
-					ResultSet rs1 =  handler.getExsistingApprovedAccount(ssn,accounttype);
-					if(!rs.next())
-					{
-
-						System.out.println("Inside RS next");
-						model.addObject("ExsistingUser", " Recepient with entered SSN and Account Type does not exists");
-						model.setViewName("System.Manager.Add.External.User");
-
-
-
-					}
-					else if (rs1.next())
-					{
-
-						model.addObject("ExsistingUser", " The application has been already approved");
-						model.setViewName("System.Manager.Add.External.User");
-					}
-					else {
-
-						System.out.println("Else RS Next");
-						handler.approveUser(request.getParameter("ssn"),request.getParameter("accounttype"));
-						model.addObject("Successful", "Application has been appoved");
-						model.setViewName("System.Manager.Add.External.User");
-
-
-					}
-
-				}
-			}
-			else if (request.getParameter("Reject")!=null)
-			{
-				System.out.println("Inside Reject Statement");
-
-				accounttype=request.getParameter("accounttype");
-				ssn=request.getParameter("ssn");
-				Pattern pattern = Pattern.compile(regex);
-				Matcher matcher = pattern.matcher(ssn);
-				//Check for validation
-				if (!matcher.matches())
-				{
-					model.addObject("emptyFields", "SSN should be of format XXX-XXX-XXXX.\n The first three digits called the area number. \nThe area number cannot be 000, 666, or between 900 and 999.Digits four and five are called the group number and range from 01 to 99.\nThe last four digits are serial numbers from 0001 to 9999.");
-					model.setViewName("System.Manager.Add.External.User");
-				}
-				else if(accounttype.equals("") || ssn.equals(""))
-				{
-
-
-					model.addObject("emptyFields", "Account type and SSN are mandatory fields");
-					model.setViewName("System.Manager.Add.External.User");
-				}
-				else 
-				{
-					authorizeExtUserHandler handler = new authorizeExtUserHandler();
-					System.out.println("SSN: "+ssn);
-					System.out.println("Account type: "+accounttype);
-					ResultSet rs =  handler.getExsistingAccount(ssn,accounttype);
-					if(!rs.next())
-					{
-						System.out.println("Inside RS Next");
-						model.addObject("ExsistingUser", " Recepient with entered SSN and Account Type does not exsists");
-						model.setViewName("System.Manager.Add.External.User");
-					}
-					else 
-					{
-
-						System.out.println("Else RS Next");
-						handler.rejectUser(request.getParameter("ssn"),request.getParameter("accounttype"));
-						model.addObject("Successful", "Application has been rejected");
-						model.setViewName("System.Manager.Add.External.User");
-
-
-					}
-
-				}
-			}
-			else
-			{
-
-				model.addObject("Successful","");
-				model.setViewName("System.Manager.Add.External.User");
-			}
-
-		}
-		catch( Exception e )
-		{
-			e.printStackTrace();
-		}
-		return model;
-	}
-	else{
-		ModelAndView model = new ModelAndView();
-		String username = (String) session.getAttribute("USERNAME");
-		lhandler.updateLoggedInFlag(username, 0);
-		session.invalidate();
-		model.setViewName("index");
-		return model;
-	}
-}
-	@RequestMapping(value="/verifyExternalUser",method={RequestMethod.GET,RequestMethod.POST})
-	public ModelAndView authorizeExternalUser1(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws SQLException
-	{	
-		String role = (String) session.getAttribute("Role");
-		ResultSet rs=null;
-		ResultSet rs1 = null;
-		if(role == null){
-			ModelAndView model = new ModelAndView();
-			model.setViewName("index");
-			return model;
-		}
-		else if(role.equals("MANAGER")){
-		ModelAndView model = null;
-
-		try
-		{
-			model = new ModelAndView();
-			model.setViewName("System.Manager.Account.Review");
-			System.out.println("here in try");
-			if(request.getParameter("approve")!=null)
-			{
-				System.out.println("Inside Approve Statement");
-				System.out.println("SSN:"+ssn);
-				System.out.println("Account Type:"+accounttype);
-				
-			 rs1 =  handler.getExsistingApprovedAccount(ssn,accounttype);
-			 if (rs1.next())
-				{
-                    model.addObject("ExsistingUser", " The application has been already approved");
-					model.setViewName("System.Manager.Account.Review");
-				}
-				else {
-
-					System.out.println("Else RS Next");
-					handler.approveUser(ssn,accounttype);
-					handler1.updateRequest(requestid,"APPROVE");
-					model.addObject("Successful", "Application has been appoved");
-					model.setViewName("VerifyExternalUser");
-                  }
-            }
-           else if (request.getParameter("decline")!=null)
-			{
-				System.out.println("Inside Reject Statement");
-				System.out.println("SSN: "+ssn);
-				System.out.println("Account type: "+accounttype);
-				{
-
-					System.out.println("Else RS Next");
-					handler.rejectUser(ssn,accounttype);
-					handler1.updateRequest(requestid,"DECLINE");
-
-					model.addObject("Successful", "Application has been rejected");
-					model.setViewName("VerifyExternalUser");
-				}
-             }
-			else{
-				String ssnandaccounttype = request.getParameter("review");
-				String[] values = new String[3];
-				values = ssnandaccounttype.split("\\?");
-				
-				ssn = values[0];
-				accounttype = values[1];
-				requestid=values[2];
-				
-				rs =  handler.getExsistingAccount(ssn,accounttype);
-				List<User> users = new ArrayList<User>();
-				while(rs.next()){
-					User temp = new User();
-					temp.setssn(rs.getString("ssn"));
-					temp.setaccounttype(rs.getString("accounttype"));
-					temp.setusertype(rs.getString("usertype"));
-					temp.setfirstname(rs.getString("firstname"));
-					temp.setlastname(rs.getString("lastname"));
-					temp.setaddress(rs.getString("address"));
-					temp.setemail1(rs.getString("email"));
-					temp.setphonenumber(rs.getString("phonenumber"));
-					users.add(temp);
-				}
-				model = printWelcome(model,ssn,accounttype);
-				model.setViewName("System.Manager.Account.Review");
-				//downloadFiles(request,response, ssn);
-				model.addObject("users", users);
-			}
-        }
-		catch( Exception e )
-		{
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			//ModelAndView model = new ModelAndView();
 			String username = (String) session.getAttribute("USERNAME");
 			lhandler.updateLoggedInFlag(username, 0);
@@ -714,20 +452,279 @@ public class SayantanController
 					rs.close();
 				}
 			}
-				catch(Exception e){
-					logger.error("Exception closing a resultset");
-				}
-		try{
-			if(rs1!=null){
-				rs1.close();
-			}
-		}
 			catch(Exception e){
 				logger.error("Exception closing a resultset");
 			}
-	}
+		}
 		return model;
 	}
+	else{
+		ModelAndView model = new ModelAndView();
+		String username = (String) session.getAttribute("USERNAME");
+		lhandler.updateLoggedInFlag(username, 0);
+		session.invalidate();
+		model.setViewName("index");
+		return model;
+	}
+	}
+
+
+	//Authorize External User Account by System Manager
+	@RequestMapping(value="/authorizeExternalUser",method={RequestMethod.GET,RequestMethod.POST})
+	public ModelAndView authorizeExternalUser(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws SQLException
+	{
+		String role = (String) session.getAttribute("Role");
+		if(role == null){
+			ModelAndView model = new ModelAndView();
+			model.setViewName("index");
+			return model;
+		}
+		else if(role.equals("MANAGER")){
+
+			ModelAndView model = null;
+
+			try
+			{
+				model = new ModelAndView();
+				String regex = "^(?!000|666)[0-8][0-9]{2}-(?!00)[0-9]{2}-(?!0000)[0-9]{4}$";
+				String ssn="";
+				String accounttype="";
+
+				if(request.getParameter("approve")!=null)
+				{
+					accounttype=request.getParameter("accounttype");
+
+					ssn=request.getParameter("ssn");
+					Pattern pattern = Pattern.compile(regex);
+					Matcher matcher = pattern.matcher(ssn);
+					//Check for validation
+					if (!matcher.matches())
+					{
+						model.addObject("emptyFields", "SSN should be of format XXX-XXX-XXXX.\n The first three digits called the area number. \nThe area number cannot be 000, 666, or between 900 and 999.Digits four and five are called the group number and range from 01 to 99.\nThe last four digits are serial numbers from 0001 to 9999.");
+						model.setViewName("System.Manager.Add.External.User");
+					}
+					else if(accounttype.equals("") || ssn.equals(""))
+					{
+
+
+						model.addObject("emptyFields", "Account type and SSN are mandatory fields");
+						model.setViewName("System.Manager.Add.External.User");
+					}
+					else 
+					{
+						authorizeExtUserHandler handler = new authorizeExtUserHandler();
+						ResultSet rs =  handler.getExsistingAccount(ssn,accounttype);
+						ResultSet rs1 =  handler.getExsistingApprovedAccount(ssn,accounttype);
+						if(!rs.next())
+						{
+							model.addObject("ExsistingUser", " Recepient with entered SSN and Account Type does not exists");
+							model.setViewName("System.Manager.Add.External.User");
+
+
+
+						}
+						else if (rs1.next())
+						{
+
+							model.addObject("ExsistingUser", " The application has been already approved");
+							model.setViewName("System.Manager.Add.External.User");
+						}
+						else {
+
+
+							boolean flag = 	handler.approveUser(request.getParameter("ssn"),request.getParameter("accounttype"));
+							if(flag == true)
+							{model.addObject("Successful", "Application has been appoved");
+							model.setViewName("System.Manager.Add.External.User");
+							}
+							else{
+								model.addObject("Successful", "problem in approving application");
+								model.setViewName("System.Manager.Add.External.User");
+							}
+
+
+						}
+
+					}
+				}
+				else if (request.getParameter("Reject")!=null)
+				{
+					accounttype=request.getParameter("accounttype");
+					ssn=request.getParameter("ssn");
+					Pattern pattern = Pattern.compile(regex);
+					Matcher matcher = pattern.matcher(ssn);
+					//Check for validation
+					if (!matcher.matches())
+					{
+						model.addObject("emptyFields", "SSN should be of format XXX-XXX-XXXX.\n The first three digits called the area number. \nThe area number cannot be 000, 666, or between 900 and 999.Digits four and five are called the group number and range from 01 to 99.\nThe last four digits are serial numbers from 0001 to 9999.");
+						model.setViewName("System.Manager.Add.External.User");
+					}
+					else if(accounttype.equals("") || ssn.equals(""))
+					{
+
+
+						model.addObject("emptyFields", "Account type and SSN are mandatory fields");
+						model.setViewName("System.Manager.Add.External.User");
+					}
+					else 
+					{
+						authorizeExtUserHandler handler = new authorizeExtUserHandler();
+						ResultSet rs =  handler.getExsistingAccount(ssn,accounttype);
+						if(!rs.next())
+						{
+							model.addObject("ExsistingUser", " Recepient with entered SSN and Account Type does not exsists");
+							model.setViewName("System.Manager.Add.External.User");
+						}
+						else 
+						{
+
+							handler.rejectUser(request.getParameter("ssn"),request.getParameter("accounttype"));
+							model.addObject("Successful", "Application has been rejected");
+							model.setViewName("System.Manager.Add.External.User");
+
+
+						}
+
+					}
+				}
+				else
+				{
+
+					model.addObject("Successful","");
+					model.setViewName("System.Manager.Add.External.User");
+				}
+
+			}
+			catch( Exception e )
+			{
+				e.printStackTrace();
+				logger.error(e.getMessage());
+			}
+			return model;
+		}
+		else{
+			ModelAndView model = new ModelAndView();
+			String username = (String) session.getAttribute("USERNAME");
+			lhandler.updateLoggedInFlag(username, 0);
+			session.invalidate();
+			model.setViewName("index");
+			return model;
+		}
+	}
+	@RequestMapping(value="/verifyExternalUser",method={RequestMethod.GET,RequestMethod.POST})
+	public ModelAndView authorizeExternalUser1(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws SQLException
+	{	
+		String role = (String) session.getAttribute("Role");
+		ResultSet rs=null;
+		ResultSet rs1 = null;
+		if(role == null){
+			ModelAndView model = new ModelAndView();
+			model.setViewName("index");
+			return model;
+		}
+		else if(role.equals("MANAGER")){
+			ModelAndView model = null;
+
+			try
+			{
+				model = new ModelAndView();
+				model.setViewName("System.Manager.Account.Review");
+				if(request.getParameter("approve")!=null)
+				{
+					rs1 =  handler.getExsistingApprovedAccount(ssn,accounttype);
+					if (rs1.next())
+					{
+						model.addObject("ExsistingUser", " The application has been already approved");
+						model.setViewName("System.Manager.Account.Review");
+					}
+					else {
+
+
+						boolean flag =	handler.approveUser(ssn,accounttype);
+						if(flag == true)
+						{handler1.updateRequest(requestid,"APPROVE");
+						model.addObject("Successful", "Application has been appoved");}
+						else{
+							handler1.updateRequest(requestid,"pending");
+							model.addObject("Successful", "Application not appoved successfully");
+						}
+						model.setViewName("VerifyExternalUser");
+					}
+				}
+				else if (request.getParameter("decline")!=null)
+				{
+					System.out.println("Inside Reject Statement");
+					System.out.println("SSN: "+ssn);
+					System.out.println("Account type: "+accounttype);
+					{
+
+						System.out.println("Else RS Next");
+						handler.rejectUser(ssn,accounttype);
+						handler1.updateRequest(requestid,"DECLINE");
+
+						model.addObject("Successful", "Application has been rejected");
+						model.setViewName("VerifyExternalUser");
+					}
+				}
+				else{
+					String ssnandaccounttype = request.getParameter("review");
+					String[] values = new String[3];
+					values = ssnandaccounttype.split("\\?");
+
+					ssn = values[0];
+					accounttype = values[1];
+					requestid=values[2];
+
+					rs =  handler.getExsistingAccount(ssn,accounttype);
+					List<User> users = new ArrayList<User>();
+					while(rs.next()){
+						User temp = new User();
+						temp.setssn(rs.getString("ssn"));
+						temp.setaccounttype(rs.getString("accounttype"));
+						temp.setusertype(rs.getString("usertype"));
+						temp.setfirstname(rs.getString("firstname"));
+						temp.setlastname(rs.getString("lastname"));
+						temp.setaddress(rs.getString("address"));
+						temp.setemail1(rs.getString("email"));
+						temp.setphonenumber(rs.getString("phonenumber"));
+						users.add(temp);
+					}
+					model = printWelcome(model,ssn,accounttype);
+					model.setViewName("System.Manager.Account.Review");
+					//downloadFiles(request,response, ssn);
+					model.addObject("users", users);
+				}
+			}
+			catch( Exception e )
+			{
+				e.printStackTrace();
+				//ModelAndView model = new ModelAndView();
+				String username = (String) session.getAttribute("USERNAME");
+				lhandler.updateLoggedInFlag(username, 0);
+				session.invalidate();
+				model.setViewName("index");
+				return model;
+			}
+			finally{
+				try{
+					if(rs!=null){
+						rs.close();
+					}
+				}
+				catch(Exception e){
+					logger.error("Exception closing a resultset");
+				}
+				try{
+					if(rs1!=null){
+						rs1.close();
+					}
+				}
+				catch(Exception e){
+					logger.error("Exception closing a resultset");
+				}
+			}
+			return model;
+		}
 
 		else{
 			ModelAndView model = new ModelAndView();
@@ -754,21 +751,21 @@ public class SayantanController
 
 		for (int i = 0; i < listOfFiles.length; i++) {
 			if (listOfFiles[i].isFile()) {
-             model.addObject("file1", listOfFiles[0].getName());
+				model.addObject("file1", listOfFiles[0].getName());
 				//model.addAttribute("file1", listOfFiles[0].getName());
 
 			}
 		}
-		
+
 
 		return model;
 	}
-	
+
 
 	@RequestMapping(value = "/DownloadDocuments", method = RequestMethod.GET)
 	public @ResponseBody void downloadFiles(HttpServletRequest request,
 			HttpServletResponse response,HttpSession session, String ssn) {
-         ssn = this.ssn;
+		ssn = this.ssn;
 
 		//Get file names
 		String directorypath="C:\\AccountOpeningDocuments\\"+ssn;
@@ -777,9 +774,6 @@ public class SayantanController
 
 		for (int i = 0; i < listOfFiles.length; i++) 
 		{
-			if (listOfFiles[i].isFile()) {
-				//System.out.println("File " + listOfFiles[i].getName());
-			}
 			String filepath= directorypath +"\\"+ listOfFiles[i].getName();
 
 			ServletContext context = request.getServletContext();
@@ -818,7 +812,7 @@ public class SayantanController
 
 			}
 		}
-		
-}
+
+	}
 
 }

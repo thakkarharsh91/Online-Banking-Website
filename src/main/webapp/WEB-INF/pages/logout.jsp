@@ -4,6 +4,9 @@
 <html lang="en-US">
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta http-equiv="Pragma" content="no-cache">
+ <meta http-equiv="Cache-Control" content="no-cache">
+ <meta http-equiv="Expires" content="-1">
 <meta http-equiv="Refresh" content="3;url=login">
 <title>Sun Devils Bank Home Page</title>
 <link rel="shortcut icon"
@@ -29,7 +32,11 @@
 </script>
 </head>
 
-<body>
+<body oncopy="return false" oncut="return false" onpaste="return false">
+	<noscript>
+  <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
+  Javascript Disabled
+</noscript>
 	<nav id="navigation">
 		<div class="container">
 			<ul class="navlinks">
@@ -69,4 +76,7 @@
 	String url = request.getRequestURL().toString();
 	url = url.replace("/WEB-INF/pages/logout.jsp", "/logoutusers");
 	response.setHeader("Refresh", "300; URL =" + url);
+	response.setHeader("Cache-Control","no-cache"); 
+	response.setHeader("Pragma","no-cache"); 
+	response.setDateHeader ("Expires", -1);
 %>

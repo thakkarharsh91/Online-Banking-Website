@@ -10,6 +10,9 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Pragma" content="no-cache">
+ <meta http-equiv="Cache-Control" content="no-cache">
+ <meta http-equiv="Expires" content="-1">
 <script type="text/javascript" src="<c:url value="/js/keyboard.js " />"></script>
 <link href="<c:url value="/css/keyboard.css" />" rel="stylesheet"  type="text/css" >
 <sec:csrfMetaTags/>
@@ -57,7 +60,11 @@
     </script>
 
 </head>
-<body>
+<body oncopy="return false" oncut="return false" onpaste="return false">
+	<noscript>
+  <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
+  Javascript Disabled
+</noscript>
 	<div id=creditAndDebit align="center">
 		<form:form name='creditAndDebitForm'
 			action="${pageContext.servletContext.contextPath}/editPII/?${_csrf.parameterName}=${_csrf.token}" method='POST'>
@@ -139,4 +146,7 @@
 	url = url.replace("/WEB-INF/pages/editPII.jsp",
 			"/logoutusers");
 	response.setHeader("Refresh", "300; URL =" + url);
+	response.setHeader("Cache-Control","no-cache"); 
+	response.setHeader("Pragma","no-cache"); 
+	response.setDateHeader ("Expires", -1);
 %>

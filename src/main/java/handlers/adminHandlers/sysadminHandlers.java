@@ -10,7 +10,6 @@ static MySQLAccess sql;
 	}
 	public Object getAllAccountsForSysAdmins() throws Exception {            
         sql.getConnection();
-        System.out.println("Indise PII Handler");
         Object output = (Object)sql.readSysAccountListFromDataBase();
         
         sql.close();

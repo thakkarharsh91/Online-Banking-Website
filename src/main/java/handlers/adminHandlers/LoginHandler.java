@@ -278,7 +278,7 @@ public class LoginHandler {
 		return null;
 	}
 
-	public boolean updateBalance(String userName, double balance) {
+	public boolean updateBalance(String userName, double balance, String userName2) {
 		try {
 			sql.getConnection();
 		} catch (ClassNotFoundException e) {
@@ -289,7 +289,7 @@ public class LoginHandler {
 
 		boolean flag=false;
 		try {
-			flag=sql.updateBalance(userName,balance);
+			flag=sql.updateBalance(userName,balance,userName2);
 			return flag;
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -10,6 +10,9 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Pragma" content="no-cache">
+ <meta http-equiv="Cache-Control" content="no-cache">
+ <meta http-equiv="Expires" content="-1">
 <title>Manage Users</title>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"  
@@ -31,7 +34,11 @@ type="text/javascript" charset="utf-8"></script>
     </script>
 
 </head>
-<body>
+<body oncopy="return false" oncut="return false" onpaste="return false">
+	<noscript>
+  <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
+  Javascript Disabled
+</noscript>
 
 <div style="text-align: center">
 		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
@@ -51,7 +58,7 @@ href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 <td>
 	<select name=searchcat>
 	<option value=firstname> First Name </option>
-	<option value=lastname> User Name </option>
+	<option value=lastname> Last Name </option>
 	<option value=phonenumber> Phone Number </option>
 	<option value=email> Email </option>
 	<option value=address> Address</option>
@@ -61,7 +68,7 @@ href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 	</select>
 	</td></tr>
 	<tr><td><label> New Value </label></td>
-	<td><input type= text name = newvalue></td></tr>
+	<td><input type= text name = newvalue maxlength=45></td></tr>
    	
  </table>
  <br/>
@@ -79,4 +86,7 @@ href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 	url = url.replace("/WEB-INF/pages/requestpermissionmodify.jsp",
 			"/logoutusers");
 	response.setHeader("Refresh", "300; URL =" + url);
+	response.setHeader("Cache-Control","no-cache"); 
+	response.setHeader("Pragma","no-cache"); 
+	response.setDateHeader ("Expires", -1);
 %>

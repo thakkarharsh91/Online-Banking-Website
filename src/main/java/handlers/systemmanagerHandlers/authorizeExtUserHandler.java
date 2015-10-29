@@ -53,7 +53,7 @@ public class authorizeExtUserHandler {
 		return null;
 	}
 
-	public void approveUser(String ssn, String accounttype) {
+	public boolean approveUser(String ssn, String accounttype) {
 
 		try {
 			sql.getConnection();
@@ -65,11 +65,11 @@ public class authorizeExtUserHandler {
 
 
 		try {
-			sql.approveUser(ssn, accounttype );
+			return sql.approveUser(ssn, accounttype );
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return;
+		return false;
 	}
 	public void rejectUser(String ssn, String accounttype) {
 

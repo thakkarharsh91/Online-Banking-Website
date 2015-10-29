@@ -15,6 +15,9 @@
     }, false);
     </script>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Pragma" content="no-cache">
+ <meta http-equiv="Cache-Control" content="no-cache">
+ <meta http-equiv="Expires" content="-1">
 <title>Authorize Transaction</title>
 <style>
 body {
@@ -33,7 +36,11 @@ label {
 </style>
 </head>
 
-<body>
+<body oncopy="return false" oncut="return false" onpaste="return false">
+	<noscript>
+  <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
+  Javascript Disabled
+</noscript>
 	<form method="POST">
 		<h2>Payment Request</h2>
 		<br> <br> <label>Requested by:</label> <label>Load
@@ -59,4 +66,7 @@ label {
 	url = url.replace("/WEB-INF/pages/Individual.Customers/User.Authorize.Transactions.jsp",
 			"/logoutusers");
 	response.setHeader("Refresh", "300; URL =" + url);
+	response.setHeader("Cache-Control","no-cache"); 
+    response.setHeader("Pragma","no-cache"); 
+    response.setDateHeader ("Expires", -1);
 %>

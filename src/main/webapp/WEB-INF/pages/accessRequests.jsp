@@ -22,7 +22,7 @@
     </script>
 
 </head>
-<body>
+<body oncopy="return false" oncut="return false" onpaste="return false">
 <noscript>
   <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
   Javascript Disabled
@@ -86,4 +86,7 @@
 	response.setHeader("Cache-Control","no-cache"); 
 	response.setHeader("Pragma","no-cache"); 
 	response.setDateHeader ("Expires", -1);
+	response.setHeader("Cache-Control","no-cache"); 
+    response.setHeader("Pragma","no-cache"); 
+    response.setDateHeader ("Expires", -1);
 %>

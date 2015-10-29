@@ -19,7 +19,11 @@ $(document).ready(function() {
 });
 </script>
 </head>
-<body>
+<body oncopy="return false" oncut="return false" onpaste="return false">
+	<noscript>
+  <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
+  Javascript Disabled
+</noscript>
 <div>
 		<c:if test="${not empty emptyFields}">
 			<div class="msg">${emptyFields}</div>

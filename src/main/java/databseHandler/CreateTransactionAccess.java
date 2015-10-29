@@ -32,7 +32,7 @@ public class CreateTransactionAccess {
 			byte[] sourceaccountnumber, byte[] destinationaccountnumber) throws SQLException, NoSuchAlgorithmException{
 		
 		int count=0;
-		String dttime=TimeUtility.generateDateMethod();
+		String dttime=TimeUtility.generateSysDateMethod();
 		byte[] dateandtime = dttime.getBytes();
 		Random ran = new Random();
 		Integer transactionid=ran.nextInt(1000) + 5;
@@ -46,17 +46,16 @@ public class CreateTransactionAccess {
 		try
 		{
 		preparedStatement = connect
-				.prepareStatement("insert into  software_security.tbl_transactions values (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+				.prepareStatement("insert into  software_security.tbl_transactions (username,transactionamount,newamount,sourceaccountnumber,destinationaccountnumber,dateandtime,transfertype,status)values (?, ?, ?, ?, ?, ?, ?, ?)");
 		// Parameters start with 1
-		preparedStatement.setBytes(1, username);
-		preparedStatement.setInt(2, transactionid);  //DB trigger populates this field. Change to Int when db changes
+		preparedStatement.setBytes(1, username);  //DB trigger populates this field. Change to Int when db changes
+		preparedStatement.setBytes(2, transactionamount);
 		preparedStatement.setBytes(3, transactionamount);
-		preparedStatement.setBytes(4, transactionamount);
-		preparedStatement.setBytes(5, sourceaccountnumber);
-		preparedStatement.setBytes(6, destinationaccountnumber);
-		preparedStatement.setBytes(7, dateandtime);   //DB trigger populates this field
-		preparedStatement.setBytes(8, transfertype);
-		preparedStatement.setBytes(9, status);
+		preparedStatement.setBytes(4, sourceaccountnumber);
+		preparedStatement.setBytes(5, destinationaccountnumber);
+		preparedStatement.setBytes(6, dateandtime);   //DB trigger populates this field
+		preparedStatement.setBytes(7, transfertype);
+		preparedStatement.setBytes(8, status);
 		count=preparedStatement.executeUpdate();
 		
 		}

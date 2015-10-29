@@ -19,6 +19,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.parser.PdfTextExtractor;
+
 import utilities.SendEmail;
 
 @Controller
@@ -29,8 +32,13 @@ public class FileUploadController {
 			@ModelAttribute("uploadForm") FileUpload uploadForm,
 			Model map ) throws IllegalStateException, IOException {
 		boolean success = false;
-		ModelAndView model = new ModelAndView("uploadfile");
+		ModelAndView model = new ModelAndView();
 
+		if(session.getAttribute("registered") == null){
+			model.setViewName("index");
+			return model;
+		}
+		
 		List<MultipartFile> crunchifyFiles = uploadForm.getFiles();
 
 		List<String> fileNames = new ArrayList<String>();
@@ -39,12 +47,10 @@ public class FileUploadController {
 			for (MultipartFile multipartFile : crunchifyFiles) {
 
 				String fileName = multipartFile.getOriginalFilename();
-				String extension = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
-				System.out.println(extension);
-				if(extension.equals("doc")||extension.equals("docx")||extension.equals("pdf")||extension.equals("png")||extension.equals("jpg")||extension.equals("jpeg"))
-				{
+				try{
+					
 					String ssnvalue = (String)session.getAttribute("SSN_Value");
-					System.out.println(ssnvalue);
+					//System.out.println(ssnvalue);
 					String saveDirectory = "C:/AccountOpeningDocuments/" + ssnvalue + "/";
 					File directory = new File(saveDirectory); 
 					if (directory.exists()) 
@@ -66,10 +72,14 @@ public class FileUploadController {
 					}
 					if (!"".equalsIgnoreCase(fileName)) {
 						
-						
-						multipartFile
+						String path = saveDirectory + fileName;
+                        multipartFile
 						.transferTo(new File(saveDirectory + fileName));
 						fileNames.add(fileName);
+						PdfReader pdfReader = new PdfReader( path );  
+
+					    String textFromPdfFilePageOne = PdfTextExtractor.getTextFromPage( pdfReader, 1 ); 
+					    System.out.println( textFromPdfFilePageOne );
 						String firstname= (String)session.getAttribute("CUSTOMER_NAME");
 						String accounttype = (String)session.getAttribute("ACCOUNT_TYPE");
 						String email= (String)session.getAttribute("CUSTOMER_EMAIL");
@@ -81,18 +91,22 @@ public class FileUploadController {
 						
 						model.setViewName("uploadfilesuccess");
 					}
-				}
-				else
-				{ 
-					System.out.println("Inside Else");
 
-					model.addObject("Successful", " You are only allowed to uplaod the .doc, .docx, .pdf, .jpg, .png files");
+				}
+				catch(Exception e){
+					model.addObject("error", "Not a pdf file. Please change the file to pdf and upload");
 					model.setViewName("uploadfile");
+
 				}
 			}
 		}
-
+				else
+				{ 
+					model.addObject("Successful", " Please upload files");
+					model.setViewName("uploadfile");
+				}
+		session.removeAttribute("registered");
 		return model;
 	}
-
 }
+

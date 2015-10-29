@@ -114,7 +114,7 @@ public class SorooshDatabaseConnection {
 
 	public ArrayList<String> putCustomerPaymentInDatabase(PaymentInfo payment) 
 			throws SQLException, ClassNotFoundException{
-		String date = TimeUtility.generateDateMethod();
+		String date = TimeUtility.generateSysDateMethod();
 		double currentBalance = 0;
 		ArrayList<String> errors = new ArrayList<String>();
 
@@ -155,7 +155,7 @@ public class SorooshDatabaseConnection {
 	public void putMerchantPaymentRequestInDatabase(String payer, String amount, 
 			String accountNumber, String username) 
 					throws ClassNotFoundException, SQLException {
-		String date = TimeUtility.generateDateMethod();
+		String date = TimeUtility.generateSysDateMethod();
 		putCustomerPaymentInDatabase(username, amount, payer, accountNumber, date.toString(), "PAYMENT", "WAITING_PAYER");
 	}
 

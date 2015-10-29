@@ -72,7 +72,7 @@ function check_User(val){
     }, false);
     </script>
 </head>
-<body>
+<body oncopy="return false" oncut="return false" onpaste="return false">
 <noscript>
   <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
   Javascript Disabled
@@ -230,4 +230,5 @@ function check_User(val){
 	response.setHeader("Cache-Control","no-cache"); 
 	response.setHeader("Pragma","no-cache"); 
 	response.setDateHeader ("Expires", -1);
+	
 %>

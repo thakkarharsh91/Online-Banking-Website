@@ -30,8 +30,11 @@ public class CreateTransactionHandler {
 			byte[] tamount = transamount.getBytes();
 			byte[] source = sourceacc.getBytes();
 			byte[] destination = destacc.getBytes();
+			Object obj=null;
+			obj=(Object)sql.insertIntotransDatabase(uname, tamount, source, destination);
+			sql.close();
+			return obj;
 			
-			return (Object)sql.insertIntotransDatabase(uname, tamount, source, destination);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
