@@ -27,7 +27,7 @@ type="text/javascript" charset="utf-8"></script>
     }, false);
     </script>
 </head>
-<body oncontextmenu="return false;">
+<body oncopy="return false" oncut="return false" onpaste="return false">
 	<noscript>
   <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
   Javascript Disabled
@@ -46,14 +46,18 @@ href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 
 </h1>
 <h2 align= "center">Search User</h2>
-	<select name=searchcat>
+	<table align="center">
+	<tr><td><select name=searchcat>
 	<option value=Name> Name </option>
 	<option value=UserName> User Name </option>
 	<option value=AccountNumber> Account Number </option>
 	
+	
 	</select>
-	<input type= text name = username maxlength=45>
-    <input type= submit name=submit value=search> 
+	</td>
+	<td>
+	<input type= text name = username maxlength=45></td></tr>
+    <tr><td></td><td><input type= submit name=submit value=search></td></tr>
     <br>
     <br> 
 	<c:if test="${users != null && users.size() != 0}">:

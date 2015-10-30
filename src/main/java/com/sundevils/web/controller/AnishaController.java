@@ -110,7 +110,7 @@ public class AnishaController {
 					handler.updatePIAccount(request1.getUsername(), request1.getModifiedcolumn(), request1.getOldvalue(), request1.getNewvalue(),request1.getNewaccountnumber());
 
 					handler.updateRequest(id,"APPROVE");
-					logger.info("Request for user"+ request1.getUsername()+ " has been approved");
+					logger.error("Request for user"+ request1.getUsername()+ " has been approved");
 					requests.remove(request1);
 					ModelAndView newmodel = new ModelAndView("VerifyExternalUser");
 					model = newmodel;
@@ -119,7 +119,7 @@ public class AnishaController {
 					requestCardHandler handler = new requestCardHandler();
 					handler.approveCardChange(request1.getOldvalue(),"APPROVE");
 					model.addObject("Successful", "Card Replacement has been appoved");	
-					logger.info("Request for user"+ request1.getUsername()+ " has been approved");
+					logger.error("Request for user"+ request1.getUsername()+ " has been approved");
                     requests.remove(request1);
 					ModelAndView newmodel = new ModelAndView("VerifyExternalUser");
 					model = newmodel;
@@ -136,7 +136,7 @@ public class AnishaController {
 				if(Requesttype.equals("modify")){
 					handler.updateRequest(id1,"REJECT");
 					requests.remove(request1);
-					logger.info("Request for user"+ request1.getUsername()+ " has been rejected");
+					logger.error("Request for user"+ request1.getUsername()+ " has been rejected");
 					ModelAndView newmodel = new ModelAndView("VerifyExternalUser");
 					model = newmodel;
 				}
@@ -144,7 +144,7 @@ public class AnishaController {
 					requestCardHandler handler = new requestCardHandler();
 					handler.approveCardChange(request1.getOldvalue(),"REJECT");
 					model.addObject("Successful", "Card Replacement has been rejected");
-					logger.info("Request for user"+ request1.getUsername()+ " has been rejected");
+					logger.error("Request for user"+ request1.getUsername()+ " has been rejected");
 					requests.remove(request1);
 					ModelAndView newmodel = new ModelAndView("VerifyExternalUser");
 					model = newmodel;
@@ -252,7 +252,7 @@ public class AnishaController {
 			Amount = request.getParameter("amount");
 			if(Amount.equals("")){
 				model.addObject("amountError", "Please enter a valid amount");
-				logger.info("Could not process transaction for " + userName +
+				logger.error("Could not process transaction for " + userName +
 						"because : " + amount + " is not a valid amount" );
 				return model;
 			}
@@ -263,7 +263,7 @@ public class AnishaController {
 					} catch(NumberFormatException ex)
 					{
 						model.addObject("amountError", "Please enter a valid amount");
-						logger.info("Could not process transaction for " + userName +
+						logger.error("Could not process transaction for " + userName +
 								"because : " + amount + " is not a valid amount" );
 						return model;
 
@@ -271,12 +271,12 @@ public class AnishaController {
 			}
 			if(SourceAccount.equals(DestinationAccount)){
 				model.addObject("destinationError", "Please select a different destination account for fund transfer");
-				logger.info("Could not process transaction for " + userName +
+				logger.error("Could not process transaction for " + userName +
 						"because of invalid destination" );
 			}
 			else if(amount < 0){
 				model.addObject("amountError", "Please enter a valid amount");
-				logger.info("Could not process transaction for " + userName +
+				logger.error("Could not process transaction for " + userName +
 						"because : " + amount + " is not a valid amount" );
 			}
 			else{
@@ -286,7 +286,7 @@ public class AnishaController {
 						SourceBalance = Double.parseDouble(ac.getBalance());
 						if(SourceBalance < amount ){
 							model.addObject("balanceInsuficientError", "Transfer cant take place due to insufficient balance");
-							logger.info("Could not process transaction for " + userName +
+							logger.error("Could not process transaction for " + userName +
 									"because of insufficient balance" );
 
 						}	
@@ -299,14 +299,14 @@ public class AnishaController {
 							String Status = "pendingapproval";
 							success = handler.submitTrasferRequest(userName,TransactionID,Amount,SourceAccountNumber,DestinationAccountNumber,TimeUtility.generateSysDateMethod(),transferType,Status,success);
 							if(success){
-								logger.info("Succesfully submitted the transaction for " + userName );
+								logger.error("Succesfully submitted the transaction for " + userName );
 
 								model.addObject("success","Successfully submited the transaction for approval");
 								model.setViewName("InternalFundTransfer");
 							}
 							else{
 								model.addObject("failure", "Could not submit transaction");
-								logger.info("could not submit the transaction for " + userName );
+								logger.error("could not submit the transaction for " + userName );
 
 							}
 						}
@@ -445,20 +445,20 @@ public class AnishaController {
 				} catch(NumberFormatException ex)
 				{
 					model.addObject("amountError", "Please enter a valid amount");
-					logger.info("Could not process transaction for " + userName +
+					logger.error("Could not process transaction for " + userName +
 							"because : " + amount + " is not a valid amount" );
 					return model;
 
 				}
 				if(amount < 0){
 					model.addObject("amountError", "Please enter a valid amount");
-					logger.info("Could not process transaction for " + userName +
+					logger.error("Could not process transaction for " + userName +
 							"because : " + amount + " is not a valid amount" );
 
 				}
 				else if(!otpString.equals(Otpdata)){
 					model.addObject("wrongOtp", "Otp code does not match");
-					logger.info("Could not process transaction for " + userName +
+					logger.error("Could not process transaction for " + userName +
 							"because otp entered by the user does not match" );
 
 				}
@@ -474,7 +474,7 @@ public class AnishaController {
 						if(re.getAccountnumber().equals(DestinationAccount)){
 							if(SourceBalance < amount ){
 								model.addObject("balanceInsuficientError", "Transfer cant take place due to insufficient balance");
-								logger.info("Could not process transaction for " + userName +
+								logger.error("Could not process transaction for " + userName +
 										"because of insufficient balance" );
 
 							}	
@@ -488,13 +488,13 @@ public class AnishaController {
 								success = handler.submitTrasferRequest(userName,TransactionID,Amount,SourceAccountNumber,DestinationAccount,TimeUtility.generateSysDateMethod(),transferType,Status,success);
 								if(success){
 									model.addObject("success","Successfully submited the transaction for approval");
-									logger.info("Succesfully submitted the transaction for " + userName );
+									logger.error("Succesfully submitted the transaction for " + userName );
 
 									model.setViewName("ExternalFundTransfer");
 								}
 								else{
 									model.addObject("failure", "Could not submit transaction");
-									logger.info("could not submit the transaction for " + userName );
+									logger.error("could not submit the transaction for " + userName );
 
 								}
 							}
@@ -616,16 +616,16 @@ public class AnishaController {
 
 								{
 									model.addObject("Successfull", "Recepient added successfully");
-									logger.info("Succesfully added the recepient: " + firstName + lastName +" for user: " + userName);
+									logger.error("Succesfully added the recepient: " + firstName + lastName +" for user: " + userName);
 									model.setViewName("AddARecepient");}
 								else
 									{
 									model.addObject("dulicateuser", "Reepient with above information(account number) already exsists");
-									logger.info("Could not add the recepient: " + firstName + lastName +" for user: " + userName +" as recepient already exsists");
+									logger.error("Could not add the recepient: " + firstName + lastName +" for user: " + userName +" as recepient already exsists");
 									}
 							}
 							else{
-								logger.info("Could not add the recepient: " + firstName + lastName +" for user: " + userName +" as recepient do not exsist in the bank");
+								logger.error("Could not add the recepient: " + firstName + lastName +" for user: " + userName +" as recepient do not exsist in the bank");
 								model.addObject("invaliduser", "recepient does not exsist in the bank");
 
 							}

@@ -8,8 +8,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <meta http-equiv="Pragma" content="no-cache">
- <meta http-equiv="Cache-Control" content="no-cache">
- <meta http-equiv="Expires" content="-1">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Expires" content="-1">
 <title>Sun Devils Bank Home Page</title>
 <link rel="shortcut icon"
 	href="http://teamtreehouse.com/assets/favicon.ico">
@@ -23,33 +23,40 @@
 	src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type="text/javascript" language="javascript" charset="utf-8"
 	src="js/bootstrap.min.js"></script>
-	<script type = "text/javascript" >
-    history.pushState(null, null,window.location.href);
-    window.addEventListener('popstate', function(event) {
-    history.pushState(null, null, window.location.href);
-    });
-    document.addEventListener("contextmenu", function(e){
-        e.preventDefault();
-    }, false);
-    </script>
+<script type="text/javascript">
+	history.pushState(null, null, window.location.href);
+	window.addEventListener('popstate', function(event) {
+		history.pushState(null, null, window.location.href);
+	});
+	document.addEventListener("contextmenu", function(e) {
+		e.preventDefault();
+	}, false);
+</script>
 </head>
 
 <body oncopy="return false" oncut="return false" onpaste="return false">
 	<noscript>
-  <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}" />
-  Javascript Disabled
-</noscript>
+		<meta http-equiv="refresh"
+			content="0; url=${pageContext.servletContext.contextPath}" />
+		Javascript Disabled
+	</noscript>
 	<form name="form"
 		action="${pageContext.servletContext.contextPath}/customerquery?${_csrf.parameterName}=${_csrf.token}"
 		method='POST'>
 		<nav id="navigation">
 			<div class="container">
 				<ul class="navlinks">
-					<li><a href="./">Home</a></li>
-					<li><a href="./aboutus">About Us</a></li>
-					<li><a href="./projects">Projects</a></li>
-					<li><a href="./team">The Team</a></li>
-					<li><a href="./contact">Contact Us</a></li>
+					<li><a href="${pageContext.servletContext.contextPath}/">Home</a></li>
+					<li><a
+						href="${pageContext.servletContext.contextPath}/aboutus">About
+							Us</a></li>
+					<li><a
+						href="${pageContext.servletContext.contextPath}/projects">Projects</a></li>
+					<li><a href="${pageContext.servletContext.contextPath}/team">The
+							Team</a></li>
+					<li><a
+						href="${pageContext.servletContext.contextPath}/contact">Contact
+							Us</a></li>
 				</ul>
 			</div>
 		</nav>
@@ -73,12 +80,11 @@
 								in the below area and we will get back to you soon.</strong>
 						</p>
 						<p>
-						<strong><c:if test="${not empty mandatory}">
-							<div>${mandatory}</div>
-						</c:if></strong>
-						<strong><c:if test="${not empty success}">
-							<div>${success}</div>
-						</c:if></strong>
+							<strong><c:if test="${not empty mandatory}">
+									<div>${mandatory}</div>
+								</c:if></strong> <strong><c:if test="${not empty success}">
+									<div>${success}</div>
+								</c:if></strong>
 						</p>
 						<p>
 							Enter query <input name="query" type="text" />

@@ -61,7 +61,7 @@ public class UnlockInternalAccountAccess {
 			ResultSet resultSet2 = preparedStatement.executeQuery();
 			ArrayList<UnlockRequest> request_tbl = writeResultSetRequest(resultSet2);
 			resultSet2.close();
-			LOG.info("Reading unlock user account requests");
+			LOG.error("Reading unlock user account requests");
 			return request_tbl;
 			
 		} catch (Exception e) {
@@ -110,7 +110,7 @@ public class UnlockInternalAccountAccess {
 			
 			if(count>0)
 			{
-				LOG.info("Updated unlock status in request table for user" +username);
+				LOG.error("Updated unlock status in request table for user" +username);
 				return true;
 			}
 			else

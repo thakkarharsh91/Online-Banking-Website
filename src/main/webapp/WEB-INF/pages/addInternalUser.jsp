@@ -30,11 +30,11 @@
 <form action="addinternaluser" method='POST'>
 	<input type="hidden" name="${_csrf.parameterName}"	value="${_csrf.token}" />
 			<table border="3" align="center">
-				<h2 align="center">	<u>Transactions</u>	</h2>
+				<h2 align="center">	<u>Add Internal User</u>	</h2>
 				<div><c:if test="${not empty invalid}"><div class="msg">${invalid}</div></c:if></div>
 				<tbody>
 					<tr>
-						<td>First Name: </td>
+						<td>First Name: *</td>
 						<td><input type="text" name ="firstname" maxlength="45"></td>
 					</tr>
 					<tr>
@@ -42,11 +42,11 @@
 						<td><input type="text" name ="middlename" maxlength="45"></td>
 					</tr>
 					<tr>
-						<td>Last Name: </td>
+						<td>Last Name: *</td>
 						<td><input type="text" name ="lastname" maxlength="45"></td>
 					</tr>
 					<tr>
-						<td>Username: </td>
+						<td>Username: *</td>
 						<td><input type="text" name ="username" maxlength="45"> </td>
 					</tr> 
 					<tr>
@@ -59,26 +59,26 @@
 						</td>
 					<tr>
 					<tr>
-						<td>SSN: </td>
+						<td>SSN: *</td>
 						<td><input type="text" name ="ssn" maxlength="45"></td>
 						<td>(xxx-xx-xxxx)</td>
 					</tr>
 					<tr>
-						<td>Email Address: </td>
+						<td>Email Address: *</td>
 						<td><input type="text" name ="email" maxlength="45"></td>
 					</tr>
 					<tr>
-						<td>Phone Number:</td>
+						<td>Phone Number: *</td>
 						<td><input type="text" name ="phonenumber" maxlength="45"></td>
 						<td>(1xxxxxxxxxx) </td>
 					</tr>
 					<tr>
-						<td>Date of Birth: </td>
+						<td>Date of Birth: *</td>
 						<td><input type="date" name ="dateofbirth" maxlength="45"></td>
-						<td>(yyyy/mm/dd)</td>
+						<td>(mm/dd/yyyy)</td>
 					</tr>
 					<tr>
-      					<td>Address: </td>
+      					<td>Address: *</td>
       					<td><textarea name ="address" maxlength="45"></textarea></td>
     				</tr>
    					<tr>
@@ -139,7 +139,7 @@
 						</td>
 				    </tr>
     				<tr>
-      					<td>Zip: </td>
+      					<td>Zip: *</td>
      					 <td><input type="text" name ="zip" maxlength="45"></td>
     				</tr>					
 					<tr>

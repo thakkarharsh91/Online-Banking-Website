@@ -116,7 +116,7 @@
 </script>
 
 </head>
-<body oncopy="return false" oncut="return false" onpaste="return false">
+<body>
 <noscript>
   <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
   Javascript Disabled

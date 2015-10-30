@@ -23,14 +23,21 @@
 </head>
 <body oncopy="return false" oncut="return false" onpaste="return false">
 	<form>
+	<h2 align="justify">Hello <c:out value="${sessionScope.Admin}"/></h2>
 		<table>
 
 			<tbody>
 				<tr>
 					<td><a
+						href="${pageContext.request.contextPath}/authorizationRequest?${_csrf.parameterName}=${_csrf.token}">View
+							Requests</a></td>
+				</tr>
+				<tr>
+					<td><a
 						href="${pageContext.servletContext.contextPath}/viewlogs">View
 							Logs</a></td>
 				</tr>
+
 				<tr>
 					<td><a href="${pageContext.servletContext.contextPath}/addi">Add
 							Internal User</a></td>
@@ -63,10 +70,6 @@
 					<td><a
 						href="${pageContext.servletContext.contextPath}/unlockinternal">Unlock
 							Internal User</a></td>
-				</tr>
-				<tr>
-					<td><a href="${pageContext.servletContext.contextPath}/reset">Change
-							Password</a></td>
 				</tr>
 				<tr>
 					<td><a

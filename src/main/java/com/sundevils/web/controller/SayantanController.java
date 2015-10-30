@@ -130,11 +130,11 @@ public class SayantanController
 					model.addObject("emptyFields", "The ZIP must have 5 digts. No other characters allowed.");
 					model.setViewName("Account.Opening.Form");
 				}
-				else if(usertype.equals("") || accounttype.equals("") ||  firstname.equals("") || lastname.equals("") ||  passportnumber.equals("") ||email.equals("") || ssn.equals("")|| phonenumber.equals("")||checkagreement.equals(""))
+				else if(usertype.equals("") || accounttype.equals("") ||  firstname.equals("") || lastname.equals("") ||  zip.equals("") ||email.equals("") || ssn.equals("")|| phonenumber.equals("")||checkagreement.equals(""))
 				{
 
 
-					model.addObject("emptyFields", "First Name, Last Name, Passport Number, Email, SSN, Mobile Number, and agreement are mandatory fields");
+					model.addObject("emptyFields", "First Name, Last Name, Zip Code, Email, SSN, Mobile Number, and agreement are mandatory fields");
 					model.setViewName("Account.Opening.Form");
 				}
 				else if (usertype.equals("MERCHANT") && !matcher3.matches())
@@ -161,8 +161,8 @@ public class SayantanController
 						boolean flag = handler.openAccount(request.getParameter("usertype"),request.getParameter("accounttype"),request.getParameter("prefix"),request.getParameter("firstname"),request.getParameter("middlename"),request.getParameter("lastname"),request.getParameter("gender"),request.getParameter("address"),request.getParameter("state"),request.getParameter("zip"),request.getParameter("passportnumber"),request.getParameter("ssn"),request.getParameter("email"),request.getParameter("phonenumber"),request.getParameter("dateofbirth"),request.getParameter("documents"),request.getParameter("businesslicence"),"Applied");
 						if(flag){
 							model.addObject("Successful", "Account Opening Application has been submitted sucessfully");
-							model.setViewName("uploadfile");
-						}
+							//model.setViewName("uploadfile");
+							model.setViewName("uploadfilesuccess");						}
 						else 
 						{
 							model.addObject("Successful", "Account Opening Application not successful");
@@ -417,7 +417,7 @@ public class SayantanController
 
 						handler.requestChangeCard(username,accountno);
 						model.addObject("Successful", "Request for card replacement has been submitted sucessfully");
-						logger.info(username +" has request new card for" + accountno);
+						logger.error(username +" has request new card for" + accountno);
 						PaymentFormDataLoader handler1 = new PaymentFormDataLoader();
 						model.addObject("bankaccounts", handler1.getAllAccountsForUserPayment(username));
 						model.setViewName("Request.New.Card");
@@ -689,7 +689,7 @@ public class SayantanController
 						temp.setphonenumber(rs.getString("phonenumber"));
 						users.add(temp);
 					}
-					model = printWelcome(model,ssn,accounttype);
+				//	model = printWelcome(model,ssn,accounttype);
 					model.setViewName("System.Manager.Account.Review");
 					//downloadFiles(request,response, ssn);
 					model.addObject("users", users);
@@ -748,6 +748,7 @@ public class SayantanController
 		String directorypath="C:\\AccountOpeningDocuments\\"+ssn;
 		File folder = new File(directorypath);
 		File[] listOfFiles = folder.listFiles();
+		if(listOfFiles!=null){
 
 		for (int i = 0; i < listOfFiles.length; i++) {
 			if (listOfFiles[i].isFile()) {
@@ -755,6 +756,7 @@ public class SayantanController
 				//model.addAttribute("file1", listOfFiles[0].getName());
 
 			}
+		}
 		}
 
 

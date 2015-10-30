@@ -157,29 +157,29 @@ public class CustomerController {
 							boolean flag1 = false;
 							boolean flag2 = false;
 							if(option.equalsIgnoreCase("debit")){
-								logger.info("Insereting the requested debit transacation for the user "+userName+" for amount:"+amount);
+								logger.error("Insereting the requested debit transacation for the user "+userName+" for amount:"+amount);
 								flag1=handler.insertTransactionDetails(userName,random,amount,accountNum,"",TimeUtility.generateSysDateMethod(),option,"pendingapproval");
-								logger.info("Succesfully inserted the requested debit transacation for the user "+userName+" for amount:"+amount);
+								logger.error("Succesfully inserted the requested debit transacation for the user "+userName+" for amount:"+amount);
 								balance=balance-Double.parseDouble(amount);
 								flag2=handler.updateBalance(accountNum,balance,userName);
-								logger.info("Successfully updated the balance of the user:"+userName);
+								logger.error("Successfully updated the balance of the user:"+userName);
 								
 							}
 							else if(option.equalsIgnoreCase("credit")){
-								logger.info("Insereting the requested debit transacation for the user "+userName+" for amount:"+amount);
+								logger.error("Insereting the requested debit transacation for the user "+userName+" for amount:"+amount);
 								flag1=handler.insertTransactionDetails(userName,random,amount,"",accountNum,TimeUtility.generateSysDateMethod(),option,"pendingapproval");
-								logger.info("Succesfully inserted the requested debit transacation for the user "+userName+" for amount:"+amount);
+								logger.error("Succesfully inserted the requested debit transacation for the user "+userName+" for amount:"+amount);
 								balance=balance+Double.parseDouble(amount);
 								flag2=handler.updateBalance(accountNum,balance,userName);
-								logger.info("Successfully updated the balance of the user:"+userName);
+								logger.error("Successfully updated the balance of the user:"+userName);
 							}
 	
 							if(flag1 && flag2){
-								logger.info("Transaction is Sucess");
+								logger.error("Transaction is Sucess");
 								model.setViewName("customerhome");
 							}
 							else{
-								logger.info("Transaction is failed");
+								logger.error("Transaction is failed");
 								model.setViewName("customerhome");
 							}
 						}

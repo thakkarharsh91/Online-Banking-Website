@@ -39,11 +39,11 @@
 	<nav id="navigation">
 		<div class="container">
 			<ul class="navlinks">
-				<li><a href="./">Home</a></li>
-				<li><a href="./aboutus">About Us</a></li>
-				<li><a href="./projects">Projects</a></li>
-				<li><a href="./team">The Team</a></li>
-				<li><a href="./contact">Contact Us</a></li>
+				<li><a href="${pageContext.servletContext.contextPath}/">Home</a></li>
+				<li><a href="${pageContext.servletContext.contextPath}/aboutus">About Us</a></li>
+				<li><a href="${pageContext.servletContext.contextPath}/projects">Projects</a></li>
+				<li><a href="${pageContext.servletContext.contextPath}/team">The Team</a></li>
+				<li><a href="${pageContext.servletContext.contextPath}/contact">Contact Us</a></li>
 			</ul>
 		</div>
 	</nav>
@@ -73,7 +73,7 @@
 						<strong>The activation of account will normally require two business days to go through all the activation process. So please bear with us.</strong>
 					</p>
 					<p>
-						<strong>You can open your account now by clicking <a href = "./accountopening">here</a></strong>
+						<strong>You can open your account now by clicking <a href = "${pageContext.servletContext.contextPath}/accountopening">here</a></strong>
 					</p>
 				</div>
 

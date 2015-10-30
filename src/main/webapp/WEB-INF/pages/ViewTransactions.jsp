@@ -32,7 +32,7 @@
 	</div>
 	<br></br>
 	<div style="text-align: center">
-		<a href="${pageContext.servletContext.contextPath}/managerhome">Home</a>
+		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
 	</div>
 <table border="3" align="center">
 		<h2 align="center">

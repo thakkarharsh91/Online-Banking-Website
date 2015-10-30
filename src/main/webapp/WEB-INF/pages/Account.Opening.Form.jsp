@@ -26,6 +26,8 @@
   <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
   Javascript Disabled
 </noscript>
+<div style="text-align: center">
+		<a href="${pageContext.servletContext.contextPath}/login">Back</a></div>
 <div>
 		<c:if test="${not empty emptyFields}">
 			<div class="msg">${emptyFields}</div>
@@ -162,7 +164,7 @@
 					<td><input id="ssn" name="ssn" type="text" maxlength="20"></td>
 				</tr>
 				<tr>
-					<td>Passport:</td>
+					<td>Passport:*</td>
 					<td><input id="passportnumber" name="passportnumber"
 						type="text" maxlength="20"></td>
 				</tr>

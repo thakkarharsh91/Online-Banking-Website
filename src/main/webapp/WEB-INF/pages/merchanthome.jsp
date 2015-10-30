@@ -62,10 +62,6 @@
 					<td><a href="${pageContext.servletContext.contextPath}/downloadStatement" target="_blank">View Statement</a></td>
 				</tr>
 				<tr>
-					<td><a href="${pageContext.servletContext.contextPath}/reset">Change
-							Password</a></td>
-				</tr>
-				<tr>
 					<td><a
 						href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></td>
 				</tr>

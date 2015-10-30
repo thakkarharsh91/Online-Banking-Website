@@ -10,21 +10,14 @@
   <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
   Javascript Disabled
 </noscript>
-
-		<c:if test="${not empty Successful}">
-			<div class="msg">${Successful}</div>
-		</c:if>
     <br>
+    <div style="text-align: center">
+		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
+	</div>
     <br>
     <div align="center">
  
         <h1>Application submitted successfully</h1>
-        <p>Following files are uploaded successfully.</p>
-        <ol>
-            <c:forEach items="${files}" var="file">
-           - ${file} <br>
-            </c:forEach>
-        </ol>
         
         <br />
     </div>

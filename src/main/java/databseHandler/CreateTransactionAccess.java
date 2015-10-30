@@ -67,7 +67,7 @@ public class CreateTransactionAccess {
 		
 		if(count>0)
 		{
-			LOG.info("Transaction successfully created for" +username.toString()+ "amount:"+transactionamount.toString());
+			LOG.error("Transaction successfully created for" +username.toString()+ "amount:"+transactionamount.toString());
 			return "Transaction successfully created";
 		}
 			else

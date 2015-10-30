@@ -29,8 +29,6 @@
 </noscript>
 	<div style="text-align: center">
 		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
-	</div>
-	<div style="text-align: center">
 		<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 	</div>
 	<form:form name='loginForm'
@@ -52,6 +50,9 @@
 			</c:if>
 			<c:if test="${not empty destinationerror}">
 				<div class="msg" align="center">${destinationerror}</div>
+			</c:if>
+			<c:if test="${not empty success}">
+				<div class="msg" align="center">${success}</div>
 			</c:if>
 			<tr>
 				<th>Select</th>

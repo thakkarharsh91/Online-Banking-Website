@@ -30,11 +30,11 @@
 	
 		<form action="addgovernmentagency" method='POST'><input type="hidden" name="${_csrf.parameterName}"	value="${_csrf.token}" />
 			<table border="3" align="center">
-			<h2 align="center"><u>Transactions</u></h2>
+			<h2 align="center"><u>Add Government Agency</u></h2>
 			<div><c:if test="${not empty invalid}"><div class="msg">${invalid}</div></c:if></div>
 				<tbody>
 					<tr>
-						<td>Agency Name: </td>
+						<td>Agency Name: *</td>
 						<td><input type="text" name ="agencyname" maxlength="45"></td>
 					</tr>
 					<tr>
@@ -42,7 +42,7 @@
 						<td><input type="text" name ="agencyid" maxlength="45"></td>
 					</tr>					
 					<tr>
-						<td>Agency Email Address: </td>
+						<td>Agency Email Address: *</td>
 						<td><input type="text" name ="agencyemail" maxlength="45"></td>
 					</tr>
 					<tr>
@@ -54,8 +54,7 @@
       					<td><button type="submit">Add Government Agency</button></td>
     				</tr>										
 				</tbody>
-			</table>
-			<p style="text-align:left"><a href="${pageContext.servletContext.contextPath}/Home">Home</a></p>			
+			</table>			
 		</form>
 	</body>
 </html>

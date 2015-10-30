@@ -27,7 +27,7 @@ type="text/javascript" charset="utf-8"></script>
     }, false);
     </script>
 </head>
-<body oncontextmenu="return false;">
+<body oncopy="return false" oncut="return false" onpaste="return false">
 	<noscript>
   <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
   Javascript Disabled

@@ -39,10 +39,6 @@
 					<td><a href="${pageContext.servletContext.contextPath}/criticaltransaction?${_csrf.parameterName}=${_csrf.token}">Critical Transactions</a></td>
 				</tr>
 				<tr>
-					<td><a href="${pageContext.servletContext.contextPath}/reset?${_csrf.parameterName}=${_csrf.token}">Change
-							Password</a></td>
-				</tr>
-				<tr>
 					<td><a
 						href="${pageContext.servletContext.contextPath}/logoutusers?${_csrf.parameterName}=${_csrf.token}">Logout</a></td>
 				</tr>

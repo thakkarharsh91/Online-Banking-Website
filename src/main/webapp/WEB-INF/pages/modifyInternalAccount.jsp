@@ -54,7 +54,7 @@
 			<tr>
 				<td>New Information:</td>
 				<td><input type="text" name = "newinfo" maxlength="45"></td>
-				<td>(1XXXXXXXXXX)</td>
+				<td>(1XXXXXXXXXX) - If selected field for update is phone number.</td>
 			</tr>			
 			<tr>
 				<td></td>

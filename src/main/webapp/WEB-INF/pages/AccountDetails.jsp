@@ -28,12 +28,10 @@
   <meta http-equiv="refresh" content="0; url=${pageContext.servletContext.contextPath}/logoutusers" />
   Javascript Disabled
 </noscript>
-<div style="text-align: center">
-		<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
-	</div>
-	<br></br>
+
 	<div style="text-align: center">
 		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
+		<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 	</div>
 	<form:form name='loginForm'
 		action="${pageContext.servletContext.contextPath}/AccountView/?${_csrf.parameterName}=${_csrf.token}"

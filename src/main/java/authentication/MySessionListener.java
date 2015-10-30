@@ -12,7 +12,7 @@ public class MySessionListener implements HttpSessionListener {
  
 	private static final Logger LOG = Logger.getLogger(MySessionListener.class);
 	public void sessionCreated(HttpSessionEvent event) {
-		LOG.info("Session created");
+		LOG.error("Session created");
 	}
  
 	public void sessionDestroyed(HttpSessionEvent event) {

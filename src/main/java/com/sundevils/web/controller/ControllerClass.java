@@ -166,7 +166,7 @@ public class ControllerClass {
 						}
 						modelandview.addObject("list",list);
 						modelandview.setViewName("deleteInternalUser");
-						LOG.info("Generating the list of internal users to delete" + list );	
+						LOG.error("Generating the list of internal users to delete" + list );	
 						resultset.close();
 					}
 					else
@@ -327,7 +327,7 @@ public class ControllerClass {
 			}			
 			modelandview.addObject("showList",showList);
 			modelandview.setViewName("piiRequests");
-			LOG.info("Generating the list of PII requests for admin " + showList );
+			LOG.error("Generating the list of PII requests for admin " + showList );
 			return modelandview;	
 		}
 		else
@@ -394,7 +394,7 @@ public class ControllerClass {
 				handler.updateLoggedInFlag(userSessionName,0);
 				return m;
 			}
-			LOG.info("Generating view to delete internalusers");
+			LOG.error("Generating view to delete internalusers");
 			return modelandview;
 		}
 		else
@@ -491,7 +491,7 @@ public class ControllerClass {
 				handler.updateLoggedInFlag(userSessionName,0);
 				return m;
 			}
-			LOG.info("Updating the PII status from PII_REQUESTED to COMPLETED and sending email to government agency: "+ gemail);
+			LOG.error("Updating the PII status from PII_REQUESTED to COMPLETED and sending email to government agency: "+ gemail);
 			return modelandview;
 		}
 		else
@@ -596,7 +596,7 @@ public class ControllerClass {
 				handler.updateLoggedInFlag(userSessionName,0);
 				return m;
 			}			
-			LOG.info(" Added government agency with details: "+agencyname+","+agencyid+","+agencyemail);			
+			LOG.error(" Added government agency with details: "+agencyname+","+agencyid+","+agencyemail);			
 			return modelandview;
 		}
 		else
@@ -733,7 +733,7 @@ public class ControllerClass {
 				handler.updateLoggedInFlag(userSessionName,0);
 				return m;
 			}				
-			LOG.info(" Added internal user with details: "+firstname+","+middlename+","+lastname+","+ssn+","+email+","+usertype+","+phonenumber+","+dateofbirth+","+address+","+state+","+zip);
+			LOG.error(" Added internal user with details: "+firstname+","+middlename+","+lastname+","+ssn+","+email+","+usertype+","+phonenumber+","+dateofbirth+","+address+","+state+","+zip);
 			return modelandview;
 		}
 		else
@@ -849,7 +849,7 @@ public class ControllerClass {
 				handler.updateLoggedInFlag(userSessionName,0);
 				return m;
 			}
-			LOG.info(" modifying internal user with details of username : "+username+", with column: "+column+", to: "+newinfo);
+			LOG.error(" modifying internal user with details of username : "+username+", with column: "+column+", to: "+newinfo);
 			return modelandview;
 		}
 		else

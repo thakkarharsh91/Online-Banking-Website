@@ -12,7 +12,6 @@ import handlers.adminHandlers.updateAllowHandler;
 import handlers.employeeHandlers.CheckSourceAccountNumberHandler;
 import handlers.employeeHandlers.CreateTransactionHandler;
 import handlers.employeeHandlers.ViewAccounts;
-import handlers.systemmanagerHandlers.reviewExtUserHandler;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -68,7 +67,7 @@ public class TopController {
 			model.addObject("title", "Spring Security Custom Login Form");
 			model.addObject("message", "This is welcome page!");
 			model.setViewName("index");
-			LOG.info("Welcome page accessed");
+			LOG.error("Welcome page accessed");
 		}
 		catch(Exception e){
 			LOG.error("Issue while going to welcome page"+e.getMessage());
@@ -81,7 +80,7 @@ public class TopController {
 	public ModelAndView products(HttpServletRequest request,HttpServletResponse response) throws IOException {
 		ModelAndView model = new ModelAndView();
 		model.setViewName("findallproducts");
-		LOG.info("Find all products page accessed");
+		LOG.error("Find all products page accessed");
 		return model;
 	}
 
@@ -89,7 +88,7 @@ public class TopController {
 	public ModelAndView startForm(HttpServletRequest request,HttpServletResponse response) throws IOException {
 		ModelAndView model = new ModelAndView();
 		model.setViewName("Account.Opening.Form");
-		LOG.info("Account opening page accessed");
+		LOG.error("Account opening page accessed");
 		return model;
 	}
 
@@ -97,7 +96,7 @@ public class TopController {
 	public ModelAndView aboutus(HttpServletRequest request,HttpServletResponse response) throws IOException {
 		ModelAndView model = new ModelAndView();
 		model.setViewName("aboutus");
-		LOG.info("About us page accessed");
+		LOG.error("About us page accessed");
 		return model;
 	}
 
@@ -105,7 +104,7 @@ public class TopController {
 	public ModelAndView projects(HttpServletRequest request,HttpServletResponse response) throws IOException {
 		ModelAndView model = new ModelAndView();
 		model.setViewName("projects");
-		LOG.info("Projects page accessed");
+		LOG.error("Projects page accessed");
 		return model;
 	}
 
@@ -113,7 +112,7 @@ public class TopController {
 	public ModelAndView team(HttpServletRequest request,HttpServletResponse response) throws IOException {
 		ModelAndView model = new ModelAndView();
 		model.setViewName("team");
-		LOG.info("Team page accessed");
+		LOG.error("Team page accessed");
 		return model;
 	}
 
@@ -121,7 +120,7 @@ public class TopController {
 	public ModelAndView contact(HttpServletRequest request,HttpServletResponse response) throws IOException {
 		ModelAndView model = new ModelAndView();
 		model.setViewName("contact");
-		LOG.info("Contact us page accessed");
+		LOG.error("Contact us page accessed");
 		return model;
 	}
 
@@ -129,7 +128,7 @@ public class TopController {
 	public ModelAndView startbanking(HttpServletRequest request,HttpServletResponse response) throws IOException {
 		ModelAndView model = new ModelAndView();
 		model.setViewName("startbanking");
-		LOG.info("Start banking page accessed");
+		LOG.error("Start banking page accessed");
 		return model;
 	}
 
@@ -188,20 +187,38 @@ public class TopController {
 
 
 	@RequestMapping(value = "/logsaccess", method={RequestMethod.GET, RequestMethod.POST})
-	public ModelAndView accessLogs() {
+	public ModelAndView accessLogs(HttpSession session) {
 
-		ModelAndView model = new ModelAndView();
-		String directorypath="C:\\AppLogs\\";
-		File folder = new File(directorypath);
-		File[] listOfFiles = folder.listFiles();
-
-		for (int i = 0; i < listOfFiles.length; i++) {
-			if (listOfFiles[i].isFile()) {
-				model.addObject("file1", listOfFiles[0].getName());
-			}
+		String role = (String)session.getAttribute("Role");
+		if(role == null)
+		{
+			ModelAndView model = new ModelAndView();
+			model.setViewName("index");
+			return model;
 		}
-		model.setViewName("viewlogs");
-		return model;
+		else if(role.equals("ADMIN")){
+			ModelAndView model = new ModelAndView();
+			String directorypath="C:\\AppLogs\\";
+			File folder = new File(directorypath);
+			File[] listOfFiles = folder.listFiles();
+
+			for (int i = 0; i < listOfFiles.length; i++) {
+				if (listOfFiles[i].isFile()) {
+					model.addObject("file1", listOfFiles[0].getName());
+				}
+			}
+			model.setViewName("viewlogs");
+			return model;
+		}
+		else{
+			ModelAndView model = new ModelAndView();
+			LoginHandler handler = new LoginHandler();
+			String userName = (String)session.getAttribute("USERNAME");
+			handler.updateLoggedInFlag(userName,0);
+			session.invalidate();
+			model.setViewName("index");
+			return model;
+		}
 	}
 
 	@RequestMapping(value = "/viewfile", method = RequestMethod.GET)
@@ -355,7 +372,7 @@ public class TopController {
 				otp.sendOtp(request, "thakkarharsh90@gmail.com",query,email);
 				model.addObject("success", "An email has been sent to the support team. They will contact you within 3-5 working days.");
 				model.setViewName("contact");
-				LOG.info("Customer query is generated for user"+email);
+				LOG.error("Customer query is generated for user"+email);
 			}
 		}
 		return model;
@@ -720,7 +737,7 @@ public class TopController {
 		CaptchaUtility captcha = new CaptchaUtility();
 		captcha.generateCaptcha(request,response);
 		model.setViewName("login");
-		LOG.info("Captcha generated successfully");
+		LOG.error("Captcha generated successfully");
 		return model;
 	}
 
@@ -741,7 +758,7 @@ public class TopController {
 			sys_sec = TimeUtility.generateSysSecondsMethod();
 			session = request.getSession();
 			if (!session.isNew()) {
-				LOG.info("New session created");
+				LOG.error("New session created");
 			} else {
 				model = new ModelAndView();
 				LoginHandler handler = new LoginHandler(); 
@@ -857,7 +874,7 @@ public class TopController {
 											session.setAttribute("FLAG", flag);
 											session.setAttribute("USERNAME", userName);
 											request.getSession().setAttribute("Government", fName);	
-											model.setViewName("governmenthome");
+											model.setViewName("government");
 										}
 									}
 									else{
@@ -1640,6 +1657,8 @@ public class TopController {
 				else
 				{
 					boolean res=(Boolean)handler.updaterequestHandler(usrname);
+					LoginHandler lg = new LoginHandler();
+					lg.updateLockedFlag(usrname, 0);
 					if(res)
 						model.addObject("unlock_msg",handler.requestHandler(usrname));
 					else
@@ -1873,7 +1892,8 @@ public class TopController {
 							status = authorize.checkAccountNumber(destinationAccountNumber);
 							if(status){
 								destinationAmount = authorize.getDestinationBalance(destinationAccountNumber);
-								//authorize.approveTransaction(requestType,balance + destinationAmount, authRequests);
+								authorize.approveTransaction(requestType,balance + destinationAmount, authRequests);
+								model.addObject("success", "The approval of critical transaction/s is successfully done");
 							}
 							else{
 								model.addObject("destinationerror","Destination account does not exist. Please delete the transaction");
@@ -1892,6 +1912,7 @@ public class TopController {
 							if(status){
 								sourceAmount = authorize.getSourceBalance(sourceAccountNumber);
 								authorize.rejectTransaction(requestType,balance + sourceAmount, authRequests);
+								model.addObject("success", "The rejection of critical transaction/s is successfully done");
 							}
 							else{
 								model.addObject("destinationerror","Destination account does not exist. Please delete the transaction");
@@ -1986,7 +2007,8 @@ public class TopController {
 							status = authorize.checkAccountNumber(destinationAccountNumber);
 							if(status){
 								destinationAmount = authorize.getDestinationBalance(destinationAccountNumber);
-								//authorize.approveTransaction(requestType,balance + destinationAmount, authRequests);
+								authorize.approveTransaction(requestType,balance + destinationAmount, authRequests);
+								model.addObject("success", "The approval of normal transaction/s is successfully done");
 							}
 							else{
 								model.addObject("destinationerror","Destination account does not exist. Please delete the transaction");
@@ -2005,6 +2027,7 @@ public class TopController {
 							if(status){
 								sourceAmount = authorize.getSourceBalance(sourceAccountNumber);
 								authorize.rejectTransaction(requestType,balance + sourceAmount, authRequests);
+								model.addObject("success", "The rejection of normal transaction/s is successfully done");
 							}
 							else{
 								model.addObject("destinationerror","Destination account does not exist. Please delete the transaction");
@@ -2093,7 +2116,6 @@ public class TopController {
 					authRequests = request.getParameterValues("check");
 					requestType = request.getParameter("Type");
 					if(authRequests!=null){
-						//balance = authorize.getBalance(authRequests);
 						if(requestType.equals("Modify")){
 
 							if(authRequests.length > 1)
@@ -2116,6 +2138,7 @@ public class TopController {
 										else{
 											authorize.approveModifySourceTransaction(newAmount,"approvedmodify",sourceAmount - difference,authRequests);
 											authorize.approveModifyTransaction(newAmount,"approvedmodify",newAmount + amount,authRequests);
+											model.addObject("success", "The modifcation of normal transaction/s is successfully done");
 										}
 									}
 									else{
@@ -2128,6 +2151,7 @@ public class TopController {
 							}
 						}
 						else if(requestType.equals("Delete")){
+							balance = authorize.getBalance(authRequests);
 							if(authRequests.length > 1)
 								sourceFlag  = authorize.checkSameSource(authRequests);
 							if(sourceFlag){
@@ -2137,6 +2161,7 @@ public class TopController {
 									sourceAmount = authorize.getSourceBalance(sourceAccountNumber);
 									authorize.rejectTransaction("approveddelete",balance + sourceAmount, authRequests);
 									authorize.deleteTransaction(authRequests);
+									model.addObject("success", "The deletion of normal transaction/s is successfully done");
 								}
 								else{
 									model.addObject("destinationerror","Destination account does not exist. Please delete the transaction");

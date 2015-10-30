@@ -27,9 +27,9 @@
 </noscript>
 <div style="text-align: center">
 		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
-	</div>
-	<div style="text-align: center">
+	
 	<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
+	<h2 align="center">View Requests</h2>
 	</div>
 	<div>
 		<c:if test="${not empty norequests}">

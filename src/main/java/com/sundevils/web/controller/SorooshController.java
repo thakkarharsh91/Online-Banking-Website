@@ -279,7 +279,7 @@ public class SorooshController {
 		}
 		model.addObject("message", "Payment successfully submitted");
 		model.setViewName("Merchant.Organization/Confirm.Payment.Action");
-		LOGGER.info(username + "'s payment request successfully submitted");
+		LOGGER.error(username + "'s payment request successfully submitted");
 
 		return model;
 	}
@@ -410,7 +410,7 @@ public class SorooshController {
 				session.removeAttribute("payment");
 				model.addObject("message", "Payment successfully submitted");
 				model.setViewName("Individual.Customers/Confirm.Payment.Action");
-				LOGGER.info(username + "'s payment successfully submitted");
+				LOGGER.error(username + "'s payment successfully submitted");
 			}
 			else{
 				model.addObject("errors", errors);
@@ -422,14 +422,14 @@ public class SorooshController {
 			session.removeAttribute("payment");
 			model.addObject("message", "Payment successfully cancelled");
 			model.setViewName("Individual.Customers/Confirm.Payment.Action");
-			LOGGER.info(username + "'s payment request successfully cancelled");
+			LOGGER.error(username + "'s payment request successfully cancelled");
 
 		}
 		else{
 			errors.add("Unknown input - payment cancelled");
 			session.removeAttribute("payment");
 			model.setViewName("Individual.Customers/Confirm.Payment.Action");
-			LOGGER.info(username + "'s payment request successfully cancelled");
+			LOGGER.error(username + "'s payment request successfully cancelled");
 		}
 
 		return model; 
@@ -750,7 +750,7 @@ public class SorooshController {
 				model.setViewName("Merchant.Organization/Confirm.Payment.Action");
 				model.addObject("message", "You will receive " + payment.getAmount() + " into your account " + 
 						accountNumber + "(upon bank approval)");
-				LOGGER.info(username + "'s payment decision submitted to bank for approval");
+				LOGGER.error(username + "'s payment decision submitted to bank for approval");
 			}
 			else{
 				model.addObject("errors", errors);
@@ -804,7 +804,7 @@ public class SorooshController {
 				model.setViewName("Merchant.Organization/Confirm.Payment.Action");
 				model.addObject("message", "You accepted to pay " + payment.getAmount() + " to " + 
 						payment.getUsername());
-				LOGGER.info(username + "'s payment decision was submitted to bank for approval");
+				LOGGER.error(username + "'s payment decision was submitted to bank for approval");
 			}
 			else{
 				model.addObject("errors", errors);
@@ -858,7 +858,7 @@ public class SorooshController {
 				model.setViewName("Individual.Customers/Confirm.Payment.Action");
 				model.addObject("message", "You accepted to pay " + payment.getAmount() + " to " + 
 						payment.getDestinationAccountNumber());
-				LOGGER.info(username + "'s payment decision is submitted to bank for approval");
+				LOGGER.error(username + "'s payment decision is submitted to bank for approval");
 			}
 			else{
 				model.addObject("errors", errors);

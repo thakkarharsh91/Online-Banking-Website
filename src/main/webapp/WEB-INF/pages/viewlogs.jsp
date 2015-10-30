@@ -28,8 +28,7 @@
 	</noscript>
 <div style="text-align: center">
 		<a href="${pageContext.servletContext.contextPath}/Home">Home</a>
-	</div>
-	<div style="text-align: center">
+	
 		<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a>
 	</div>
 	<form method="POST"

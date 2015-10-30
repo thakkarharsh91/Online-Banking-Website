@@ -85,10 +85,10 @@
 						<td>Mobile Number:</td>
 						<td><c:out value="${user.phonenumber}" /></td>
 					</tr>
-					<tr>
+					<%-- <tr>
 						<td>Document</td>
 						<td><a href="DownloadDocuments">${file1}</a></td>
-					</tr>
+					</tr> --%>
 				</c:forEach>
 			</table>
 			<button name="approve" type="submit"

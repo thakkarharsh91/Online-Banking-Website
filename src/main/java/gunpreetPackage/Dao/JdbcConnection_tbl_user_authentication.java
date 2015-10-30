@@ -318,8 +318,8 @@ public class JdbcConnection_tbl_user_authentication
 					+ "'"+ phonenumber +"',"
 					+ "'"+ dateofbirth +"',"
 					+ "'"+ " " +"'," //businesslicence
-					+ "'"+ "" +"'," //status
-					+ "'"+ email +"')");    			
+					+ "'"+ email +"'," 
+					+ "'"+ "" +"')");   //status 			
 			preparedStatement.executeUpdate();			
 		}
 		catch (Exception e) 

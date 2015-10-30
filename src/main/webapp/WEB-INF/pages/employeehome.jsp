@@ -29,21 +29,17 @@
 					<td><a href="${pageContext.servletContext.contextPath}/transact?${_csrf.parameterName}=${_csrf.token}">Create Transaction</a></td>
 				</tr>
 				<tr>
-					<td><a href="${pageContext.servletContext.contextPath}/approvetransaction?${_csrf.parameterName}=${_csrf.token}">Approve Transaction</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/approvetransaction?${_csrf.parameterName}=${_csrf.token}">Approve/Reject Transaction</a></td>
 				</tr>
 				<tr>
 					<td><a href="${pageContext.servletContext.contextPath}/moddeltransaction?${_csrf.parameterName}=${_csrf.token}">Modify/Delete
 							Transaction</a></td>
 				</tr>
 				<tr>
-					<td><a href="./modifyUs?${_csrf.parameterName}=${_csrf.token}">Search User</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/modifyUs?${_csrf.parameterName}=${_csrf.token}">Search User</a></td>
 				</tr>
 					<tr>
-					<td><a href="${pageContext.servletContext.contextPath}/viewaccount?${_csrf.parameterName}=${_csrf.token}">View External user</a></td>
-				</tr>
-				<tr>
-					<td><a href="${pageContext.servletContext.contextPath}/reset?${_csrf.parameterName}=${_csrf.token}">Change
-							Password</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/AccountView?${_csrf.parameterName}=${_csrf.token}">View External user</a></td>
 				</tr>
 				<tr>
 					<td><a

@@ -177,7 +177,7 @@ public class MySQLAccess {
 
 			}
 			resultSet.close();
-			LOG.info("Read Account type of user ");
+			LOG.error("Read Account type of user ");
 
 
 		} catch (Exception e) {
@@ -207,7 +207,7 @@ public class MySQLAccess {
 				preparedStatement.setString(8, "Checking Account");
 				preparedStatement.setString(9, accountnumber);
 				preparedStatement.executeUpdate();
-				LOG.info("Request Successfully inserted into database");
+				LOG.error("Request Successfully inserted into database");
 			}
 
 
@@ -224,7 +224,7 @@ public class MySQLAccess {
 				preparedStatement.setString(8, "Saving Account");
 				preparedStatement.setString(9,accountnumber);
 				preparedStatement.executeUpdate();
-				LOG.info("Request Successfully inserted into database");
+				LOG.error("Request Successfully inserted into database");
 			}
 
 
@@ -247,7 +247,7 @@ public class MySQLAccess {
 				preparedStatement.setString(1, userName);  
 				ResultSet resultSet = preparedStatement.executeQuery();
 				ArrayList<ModifyUser> users = writeResultSetModify (resultSet);
-				LOG.info("Returned Users Successfully");
+				LOG.error("Returned Users Successfully");
 				return users;
 			}
 			else if (parameterType.equals("Name")){
@@ -257,7 +257,7 @@ public class MySQLAccess {
 				preparedStatement.setString(1, userName);  
 				ResultSet resultSet = preparedStatement.executeQuery();
 				ArrayList<ModifyUser> users = writeResultSetModify (resultSet);
-				LOG.info("Returned Users Successfully");
+				LOG.error("Returned Users Successfully");
 				return users;
 			}
 			else
@@ -268,7 +268,7 @@ public class MySQLAccess {
 				preparedStatement.setString(1, userName); 
 				ResultSet resultSet = preparedStatement.executeQuery();
 				ArrayList<ModifyUser> users = writeResultSetModify (resultSet);
-				LOG.info("Returned Users Successfully");
+				LOG.error("Returned Users Successfully");
 				return users;
 
 			}
@@ -291,7 +291,7 @@ public class MySQLAccess {
 				preparedStatement.setString(1, userName);  
 				ResultSet resultSet = preparedStatement.executeQuery();
 				ArrayList<ModifyUser> users = writeResultSetModify (resultSet);
-				LOG.info("Returned Users Successfully");
+				LOG.error("Returned Users Successfully");
 				return users;
 			}
 			else if (parameterType.equals("Name")){
@@ -301,7 +301,7 @@ public class MySQLAccess {
 				preparedStatement.setString(1, userName);  
 				ResultSet resultSet = preparedStatement.executeQuery();
 				ArrayList<ModifyUser> users = writeResultSetModify (resultSet);
-				LOG.info("Returned Users Successfully");
+				LOG.error("Returned Users Successfully");
 				return users;
 			}
 			else
@@ -312,7 +312,7 @@ public class MySQLAccess {
 				preparedStatement.setString(1, userName); 
 				ResultSet resultSet = preparedStatement.executeQuery();
 				ArrayList<ModifyUser> users = writeResultSetModify (resultSet);
-				LOG.info("Returned Users Successfully");
+				LOG.error("Returned Users Successfully");
 				return users;
 
 			}
@@ -333,7 +333,7 @@ public class MySQLAccess {
 
 			ResultSet resultSet = preparedStatement.executeQuery();
 			ArrayList<Request> users = writeResultSetRequests (resultSet);
-			LOG.info("request view success");
+			LOG.error("request view success");
 			return users;
 
 		} catch (Exception e) {
@@ -366,7 +366,7 @@ public class MySQLAccess {
 			preparedStatement.setInt(1, count);
 			preparedStatement.setString(2, User);
 			preparedStatement.executeUpdate();
-			LOG.info("Requests updated successfully");
+			LOG.error("Requests updated successfully");
 		}
 		catch(Exception e){
 			LOG.error("Issue while updating the requests count of managers"+e.getMessage());
@@ -401,7 +401,7 @@ public class MySQLAccess {
 			preparedStatement.setString(4, userNameTo);
 			preparedStatement.setString(5, date);
 			preparedStatement.executeUpdate();
-			LOG.info("Reqeust information updated successfully");
+			LOG.error("Reqeust information updated successfully");
 		} catch(Exception e){
 			LOG.error("Issue while inserting the transaction request information "+e.getMessage());
 			throw e;
@@ -465,7 +465,7 @@ public class MySQLAccess {
 
 			preparedStatement.setString(2, requestid);
 			preparedStatement.executeUpdate();
-			LOG.info("Request information updated successfully");
+			LOG.error("Request information updated successfully");
 		}
 		catch(Exception e){
 			LOG.error("Issue while updating the request information "+e.getMessage());
@@ -563,7 +563,7 @@ public class MySQLAccess {
 				preparedStatement = connect.prepareStatement("DELETE FROM software_security.tbl_transaction_requests WHERE requestid=?");
 				preparedStatement.setString(1, deleteRequests[i]);
 				preparedStatement.executeUpdate();
-				LOG.info("Transaction request deleted successfully");
+				LOG.error("Transaction request deleted successfully");
 			}
 
 		} catch (Exception e) {
@@ -618,10 +618,9 @@ public class MySQLAccess {
 
 	public ResultSet authTransaction(String status,int critical,String payment) throws Exception {
 		try {						
-			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_transactions where tbl_transactions.status=? and tbl_transactions.newamount >= ? and tbl_transactions.transfertype <> ?");
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_transactions where tbl_transactions.status=? and tbl_transactions.newamount >= ?");
 			preparedStatement.setString(1, status);
 			preparedStatement.setInt(2, critical);
-			preparedStatement.setString(3, payment);
 			ResultSet resultSet = preparedStatement.executeQuery();
 			return resultSet;
 
@@ -633,10 +632,9 @@ public class MySQLAccess {
 
 	public ResultSet modifyDeleteTransaction(String modifyStatus,String payment,int critical) throws Exception {
 		try {						
-			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_transactions where tbl_transactions.status=? AND tbl_transactions.transfertype <> ? AND tbl_transactions.newamount < ?");
+			preparedStatement = connect.prepareStatement("SELECT * FROM software_security.tbl_transactions where tbl_transactions.status=? AND tbl_transactions.newamount < ?");
 			preparedStatement.setString(1, modifyStatus);
-			preparedStatement.setString(2, payment);
-			preparedStatement.setInt(3, critical);
+			preparedStatement.setInt(2, critical);
 			ResultSet resultSet = preparedStatement.executeQuery();
 			return resultSet;
 
@@ -684,7 +682,7 @@ public class MySQLAccess {
 				preparedStatement = connect.prepareStatement("DELETE from software_security.tbl_transactions WHERE transactionid=?");
 				preparedStatement.setString(1, rID[i]);
 				preparedStatement.executeUpdate();
-				LOG.info("Transaction successfully deleted");
+				LOG.error("Transaction successfully deleted");
 			}
 
 		} catch (Exception e) {
@@ -701,7 +699,7 @@ public class MySQLAccess {
 				preparedStatement.setString(1, status);
 				preparedStatement.setString(2, rID[i]);
 				preparedStatement.executeUpdate();
-				LOG.info("Transaction status successfully modified");
+				LOG.error("Transaction status successfully modified");
 			}
 
 		} catch (Exception e) {
@@ -718,7 +716,7 @@ public class MySQLAccess {
 				preparedStatement.setString(1, rStatus);
 				preparedStatement.setString(2, rID[i]);
 				preparedStatement.executeUpdate();
-				LOG.info("Transaction request status successfully modified");
+				LOG.error("Transaction request status successfully modified");
 			}
 
 		} catch (Exception e) {
@@ -967,7 +965,7 @@ public class MySQLAccess {
 				preparedStatement.setString(1, rStatus);
 				preparedStatement.setString(2, rID[i]);
 				preparedStatement.executeUpdate();
-				LOG.info("Transaction status successfully updated");
+				LOG.error("Transaction status successfully updated");
 			}
 
 		} catch (Exception e) {
@@ -1008,7 +1006,7 @@ public class MySQLAccess {
 			preparedStatement = connect.prepareStatement("UPDATE software_security.tbl_transaction_requests SET requeststatus='Approved' WHERE `requestid`='6';");
 			preparedStatement.setString(1, User); 
 			ResultSet resultSet = preparedStatement.executeQuery();
-			LOG.info("Transaction requests successfully updated");
+			LOG.error("Transaction requests successfully updated");
 			return resultSet;
 
 		} catch (Exception e) {
@@ -1091,7 +1089,7 @@ public class MySQLAccess {
 						new String(phonenumber), new String(state),new String(zip),new String(passport), 
 						new String(businessLicense)));
 			}
-			LOG.info("read User successfully");
+			LOG.error("read User successfully");
 
 		}
 		catch(Exception e){
@@ -1170,7 +1168,7 @@ public class MySQLAccess {
 				preparedStatement.setString(8, parameter);
 				preparedStatement.executeUpdate();}
 
-			LOG.info("inserted request  successfully");			
+			LOG.error("inserted request  successfully");			
 		} 
 		catch (Exception e){
 			LOG.error("read User successfully"+e.getMessage());
@@ -1223,7 +1221,7 @@ public class MySQLAccess {
 		preparedStatement.setString (3,columnname);
 		preparedStatement.setString(4, newvalue);
 		preparedStatement.executeUpdate();
-		LOG.info("decline request successfully");
+		LOG.error("decline request successfully");
 		}
 		catch(Exception e)
 		{
@@ -1245,7 +1243,7 @@ public class MySQLAccess {
 			ResultSet rs= preparedStatement.executeQuery();
 			if(rs.next())
 			{
-				LOG.info("In delete user details");
+				LOG.error("In delete user details");
 			}
 			else{
 				preparedStatement = connect
@@ -1263,7 +1261,7 @@ public class MySQLAccess {
 				preparedStatement2.executeUpdate();
 
 			}
-			LOG.info("Deleted User");}
+			LOG.error("Deleted User");}
 		catch(Exception e){
 			LOG.error("Delete not successful"+e.getMessage());
 		}
@@ -1587,7 +1585,7 @@ preparedStatement1.executeUpdate();
 					preparedStatement3.setString(7, tmppwd);
 					preparedStatement3.setString(8, pub);
 					preparedStatement3.setString(9, pri);
-					preparedStatement3.setString(10, "0");
+					preparedStatement3.setString(10, "1");
 					preparedStatement3.executeUpdate();
 
 					//Insert into USER details table

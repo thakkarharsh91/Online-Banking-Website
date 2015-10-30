@@ -38,14 +38,14 @@
 			<div class="msg">${Successful}</div>
 		</c:if>
 	</div>
-	<h2 align="justify">Request for New Card</h2>
 	<form method='POST' action="${pageContext.servletContext.contextPath}/replaceCard/?${_csrf.parameterName}=${_csrf.token}" method="post">
 		<table width="400" border="0" align = "center">
 			<tbody>
 				<tr>
-					<td><a href="${pageContext.servletContext.contextPath}/home">Home</a></td>
-					<td><a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></td>
+					<td><a href="${pageContext.servletContext.contextPath}/home">Home</a>
+					<a href="${pageContext.servletContext.contextPath}/logoutusers">Logout</a></td>
 				</tr>
+				<tr><td><h2 align="justify">Request for New Card</h2></td></tr>
 				<tr>
 					<td>Select the bank account:</td>
 					<td><select name="accountNumber">

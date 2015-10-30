@@ -84,7 +84,8 @@ public class ModifyUser  {
 	}
 
 	public void setPassport(String passport) {
-		this.passport = passport;
+		if(passport==null) this.passport ="";
+		else this.passport = passport;
 	}
 	public String getZip() {
 		return zip;

@@ -49,7 +49,7 @@
 	<nav id="navigation">
 		<div class="container">
 			<ul class="navlinks">
-				<li><a href="./">Home</a></li>
+				<li><a href="${pageContext.servletContext.contextPath}/">Home</a></li>
 				<li><a href="${pageContext.servletContext.contextPath}/aboutus">About Us</a></li>
 				<li><a href="${pageContext.servletContext.contextPath}/projects">Projects</a></li>
 				<li><a href="${pageContext.servletContext.contextPath}/team">The Team</a></li>
